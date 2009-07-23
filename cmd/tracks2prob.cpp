@@ -22,6 +22,9 @@
     31-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * various optimisations to improve performance
 
+    28-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix -datatype option (bug reported by Robert Smith)
+
 */
 
 #include <fstream>
@@ -51,9 +54,18 @@ ARGUMENTS = {
 };
 
 
+const gchar* data_type_choices[] = { "FLOAT32", "FLOAT32LE", "FLOAT32BE", "FLOAT64", "FLOAT64LE", "FLOAT64BE", 
+    "INT32", "UINT32", "INT32LE", "UINT32LE", "INT32BE", "UINT32BE", 
+    "INT16", "UINT16", "INT16LE", "UINT16LE", "INT16BE", "UINT16BE", 
+    "CFLOAT32", "CFLOAT32LE", "CFLOAT32BE", "CFLOAT64", "CFLOAT64LE", "CFLOAT64BE", 
+    "INT8", "UINT8", "BIT", NULL };
 
 OPTIONS = {
   Option ("count", "output fibre count", "produce an image of the fibre count through each voxel, rather than the fraction."),
+
+  Option ("datatype", "data type", "specify output image data type.")
+    .append (Argument ("spec", "specifier", "the data type specifier.").type_choice (data_type_choices)),
+
   Option::End
 };
 
@@ -62,18 +74,20 @@ OPTIONS = {
 
 
 EXECUTE {
-  bool fibre_count = get_options(0).size();
 
   Image::Object& template_image (*argument[1].get_image());
   Image::Header header (template_image.header());
 
+  bool fibre_count = get_options(0).size(); // count
 
+  std::vector<OptBase> opt = get_options (1); // datatype
+  if (opt.size()) header.data_type.parse (data_type_choices[opt[0][0].get_int()]);
+  else header.data_type = fibre_count ? DataType::UInt32 : DataType::Float32;
 
   Tractography::Properties properties;
   Tractography::Reader file;
   file.open (argument[0].get_string(), properties);
 
-  header.data_type = fibre_count ? DataType::UInt32 : DataType::Float32;
   header.axes.set_ndim (3);
   header.comments.push_back (String ("track ") + (fibre_count ? "count" : "fraction") + " map");
   for (Tractography::Properties::iterator i = properties.begin(); i != properties.end(); ++i) 

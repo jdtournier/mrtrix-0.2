@@ -1,0 +1,311 @@
+=======================================================================
+VERSION 0.2.6
+=======================================================================
+
+21-03-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/streamtrack.cpp: fix minor bug that caused tracking to hang on 64-bit machines
+
+18-03-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/dwi/tractography/tracker/base.h: 
+    * src/dwi/tractography/tracker/base.cpp: 
+      fix serious bug that caused the tracking to be incorrect with obliquely aligned data sets
+
+17-03-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/element.h:
+    * lib/file/dicom/element.cpp:
+      modify to allow use of either TR1 unordered map or SGI hash_map for the DICOM dictionary
+
+    * lib/hash_map.h: Use the C++ TR1 unordered_map instead of hash_map by default
+      This avoids compilation warnings on newer compilers. The old SGI hash_map can be used by removing 
+      the USE_TR1 macro on the command-line (i.e. remove the '-DUSE_TR1' entry in the cpp_flags 
+      line of the relevant sysconf file).
+
+    * lib/image/header.cpp: additional sanity checks in sanitise_transform(): 
+      - make sure voxel sizes are finite numbers
+      - make sure all entries in the transform matrix are finite.
+      use sane defaults otherwise.
+
+19-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/mapper.cpp: handle cases where the data size is greater than expected, 
+      and interpret as multi-channel data.
+
+    * lib/file/dicom/quick_scan.h: 
+    * lib/file/dicom/quick_scan.cpp: 
+    * lib/file/dicom/tree.cpp: various sanity checks to ignore non-image DICOM files
+
+18-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/image/format/dicom.cpp: handle cases where no series have been selected
+
+    * lib/file/dicom/element.cpp: printout of DICOM group & element is now in hexadecimal
+
+    * lib/file/dicom/select_cmdline.cpp: change numbering of series to handle cases where the series number is not set
+
+    * src/mrview/image.cpp: fix random crashes in MRView when the "View->snap to image axes" option is unticked.
+
+    * src/dwi/SH.cpp: modify precomputation to allow thread-safe operation
+
+    * src/dwi/tractography/tracker/dt_stream.h:
+    * src/dwi/tractography/tracker/dt_stream.cpp: modify eigenvector computation to allow thread-safe operation
+    
+    * cmd/streamtrack.cpp: added multithreading capability
+    
+17-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/mrstats.cpp: new command to compute voxelwise statistics
+
+    * cmd/tensor_metrics.cpp: new command to compute various tensor-derived metrics
+
+    * src/dwi/tensor.h: minor changes to tidy up the code
+
+15-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/tractography/track_list_item.h:
+    * src/mrview/sidebar/tractography/track_list_item.cpp:
+    * src/mrview/sidebar/tractography/track_list.h:
+    * src/mrview/sidebar/tractography/track_list.cpp:
+      a few bug fixes + memory performance improvements for the depth blend option
+    
+12-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/screen_capture.h:
+    * src/mrview/sidebar/screen_capture.cpp:
+      new sidebar tool for taking screenshots in MRView
+
+01-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/orientation_plot.cpp: fix problems with invalid focus position when the tool is first initialised.
+
+31-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/mrtrix.h: include <cstring> & <cstdlib> to allow compilation on Fedora 9
+
+    * cmd/sdeconv.cpp: 
+    * cmd/csdeconv.cpp: 
+      use MR::Ptr instead of std::auto_ptr
+
+    * cmd/mrinfo.cpp: remove obsolete -dicom & -csa options
+
+    * lib/file/dicom/element.cpp: only attempt to read a "truncated format" DICOM file if the extension is ".dcm"
+
+    * lib/get_set.h:
+      - replace get::T and put::T() methods with template get<T>() & put<T>() methods
+      - add get/put template specialisations for bool, int8 and uint8
+      - remove obsolete ArrayXX classes
+      - move MR::ByteOrder namespace & methods from lib/mrtrix.h to here
+
+    * lib/image/mapper.cpp: use template get<T>() & put<T>() methods from lib/get_set.h
+
+    * cmd/tracks2prob.cpp: various optimisations to improve performance
+
+    * lib/file/dicom/mapper.cpp: scale b-value by gradient magnitude and normalise gradient direction
+
+29-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/dwi/SH.cpp: fix precomputed value calculation to handle rounding errors in the angle
+
+    * cmd/streamtrack.cpp:
+    * src/dwi/tractography/tracker/base.h:
+    * src/dwi/tractography/tracker/base.cpp:
+      fix init_direction handling
+
+24-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/disp_profile.cpp: various improvements
+      - set lmax based on SH values provided
+      - set title based on row of SH coefficients currently displayed
+      - use shift modifier to scroll through 10 rows at a time
+      - add menu entry to normalise plot amplitude
+
+    * src/dwi/render_frame.h: add functions to normalise plot amplitude
+
+    * src/dwi/render_frame.cpp: scale plot by SH(0,0) coefficient when normalise option is set
+
+17-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * build: update script to allow use with separate projects
+
+    * lib/app.h: add SET_VERSION_DEFAULT, SET_VERSION, SET_AUTHOR and SET_COPYRIGHT macros
+
+    * lib/app.cpp: modify version information printed out by "-version" option
+      to take account of new command version, copyright and author variables
+    
+    * cmd/disp_profile.cpp: add option -response to display response function
+
+15-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/mrconvert.cpp: add -layout option to manipulate data ordering within the image file
+
+    * cmd/mrconvert.cpp: fix -prs option handling
+
+    * cmd/mrconvert.cpp:
+    * lib/file/dicom/mapper.h:
+    * lib/file/dicom/mapper.cpp:
+    * lib/image/format/dicom.cpp:
+    * src/dialog/file.cpp: 
+      remove MR::DICOM_DW_gradients_PRS flag
+
+03-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/find_SH_peaks.cpp: fix bug in looping structure to allow processing of whole data set.
+
+02-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/mrtrix.h: change Exception silencing to a priority level changing approach
+
+02-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/element.cpp: extra sanity check to make sure that each element fits within the file.
+
+01-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/image/object.cpp: sanitise axes prior to creating an image 
+
+    * lib/image/axis.h: added sanitise() method to correct inconsistent axes ordering
+
+23-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/csa_entry.h: fix handling of ascii floating-point numbers 
+      on locales that use a comma as the decimal separator.
+
+15-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/quickscan.cpp: 
+    * lib/file/dicom/tree.cpp:
+    * lib/file/dicom/patient.cpp:
+    * lib/file/dicom/study.cpp:
+      handle files even when any of the study, series or patient description fields are blank
+
+08-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/image.h,
+    * lib/file/dicom/image.cpp,
+    * lib/file/dicom/mapper.cpp: 
+      fix handling of mosaic slice ordering (using SliceNormalVector entry in CSA header)
+
+    * Doxyfile: version number upped to 0.2.6
+
+    * lib/mrtrix.h: MRTRIX_MICRO_VERSION upped to 6
+
+
+=======================================================================
+VERSION 0.2.5
+=======================================================================
+
+23-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/csa_entry.h: fix handling of ascii floating-point numbers on locales 
+      that use a comma as the decimal separator.
+
+03-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * doc: a number of updates
+    - new FAQ section
+    - document NIfTI format
+    - other minor updates
+
+02-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/image/format/mrtrix.cpp: add capacity to create temporary files for use through pipes
+
+    * lib/mrtrix.h: added is_temporary() method to identify temporary files
+
+    * lib/image/format/mri.cpp: remove temporary file creation capacity
+
+    * lib/image/object.cpp: update temporary file handling (i.e. those sent via pipes)
+    - switch to MRtrix format as the standard format for temporary files
+    - handle any type of image supplied through the standard input
+
+    * lib/file/mmap.h: tidied up class structure (MMap::Base is now private to MMap)
+
+    * src/dwi/tractography/tracker/base.h: handle rare cases where gen_seed() would fail
+
+    * lib/image/format/analyse.cpp: add support for reading NIfTI-1.1 hdr/img pairs
+
+29-08-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/image/object.cpp: in create(), finalise the byte order after the handler's check() method 
+      to allow different file formats to override the data type more easily.
+
+    * cmd/mrtransform.cpp: new command to re-orient or reslice images (needed
+      to apply transforms supplied by FSL's FLIRT command).
+
+27-08-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/image/format/nifti1.cpp: support for reading/writing NIfTI-1.1 *.nii files
+
+    * Doxyfile: version number upped to 0.2.5
+
+    * lib/mrtrix.h: MRTRIX_MICRO_VERSION upped to 5
+
+
+=======================================================================
+VERSION 0.2.4
+=======================================================================
+
+04-08-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * doc/install/unix.html: add documentation on compilation on 64-bit systems
+    
+28-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/dwi2tensor.cpp: fix option parsing to allow multiple ignoreslices and ignorestudies instances
+    
+24-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/orientation_plot.cpp: added support for overlay of orientation plot on main window
+
+22-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/mrtrix.h: fix va_list handing in printf()
+
+21-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/data_type.cpp: add definitions for all static const declarations 
+      to avoid linking errors.
+
+21-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * sysconf/linux.py: add '-fPIC' flag to compiler command
+
+18-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * build: handle 'command not found' cases and provide a more helpful error message
+
+15-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * improve support for 64 bit systems (thanks to Sebastian Jentschke for helping out):
+      - remove use of MR::Offset
+      - use gsize for most file operations
+      - use gssize where a signed quantity is required
+
+14-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/tractography/track_list_item.h: fixed Track::index() for use on 64 systems.
+      now uses gsize rather than guint in pointer arithmetic
+
+11-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/image/format/mri/cpp: fixed TMPFILE_ROOT_LEN - now set to 7
+
+09-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/orientation_plot.cpp: set color using config file
+
+    * Doxyfile: version number upped to 0.2.4
+
+    * lib/mrtrix.h: MRTRIX_MICRO_VERSION upped to 4
+
+
+=======================================================================
+VERSION 0.2.3
+=======================================================================
+
+09-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/mrtrix.h: added getline() method to handle Unix/DOS end-of-line
+
+    * cmd/import_tracks.cpp: new command to import tracks stored 
+      in ascii text files into MRtrix format for display in MRView
+
+08-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * doc: amend documentation to describe configuration files 
+
+    * src/mrview/sidebar/orientation_plot.cpp: add option to disable tri-linear interpolation
+
+    * src/mrview/sidebar/main.cpp: rename "diffusion profile" to "orientation plot"
+      also renamed src/mrview/sidebar/diffusion_profile.* accordingly
+
+    * lib/image/format/analyse.cpp: issue info statement about left-right encoding
+
+    * lib/file/config.h: fixed get_int() & get_float()
+      They were previously declared as returning bool
+
+    * lib/file/config.cpp: fixed get_int() & get_float()
+      They were previously defined as returning bool
+
+    * cmd/csdeconv.cpp: use NumberOfThreads entry in config file 
+      rather than NUMBER_OF_PROCESSORS environment variable
+
+07-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/disp_profile.cpp: remove use of Math::Matrix::transpose() 
+      to flip row vector (transpose expects square matrices)
+
+    * cmd/csdeconv.cpp: fix multithreading
+      - map SH_obj before launching threads
+      - set/test against boolean "done" for end of data
+
+04-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/quaternion.h: test for rounding errors in Quaternion::from_matrix().
+      In certain cases, a negative number was passed to sqrt()
+
+    * Doxyfile: version number upped to 0.2.3
+
+    * lib/mrtrix.h: MRTRIX_MICRO_VERSION upped to 3
+

@@ -18,6 +18,11 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+
+    01-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix minor bug that caused first point of first track to be omitted
+    * (reported by Tom Close).
+
 */
 
 #include <glibmm/stringutils.h>
@@ -172,6 +177,7 @@ namespace MR {
         out.seekp (0);
         out << "mrtrix tracks    ";
         out.seekp (data_offset);
+        write_next_point (Point (GSL_POSINF, GSL_POSINF, GSL_POSINF));
       }
 
 

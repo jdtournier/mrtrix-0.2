@@ -29,7 +29,6 @@ namespace MR {
 
     void normalise_grad (Math::Matrix &grad);
     void grad2bmatrix (Math::Matrix &bmat, const Math::Matrix &grad);
-    void dwi2tensor (Math::Matrix &binv, float *d);
     void guess_DW_directions (std::vector<int>& dwi, std::vector<int>& bzero, const Math::Matrix& grad);
     void gen_direction_matrix (Math::Matrix& dirs, const Math::Matrix& grad, const std::vector<int>& dwi);
 

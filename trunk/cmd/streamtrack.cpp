@@ -28,6 +28,9 @@
     21-03-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * fix minor bug that caused tracking to hang on 64-bit machines
 
+    26-06-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * added "maxnum" option to limit the number of tracks attempted
+
 */
 
 #include <glibmm/thread.h>
@@ -94,6 +97,9 @@ OPTIONS = {
   Option ("number", "number of tracks", "set the number of tracks to calculate (default is 100 for *_STREAM methods, 1000 for *_PROB methods).")
     .append (Argument ("tracks", "number of tracks", "the number of tracks.").type_integer (1, G_MAXINT, 1)),
 
+  Option ("maxnum", "maximum total number of tracks", "set the maximum total number of tracks to attempt (default is 100 x number).")
+    .append (Argument ("tracks", "maximum number of tracks", "the maximum number of tracks.").type_integer (1, G_MAXINT, 1)),
+
   Option ("length", "track length", "set the maximum length of any track.")
     .append (Argument ("value", "track distance", "the maximum length to use in mm (default is 200 mm).").type_float (1e-2, 1e6, 200.0)),
 
@@ -104,7 +110,7 @@ OPTIONS = {
     .append (Argument ("value", "value", "the cutoff to use.").type_float (0, 1e6, 0.1)),
 
   Option ("initcutoff", "intial cutoff threshold", "set the minimum FA or FOD amplitude for initiating tracks (default is twice the normal cutoff).")
-    .append (Argument ("value", "value", "the initial cutoff to use.").type_float (1e-6, 1e6, 0.1)),
+    .append (Argument ("value", "value", "the initial cutoff to use.").type_float (0, 1e6, 0.1)),
 
   Option ("trials", "number of trials", "set the maximum number of sampling trials at each point (only used for probabilistic tracking).")
     .append (Argument ("number", "number", "the number of trials.").type_integer(1, 10000, 50)),
@@ -158,6 +164,7 @@ class Threader {
       }
 
       max_num_tracks = to<int> (properties["max_num_tracks"]);
+      max_num_attempts = properties["max_num_attempts"].empty() ? 100 * max_num_attempts : to<int> (properties["max_num_attempts"]);
       unidirectional = to<int> (properties["unidirectional"]);
       min_size = round (to<float> (properties["min_dist"]) / to<float> (properties["step_size"]));
 
@@ -188,7 +195,7 @@ class Threader {
   protected:
     Math::Matrix binv;
     const Point init_dir;
-    guint max_num_tracks, min_size;
+    guint max_num_tracks, max_num_attempts, min_size;
     int  currently_running, num_threads;
     bool unidirectional;
     Glib::Cond data_ready;
@@ -244,7 +251,7 @@ class Threader {
     void execute (Tracker::Base* tracker) 
     {
       std::vector<Point>* tck = NULL;
-      while (writer.count < max_num_tracks) {
+      while (writer.count < max_num_tracks && ( max_num_attempts ? writer.total_count < max_num_attempts : true )) {
 
         tracker->new_seed (init_dir);
         Point seed_dir (tracker->direction());
@@ -325,26 +332,29 @@ EXECUTE {
   opt = get_options (7); // number
   if (opt.size()) properties["max_num_tracks"] = str (opt[0][0].get_int());
 
-  opt = get_options (8); // length
+  opt = get_options (8); // maxnum
+  if (opt.size()) properties["max_num_attempts"] = str (opt[0][0].get_int());
+
+  opt = get_options (9); // length
   if (opt.size()) properties["max_dist"] = str (opt[0][0].get_float());
 
-  opt = get_options (9); // min_length
+  opt = get_options (10); // min_length
   if (opt.size()) properties["min_dist"] = str (opt[0][0].get_float());
 
-  opt = get_options (10); // cutoff
+  opt = get_options (11); // cutoff
   if (opt.size()) properties["threshold"] = str (opt[0][0].get_float());
 
-  opt = get_options (11); // initcutoff
+  opt = get_options (12); // initcutoff
   if (opt.size()) properties["init_threshold"] = str (opt[0][0].get_float());
 
-  opt = get_options (12); // trials
+  opt = get_options (13); // trials
   if (opt.size()) properties["max_trials"] = str (opt[0][0].get_int());
 
-  opt = get_options (13); // unidirectional
+  opt = get_options (14); // unidirectional
   if (opt.size()) properties["unidirectional"] = "1";
 
   Point init_dir;
-  opt = get_options (14); // initdirection
+  opt = get_options (15); // initdirection
   if (opt.size()) {
     std::vector<float> V = parse_floats (opt[0][0].get_string());
     if (V.size() != 3) throw Exception (String ("invalid initial direction \"") + opt[0][0].get_string() + "\"");
@@ -355,7 +365,7 @@ EXECUTE {
     properties["init_direction"] = opt[0][0].get_string();
   }
 
-  opt = get_options (15); // noprecomputed
+  opt = get_options (16); // noprecomputed
   if (opt.size()) properties["sh_precomputed"] = "0";
 
   Glib::thread_init();

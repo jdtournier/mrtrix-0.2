@@ -9,22 +9,26 @@
 
 <table class=nav>
 <tr>
-<td><a href="mrtransform.html"><img src="../left.png"></a></td>
+<td><a href="mrview.html"><img src="../left.png"></a></td>
 <td><a href="index.html"><img src="../up.png"></a></td>
 <td><a href="../index.html"><img src="../home.png"></a></td>
-<th>mrview</th>
-<td><a href="normalise_tracks.html"><img src="../right.png"></a></td>
+<th>normalise_tracks</th>
+<td><a href="read_dicom.html"><img src="../right.png"></a></td>
 </tr>
 </table>
 <h2>Description</h2>
 <p>
-the MRtrix image viewer.
+apply a normalisation map to a tracks file.
 </p>
-<p class=indented><strong>syntax:</strong> &nbsp; &nbsp; mrview [ options ] [ image [ image ... ] </p>
+<p class=indented><strong>syntax:</strong> &nbsp; &nbsp; normalise_tracks [ options ] tracks transform output </p>
 <h2>Arguments</h2>
 <table class=args>
-<tr><td><b>image</b> [ optional, multiples allowed ]</td>
-<td>an image to be loaded.</td></tr>
+<tr><td><b>tracks</b></td>
+<td>the input track file.</td></tr>
+<tr><td><b>transform</b></td>
+<td>the image containing the transform.</td></tr>
+<tr><td><b>output</b></td>
+<td>the output fraction image</td></tr>
 </table>
 <h2>Options</h2>
 <table class=args>

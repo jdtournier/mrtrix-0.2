@@ -31,6 +31,10 @@
     31-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * use MR::Ptr instead of std::auto_ptr
 
+    19-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix incorrect setting of the threshold option - it was set 
+      to a value 100 times lower than specified (reported by Ben Jeurissen).
+
 */
 
 #include <glibmm/thread.h>
@@ -96,7 +100,7 @@ OPTIONS = {
   Option ("lambda", "lambda", "the regularisation parameter lambda that controls the strength of the constraint (default = 1.0).")
     .append (Argument ("value", "value", "the value of lambda to use.").type_float (1.0e-12, 1.0e12, 1.0)),
 
-  Option ("threshold", "amplitude threshold", "the threshold below which the amplitude of the FOD is assumed to be zero, expressed as a percentage of the mean value of the initial FOD (default = 0.1).")
+  Option ("threshold", "amplitude threshold", "the threshold below which the amplitude of the FOD is assumed to be zero, expressed as a fraction of the mean value of the initial FOD (default = 0.1).")
     .append (Argument ("value", "value", "the value of lambda to use.").type_float (-1.0, 2.0, 0.1)),
 
   Option ("niter", "maximum number of iterations", "the maximum number of iterations to perform for each voxel (default = 50).")
@@ -624,7 +628,6 @@ EXECUTE {
 
   DWI::SH::CSDeconv::Common sdeconv_common (response, filter, DW_dirs, HR_dirs, lmax);
   sdeconv_common.lambda = lambda;
-  sdeconv_common.threshold = threshold/100.0;
 
   Image::Object& SH_obj (*argument[2].get_image (header));
   SH_obj.map();

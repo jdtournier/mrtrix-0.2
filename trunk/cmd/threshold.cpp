@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+
+    18-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * reset scale & offset of output image to ensure proper binary output
+
 */
 
 #include "app.h"
@@ -88,6 +92,8 @@ EXECUTE {
     if (use_NaN) header.data_type = DataType::Float32;
     else header.data_type = DataType::Bit;
   }
+  header.offset = 0.0;
+  header.scale = 1.0;
 
   Image::Position out (*argument[1].get_image (header));
 

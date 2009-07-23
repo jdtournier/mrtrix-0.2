@@ -62,20 +62,6 @@ namespace MR {
 
 
 
-    void dwi2tensor (Math::Matrix &binv, float *d)
-    {
-      double logs[binv.columns()];
-
-      for (guint i = 0; i < binv.columns(); i++)
-        logs[i] = d[i] > 0.0 ? -log(d[i]) : 0.0;
-
-      for (guint i = 0; i < 6; i++) {
-        d[i] = 0.0;
-        for (guint j = 0; j < binv.columns(); j++)
-          d[i] += (float) (binv(i,j)*logs[j]);
-      }
-    }
-
 
 
     void guess_DW_directions (std::vector<int>& dwi, std::vector<int>& bzero, const Math::Matrix& grad)

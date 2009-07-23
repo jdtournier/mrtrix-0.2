@@ -22,6 +22,9 @@
     08-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * fix handling of mosaic slice ordering (using SliceNormalVector entry in CSA header)
 
+    10-06-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix handling of acquisition matrix when the rows & columns are interchanged.
+
 */
 
 #include <glibmm/miscutils.h>
@@ -57,8 +60,8 @@ namespace MR {
           case 0x0018U: 
             switch (item.element) {
               case 0x0050U: slice_thickness = item.get_float()[0]; return;
-              case 0x1310U: acq_dim[0] = item.get_uint()[0];
-                            acq_dim[1] = item.get_uint()[3];
+              case 0x1310U: acq_dim[0] = MAX (item.get_uint()[0], item.get_uint()[1]);
+                            acq_dim[1] = MAX (item.get_uint()[2], item.get_uint()[3]);
                             return;
               case 0x0024U: sequence_name = item.get_string()[0];
                             if (!sequence_name.size()) return;

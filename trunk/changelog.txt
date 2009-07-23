@@ -1,4 +1,35 @@
 =======================================================================
+VERSION 0.2.7
+=======================================================================
+
+26-06-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/streamtrack.cpp: added "maxnum" option to limit the number of tracks attempted
+
+10-06-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/image.cpp: fix handling of acquisition matrix when the rows & columns are interchanged.
+
+27-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/mrstats.cpp: added option to dump voxel intensities into a text file
+
+20-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/mrstats.cpp: added option to build intensity histogram
+
+19-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/csdeconv.cpp: fix incorrect setting of the threshold option - it was set 
+      to a value 100 times lower than specified (reported by Ben Jeurissen).
+
+18-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/threshold.cpp: reset scale & offset of output image to ensure proper binary output
+
+01-05-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/dwi/tractography/file.cpp: fix minor bug that caused first point of
+    first track to be omitted (reported by Tom Close).
+
+01-04-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/normalise_tracks.cpp: added command to apply normalisation transform to tracks.
+
+
+=======================================================================
 VERSION 0.2.6
 =======================================================================
 

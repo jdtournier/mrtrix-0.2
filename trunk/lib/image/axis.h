@@ -117,19 +117,21 @@ namespace MR {
 
     inline void Axes::sanitise ()
     {
-      int a;
-      for (a = 1; a < size_p; a++) {
+      // remove unset/invalid axes:
+      for (int a = 0; a < size_p; a++) 
+        if (axis[a] >= size_p) 
+          axis[a] = find_free_axis();
+
+      // remove duplicates:
+      for (int a = 1; a < size_p; a++) {
         for (int n = 0; n < a; n++) {
           if (axis[a] == axis[n]) { 
             axis[a] = find_free_axis();
-            break; 
+              break; 
           }
         }
-      }
-
-      while ((a = find_free_axis()) != Axis::undefined) 
-        for (int n = 0; n < size_p; n++) 
-          if (axis[n] > a) axis[n]--;
+      }   
+            
     }
 
 

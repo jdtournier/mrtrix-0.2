@@ -1,7 +1,7 @@
 /*
-    Copyright 2008 Brain Research Institute, Melbourne, Australia
+    Copyright 2009 Brain Research Institute, Melbourne, Australia
 
-    Written by J-Donald Tournier, 27/06/08.
+    Written by J-Donald Tournier, 13/08/09.
 
     This file is part of MRtrix.
 
@@ -17,10 +17,6 @@
 
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
-
-
-    31-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
-    * various optimisations to improve performance
 
 */
 
@@ -39,14 +35,15 @@ using namespace std;
 SET_VERSION_DEFAULT;
 
 DESCRIPTION = {
-  "apply a normalisation map to a tracks file.",
+  "sample image intensity values along the tracks, producing one intensity value per point along each track.",
+  "the track file should generally have been produced by resample_tracks to ensure even sampling.",
   NULL
 };
 
 ARGUMENTS = {
   Argument ("tracks", "track file", "the input track file.").type_file (),
-  Argument ("transform", "transform image", "the image containing the transform.").type_image_in(),
-  Argument ("output", "output file", "the output track file").type_file(),
+  Argument ("image", "sampled image", "the image to be sampled.").type_image_in(),
+  Argument ("output", "output file", "the output text file containing the intensity values").type_file(),
   Argument::End
 };
 
@@ -55,35 +52,30 @@ ARGUMENTS = {
 OPTIONS = { Option::End };
 
 
-
-
 EXECUTE {
   Tractography::Properties properties;
   Tractography::Reader file;
   file.open (argument[0].get_string(), properties);
 
-  Image::Object& tranform_image (*argument[1].get_image());
+  Image::Interp interp (*argument[1].get_image());
 
-  Tractography::Writer writer;
-  writer.create (argument[2].get_string(), properties);
+  std::ofstream out (argument[2].get_string());
 
   std::vector<Point> tck;
 
-  Image::Interp interp (tranform_image);
-  ProgressBar::init (0, "normalising tracks...");
+  ProgressBar::init (0, "sampling tracks...");
 
   while (file.next (tck)) {
     for (std::vector<Point>::iterator i = tck.begin(); i != tck.end(); ++i) {
       interp.R (*i);
-      interp.set(3,0); (*i)[0] = interp.value();
-      interp.set(3,1); (*i)[1] = interp.value();
-      interp.set(3,2); (*i)[2] = interp.value();
+      out << interp.value() << " ";
     }
-    writer.append (tck);
-    writer.total_count++;
+    out << "\n";
     ProgressBar::inc();
   }
-
   ProgressBar::done();
+  out.close();
 }
+
+
 

@@ -150,8 +150,7 @@ EXECUTE {
         d2 -= loc;
 
         float f = d2 / (d2-d1);
-        //tck_out.push_back (f*tck[i-1] + (1.0-f)*tck[i]);
-        tck_out.push_back (get_pos (f*tck[i-1] + (1.0-f)*tck[i], trans));
+        tck_out.push_back (f*tck[i-1] + (1.0-f)*tck[i]);
       }
         
       writer.append (tck_out);

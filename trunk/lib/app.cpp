@@ -397,8 +397,10 @@ namespace MR {
       text += opt->sname;
       for (guint n = 0; n < opt->size(); n++) { text += " "; text += (*opt)[n].sname; }
       print_formatted_paragraph (text, opt->desc, HELP_OPTION_INDENT);
-      for (guint n = 0; n < opt->size(); n++) 
-        print_formatted_paragraph ("", String ("\"") + (*opt)[n].sname + "\": " + (*opt)[n].desc, HELP_OPTION_INDENT);
+      for (guint n = 0; n < opt->size(); n++) {
+        fprintf (stderr, "\n");
+        print_formatted_paragraph ("", String ((*opt)[n].sname) + ": " + (*opt)[n].desc, HELP_OPTION_INDENT);
+      }
       fprintf (stderr, "\n");
     }
 

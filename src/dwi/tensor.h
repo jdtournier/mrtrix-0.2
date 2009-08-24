@@ -23,9 +23,9 @@
     * minor changes to tidy up the code
 
     24-08-2009 J-Donald Tournier <d.tournier@brain.org.au>
-    * use sqrt(1.5) instead of sqrt(3/2). This was rounded down to 1 since the
-    * compiler assumed integer arithmetic (thanks to Kerstin Pannek for
-    * pointing this out).
+    * use sqrt(1.5) instead of sqrt(3/2) when computing the FA. This was
+    * rounded down to 1 since the compiler assumed integer arithmetic (thanks
+    * to Kerstin Pannek for pointing this out).
 
 
 */

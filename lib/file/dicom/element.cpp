@@ -31,8 +31,12 @@
     17-03-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * modify to allow use of either TR1 unordered map or SGI hash_map for the DICOM dictionary
     
+    09-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * include <cstdio> to allow compilation on Fedora 11
+
 */
 
+#include <cstdio>
 #include <glibmm/stringutils.h>
 
 #include "file/dicom/element.h"

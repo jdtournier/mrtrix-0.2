@@ -1,3 +1,9 @@
+09-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/csa_entry.h:
+    * lib/file/dicom/element.cpp:
+      include <cstdio> to allow compilation on Fedora 11
+
+
 =======================================================================
 VERSION 0.2.7
 =======================================================================

@@ -22,10 +22,15 @@
     23-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * fix handling of ascii floating-point numbers on locales that use a comma as the decimal separator.
 
+    09-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * include <cstdio> to allow compilation on Fedora 11
+
 */
 
 #ifndef __file_dicom_csa_entry_h__
 #define __file_dicom_csa_entry_h__
+
+#include <cstdio>
 
 #include "data_type.h"
 #include "get_set.h"

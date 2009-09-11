@@ -25,6 +25,9 @@
     18-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * modify precomputation to allow thread-safe operation
     
+    11-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix bug in computation of second derivative of SH series.
+    
 */
 
 #include <gsl/gsl_sf_legendre.h>
@@ -422,7 +425,8 @@ namespace MR {
             dSH_del += SH[index(l,-m)] * tmp * saz;
 
             float tmp2 = - ( (l+m)*(l-m+1) + (l-m)*(l+m+1) ) * legendre[index_mpos(l,m)];
-            if (m == 1) tmp2 -= sqrt((float) (l+m)*(l-m+1)*(l+m-1)*(l-m+2)) * legendre[index_mpos(l,1)];
+            if (m == 1) tmp2 -= sqrt((float) gsl_pow_2((l+1)*l)) * legendre[index_mpos(l,1)];
+            else tmp2 += sqrt((float) (l+m)*(l-m+1)*(l+m-1)*(l-m+2)) * legendre[index_mpos(l,m-2)];
             if (l > m+1) tmp2 += sqrt((float) (l-m)*(l+m+1)*(l-m-1)*(l+m+2)) * legendre[index_mpos(l,m+2)];
             tmp2 /= 4.0;
             d2SH_del2 += SH[index(l,m)] * tmp2 * caz;

@@ -1,3 +1,6 @@
+11-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/dwi/SH.cpp: fix bug in computation of second derivative of SH series.
+    
 09-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * lib/file/dicom/csa_entry.h:
     * lib/file/dicom/element.cpp:

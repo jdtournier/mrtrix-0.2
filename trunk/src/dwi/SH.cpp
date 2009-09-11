@@ -26,7 +26,8 @@
     * modify precomputation to allow thread-safe operation
     
     11-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
-    * fix bug in computation of second derivative of SH series.
+    * fix bug in computation of second derivative of SH series (pointed out by
+    * Ben Jeurissen).
     
 */
 

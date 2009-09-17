@@ -1,3 +1,12 @@
+17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/dwi2tensor.cpp: improved support for images that might use a different dimension for the DWI
+
+17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/image.cpp: added preliminary support to read Philips DW information
+
+17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/app.cpp: fix bug in command-line parsing (fix supplied by Tom Close)
+    
 11-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * src/dwi/SH.cpp: fix bug in computation of second derivative of SH series (pointed out by Ben Jeurissen).
     

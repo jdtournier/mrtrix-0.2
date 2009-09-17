@@ -22,7 +22,10 @@
     17-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * modify version information printed out by "-version" option
       to take account of new command version, copyright and author variables
-
+    
+    17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix bug in command-line parsing (fix supplied by Tom Close)
+    
 */
 
 #include <glibmm/stringutils.h>

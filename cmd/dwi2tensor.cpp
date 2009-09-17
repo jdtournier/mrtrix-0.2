@@ -22,6 +22,9 @@
     28-07-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * fix option parsing to allow multiple ignoreslices and ignorestudies instances
     
+    17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * improved support for images that might use a different dimension for the DWI
+    
 */
 
 #include "app.h"
@@ -66,8 +69,11 @@ EXECUTE {
   Image::Object &dwi_obj (*argument[0].get_image());
   Image::Header header (dwi_obj);
 
-  if (header.ndim() != 4) 
-    throw Exception ("dwi image should contain 4 dimensions");
+  if (header.ndim() < 4) 
+    throw Exception ("dwi image should contain at least 4 dimensions");
+
+  int axis = 3;
+  while (header.dim(axis) <= 1 && axis < header.ndim()) axis++;
 
   Math::Matrix grad, bmat, binv;
 
@@ -84,8 +90,8 @@ EXECUTE {
 
   info ("found " + str(grad.rows()) + "x" + str(grad.columns()) + " diffusion-weighted encoding");
 
-  if (header.dim(3) != (int) grad.rows()) 
-    throw Exception ("number of studies in base image does not match that in encoding file");
+  if (header.dim(axis) != (int) grad.rows()) 
+    throw Exception ("number of volumes in base image does not match that in encoding file");
 
   DWI::normalise_grad (grad);
   DWI::grad2bmatrix (bmat, grad);
@@ -113,6 +119,7 @@ EXECUTE {
   }
 
 
+  header.axes.set_ndim (4);
   header.axes.dim[3] = 6;
   header.data_type = DataType::Float32;
   header.DW_scheme.reset();
@@ -124,7 +131,7 @@ EXECUTE {
 
   ProgressBar::init (dwi.dim(0)*dwi.dim(1)*dwi.dim(2), "converting DW images to tensor image..."); 
 
-  float d[dwi.dim(3)];
+  float d[dwi.dim(axis)];
   for (dwi.set(2,0), dt.set(2,0); dwi[2] < dwi.dim(2); dwi.inc(2), dt.inc(2)) {
 
     grad.copy (bmat);
@@ -140,13 +147,13 @@ EXECUTE {
 
     for (dwi.set(1,0), dt.set(1,0); dwi[1] < dwi.dim(1); dwi.inc(1), dt.inc(1)) {
       for (dwi.set(0,0), dt.set(0,0); dwi[0] < dwi.dim(0); dwi.inc(0), dt.inc(0)) {
-        for (dwi.set(3,0); dwi[3] < dwi.dim(3); dwi.inc(3)) {
-          d[dwi[3]] = dwi.value();
-          d[dwi[3]] = d[dwi[3]] > 0.0 ? -log (d[dwi[3]]) : 1e-12;
+        for (dwi.set(axis,0); dwi[axis] < dwi.dim(axis); dwi.inc(axis)) {
+          d[dwi[axis]] = dwi.value();
+          d[dwi[axis]] = d[dwi[axis]] > 0.0 ? -log (d[dwi[axis]]) : 1e-12;
         }
         for (dt.set(3,0); dt[3] < dt.dim(3); dt.inc(3)) {
           float val = 0.0;
-          for (int i = 0; i < dwi.dim(3); i++)
+          for (int i = 0; i < dwi.dim(axis); i++)
             val += (float) (binv(dt[3], i)*d[i]);
           dt.value (val);
         }

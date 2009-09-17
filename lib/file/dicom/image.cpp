@@ -25,6 +25,9 @@
     10-06-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * fix handling of acquisition matrix when the rows & columns are interchanged.
 
+    17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * added preliminary support to read Philips DW information
+
 */
 
 #include <glibmm/miscutils.h>
@@ -65,10 +68,17 @@ namespace MR {
                             return;
               case 0x0024U: sequence_name = item.get_string()[0];
                             if (!sequence_name.size()) return;
-                            int c = sequence_name.size()-1;
-                            while (c >= 0 && isdigit (sequence_name[c])) c--;
-                            c++;
-                            sequence = to<guint> (sequence_name.substr (c));
+                            { 
+                              int c = sequence_name.size()-1;
+                              while (c >= 0 && isdigit (sequence_name[c])) c--;
+                              c++;
+                              sequence = to<guint> (sequence_name.substr (c));
+                            }
+                            return;
+              case 0x9087U: bvalue = item.get_float()[0]; return;
+              case 0x9089U: G[0] = item.get_float()[0];
+                            G[1] = item.get_float()[1];
+                            G[2] = item.get_float()[2];
                             return;
             }
             return;
@@ -103,12 +113,22 @@ namespace MR {
               case 0x1053U: scale_slope = item.get_float()[0]; return;
             }
             return;
-          case 0x0029U:
+          case 0x0029U: // Siemens CSA entry
             if (item.element == 0x1010U || item.element == 0x1020U) {
               decode_csa (item.data, item.data + item.size);
               return;
             }
             else return;
+          case 0x2001U: // Philips DW encoding info: 
+            if (item.element == 0x1003) bvalue = item.get_float()[0];
+            return;
+          case 0x2005U: // Philips DW encoding info: 
+            switch (item.element) {
+              case 0x10B0U: G[0] = item.get_float()[0]; return;
+              case 0x10B1U: G[1] = item.get_float()[0]; return;
+              case 0x10B2U: G[2] = item.get_float()[0]; return;
+            }
+            return;
           case 0x7FE0U: 
             if (item.element == 0x0010U) {
               data = item.offset (item.data);

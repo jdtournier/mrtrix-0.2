@@ -31,6 +31,9 @@
     01-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * fix problems with invalid focus position when the tool is first initialised.
 
+    22-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * add config option to set background colour
+
 */
 
 #include "file/config.h"
@@ -129,10 +132,22 @@ namespace MR {
         if (string.size()) { 
           try {
             std::vector<float> V (parse_floats (string));
-            if (V.size() < 3) throw Exception ("invalid configuration key \"SurfacePlot.Color\" - ignored");
+            if (V.size() < 3) throw Exception ("invalid configuration key \"OrientationPlot.Color\" - ignored");
             render.color[0] = V[0];
             render.color[1] = V[1];
             render.color[2] = V[2];
+          }
+          catch (Exception) { }
+        }
+
+        string = File::Config::get ("OrientationPlot.BackgroundColor");
+        if (string.size()) { 
+          try {
+            std::vector<float> V (parse_floats (string));
+            if (V.size() < 3) throw Exception ("invalid configuration key \"OrientationPlot.BackgroundColor\" - ignored");
+            render.background[0] = V[0];
+            render.background[1] = V[1];
+            render.background[2] = V[2];
           }
           catch (Exception) { }
         }

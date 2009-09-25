@@ -22,6 +22,9 @@
     31-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * use MR::Ptr instead of std::auto_ptr
    
+    25-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix documentation of SH coefficient storage convention
+
 */
 
 #include "app.h"
@@ -43,13 +46,17 @@ DESCRIPTION = {
 
   "Note that the spherical harmonics equations used here differ slightly from those conventionally used, in that the (-1)^m factor has been omitted. This should be taken into account in all subsequent calculations.",
 
-  "Each study in the output image corresponds to a different spherical harmonic component. Each study will correspond to the following:\n"
-    "study 0: l = 0, m = 0\n"
-    "study 1: l = 2, m = 0\n"
-    "study 2: l = 2, m = 1, real part\n"
-    "study 3: l = 2, m = 1, imaginary part\n"
-    "study 4: l = 2, m = 2, real part\n"
-    "study 5: l = 2, m = 2, imaginary part\n"
+  "Each volume in the output image corresponds to a different spherical harmonic component, according to the following convention:\n"
+    "[0]     Y(0,0)\n"
+    "\n"
+    "[1] Im {Y(2,2)}\n"
+    "[2] Im {Y(2,1)}\n"
+    "[3]     Y(2,0)\n"
+    "[4] Re {Y(2,1)}\n"
+    "[5] Re {Y(2,2)}\n"
+    "\n"
+    "[6] Im {Y(4,4)}\n"
+    "[7] Im {Y(4,3)}\n"
     "etc...\n",
 
   NULL

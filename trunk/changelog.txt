@@ -1,3 +1,11 @@
+25-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/dwi2SH.cpp:
+    * cmd/csdeconv.cpp:
+    * cmd/sdeconv.cpp: fix documentation of SH coefficient storage convention
+
+22-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/orientation_plot.cpp: add config option to set background colour
+
 17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/dwi2tensor.cpp: improved support for images that might use a different dimension for the DWI
 

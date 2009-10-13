@@ -33,6 +33,7 @@
 
     13-10-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * clarified the meaning of command-line options "number" & "maxnum"
+    * fixed incorrect default setting of "maxnum" value
 
 */
 
@@ -167,7 +168,7 @@ class Threader {
       }
 
       max_num_tracks = to<int> (properties["max_num_tracks"]);
-      max_num_attempts = properties["max_num_attempts"].empty() ? 100 * max_num_attempts : to<int> (properties["max_num_attempts"]);
+      max_num_attempts = properties["max_num_attempts"].empty() ? 100 * max_num_tracks : to<int> (properties["max_num_attempts"]);
       unidirectional = to<int> (properties["unidirectional"]);
       min_size = round (to<float> (properties["min_dist"]) / to<float> (properties["step_size"]));
 

@@ -1,5 +1,7 @@
 13-10-2009 J-Donald Tournier <d.tournier@brain.org.au>
-    * cmd/streamtrack.cpp: clarified the meaning of command-line options "number" & "maxnum"
+    * cmd/streamtrack.cpp: 
+      clarified the meaning of command-line options "number" & "maxnum"
+      fixed incorrect default setting of "maxnum" value
 
 25-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/dwi2SH.cpp:

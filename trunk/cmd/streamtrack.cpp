@@ -31,6 +31,9 @@
     26-06-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * added "maxnum" option to limit the number of tracks attempted
 
+    13-10-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * clarified the meaning of command-line options "number" & "maxnum"
+
 */
 
 #include <glibmm/thread.h>
@@ -94,10 +97,10 @@ OPTIONS = {
   Option ("grad", "DW gradient scheme", "specify the diffusion encoding scheme (may be required for DT_STREAM, ignored otherwise).")
     .append (Argument ("scheme", "gradient file", "the DW gradient file.").type_file()),
 
-  Option ("number", "number of tracks", "set the number of tracks to calculate (default is 100 for *_STREAM methods, 1000 for *_PROB methods).")
+  Option ("number", "desired number of tracks", "set the desired number of tracks. The program will continue to generate tracks until this number of tracks have been selected and written to the output file (default is 100 for *_STREAM methods, 1000 for *_PROB methods).")
     .append (Argument ("tracks", "number of tracks", "the number of tracks.").type_integer (1, G_MAXINT, 1)),
 
-  Option ("maxnum", "maximum total number of tracks", "set the maximum total number of tracks to attempt (default is 100 x number).")
+  Option ("maxnum", "maximum number of tracks to generate", "set the maximum number of tracks to generate. The program will not generate more tracks than this number, even if the desired number of tracks hasn't yet been reached (default is 100 x number).")
     .append (Argument ("tracks", "maximum number of tracks", "the maximum number of tracks.").type_integer (1, G_MAXINT, 1)),
 
   Option ("length", "track length", "set the maximum length of any track.")

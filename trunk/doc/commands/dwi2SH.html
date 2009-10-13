@@ -30,25 +30,37 @@ Note that this program makes use of implied symmetries in the diffusion profile.
 Note that the spherical harmonics equations used here differ slightly from those conventionally used, in that the (-1)^m factor has been omitted. This should be taken into account in all subsequent calculations.
 </p>
 <p>
-Each study in the output image corresponds to a different spherical harmonic component. Each study will correspond to the following:
+Each volume in the output image corresponds to a different spherical harmonic component, according to the following convention:
 </p>
 <p>
-study 0: l = 0, m = 0
+[0]     Y(0,0)
 </p>
 <p>
-study 1: l = 2, m = 0
+
 </p>
 <p>
-study 2: l = 2, m = 1, real part
+[1] Im {Y(2,2)}
 </p>
 <p>
-study 3: l = 2, m = 1, imaginary part
+[2] Im {Y(2,1)}
 </p>
 <p>
-study 4: l = 2, m = 2, real part
+[3]     Y(2,0)
 </p>
 <p>
-study 5: l = 2, m = 2, imaginary part
+[4] Re {Y(2,1)}
+</p>
+<p>
+[5] Re {Y(2,2)}
+</p>
+<p>
+
+</p>
+<p>
+[6] Im {Y(4,4)}
+</p>
+<p>
+[7] Im {Y(4,3)}
 </p>
 <p>
 etc...

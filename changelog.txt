@@ -1,3 +1,6 @@
+13-10-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/streamtrack.cpp: clarified the meaning of command-line options "number" & "maxnum"
+
 25-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/dwi2SH.cpp:
     * cmd/csdeconv.cpp:

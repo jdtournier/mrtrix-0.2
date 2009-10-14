@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+
+    14-10-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix parse_float() to handle NaN in string specification
+
 */
 
 #include <gsl/gsl_version.h>
@@ -108,7 +112,9 @@ namespace MR {
       String::size_type start = 0, end;
       do {
         end = spec.find_first_of (',', start);
-        V.push_back (to<gfloat> (spec.substr (start, end-start)));
+        String fragment (spec.substr (start, end-start));
+        lowercase (fragment);
+        V.push_back (fragment == "nan" ? GSL_NAN : to<gfloat> (fragment));
         start = end+1;
       } while (end < String::npos);
     }

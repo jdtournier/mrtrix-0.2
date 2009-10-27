@@ -61,63 +61,88 @@ OPTIONS = {
   Option ("warp", "warp image", "specify an image containing the warp field to the space in which the resampling is to take place.")
     .append (Argument ("image", "warp image", "the warp image.").type_image_in()),
  
-  Option ("num", "number of samples", "specify the number of samples to take along each track.")
+  Option ("num", "number of samples", "specify the number of samples to take along each track (default: 100).")
     .append (Argument ("nsamples", "number of samples", "the number of samples.").type_integer(1, 100000, 100)),
  
   Option::End 
 };
 
 
+class Resampler {
+  public:
+    RefPtr<Image::Interp> warp;
+    Point start, mid, end, start_dir, mid_dir, end_dir;
+    guint nsamples, idx_start, idx_end;
+
+    Point pos (const Point& p) { 
+      if (!warp) return (p);
+      warp->R (p);
+      Point ret;
+      if (!(*warp)) return (ret);
+      warp->set(3,0);
+      ret[0] = warp->value();
+      warp->inc(3);
+      ret[1] = warp->value();
+      warp->inc(3);
+      ret[2] = warp->value();
+      return (ret);
+    }
+
+    int state (const Point& p) {
+      return (((start_dir.dot (p - start) >= 0) << 2 ) | ((mid_dir.dot (p - mid) > 0) << 1) | (end_dir.dot (p - end) > 0));
+    }
+
+    int limits (const std::vector<Point>& tck) {
+      idx_start = idx_end = 0;
+      guint a (0), b (0);
+
+      int prev_s = -1;
+      for (guint i = 0; i < tck.size(); ++i) {
+        int s = state (pos (tck[i]));
+        if (i) {
+          if (prev_s == 0 && s == 4) a = i-1;
+          if (prev_s == 4 && s == 0) a = i;
+          if (prev_s == 6 && s == 7) b = i;
+          if (prev_s == 7 && s == 6) b = i-1;
+
+          if (a && b) {
+            if (b - a > idx_end - idx_start) {
+              idx_start = a;
+              idx_end = b;
+            }
+            a = b = 0;
+          }
+        }
+        prev_s = s;
+      }
+
+      return (idx_start && idx_end);
+    }
 
 
-inline Point get_pos (const Point& pos, RefPtr<Image::Interp>& warp)
-{
-  if (!warp) return (pos);
-  warp->R (pos);
-  Point ret;
-  if (!(*warp)) return (ret);
-  warp->set(3,0);
-  ret[0] = warp->value();
-  warp->inc(3);
-  ret[1] = warp->value();
-  warp->inc(3);
-  ret[2] = warp->value();
-  return (ret);
-}
+    void resample (const std::vector<Point>& tck, std::vector<Point>& rtck) {
+      assert (tck.size());
+      bool reverse = idx_start > idx_end;
+      guint i = idx_start;
 
+      for (guint n = 0; n < nsamples; n++) {
+        float f = float(n) / float (nsamples-1);
+        Point p = (1.0-f) * start + f * end;
+        Point dir = (1.0-f) * start_dir + f * end_dir;
 
+        while (i != idx_end) {
+          float d = dir.dot (pos (tck[i]) - p);
+          if (d > 0.0) {
+            float f = d / (d - dir.dot (pos (tck[reverse ? i+1 : i-1]) - p));
+            rtck.push_back (f*tck[i-1] + (1.0-f)*tck[i]);
+            break;
+          }
+          reverse ? --i : ++i;
+        }
+      }
 
-
-inline int get_limits (
-    const std::vector<Point>& tck, 
-    RefPtr<Image::Interp>& warp,
-    const Point& start, 
-    const Point& mid,
-    const Point& end,
-    const Point& start_dir, 
-    const Point& mid_dir,
-    const Point& end_dir, 
-    guint& idx_start, 
-    guint& idx_end) 
-{
-  idx_start = idx_end = 0;
-  guint i = 0;
-  
-  while (( start_dir.dot (get_pos (tck[i], warp) - start) > 0.0 || 
-        mid_dir.dot (get_pos (tck[i], warp) - mid) > 0.0 ) && i < tck.size()) i++;
-  if (i >= tck.size()) return (1);
-  idx_start = i;
-
-  while (( end_dir.dot (get_pos (tck[i], warp) - end) < 0.0 || 
-        mid_dir.dot (get_pos (tck[i], warp) - mid) < 0.0 ) && i < tck.size()) {
-    if (start_dir.dot (get_pos (tck[i], warp) - start) <= 0.0 && mid_dir.dot (get_pos (tck[i], warp) - mid) < 0.0) idx_start = i;
-    i++;
-  }
-  if (i >= tck.size()) return (1);
-  idx_end = i;
-
-  return (0);
-}
+    }
+};
 
 
 
@@ -126,50 +151,51 @@ EXECUTE {
   Tractography::Properties properties;
   Tractography::Reader file;
   file.open (argument[0].get_string(), properties);
-  
-  Point start (0.0, 0.0, -50.0);
-  Point mid (0.0, 0.0, 0.0);
-  Point end (0.0, 0.0, 50.0);
-  Point start_dir (0.0, 0.0, 1.0);
-  Point mid_dir (0.0, 0.0, 1.0);
-  Point end_dir (0.0, 0.0, 1.0);
-  guint nsamples = 100;
-  RefPtr<Image::Interp> warp;
+
+  Resampler sampler;
+
+  sampler.start.set (0.0, 0.0, -50.0);
+  sampler.mid.set (0.0, 0.0, 0.0);
+  sampler.end.set (0.0, 0.0, 50.0);
+  sampler.start_dir.set (0.0, 0.0, 1.0);
+  sampler.mid_dir.set (0.0, 0.0, 1.0);
+  sampler.end_dir.set (0.0, 0.0, 1.0);
+  sampler.nsamples = 100;
 
   std::vector<OptBase> opt = get_options (0); // extent
   if (opt.size()) {
     std::vector<float> v = parse_floats (opt[0][0].get_string());
     if (v.size() != 3) throw Exception ("start point should be specified as a comma-separated vector of 3 coordinates");
-    start.set (v[0], v[1], v[2]);
+    sampler.start.set (v[0], v[1], v[2]);
     v = parse_floats (opt[0][1].get_string());
     if (v.size() != 3) throw Exception ("end point should be specified as a comma-separated vector of 3 coordinates");
-    end.set (v[0], v[1], v[2]);
+    sampler.end.set (v[0], v[1], v[2]);
 
-    start_dir = end - start;
-    start_dir.normalise();
-    mid_dir = end_dir = start_dir;
-    mid = 0.5 * (start + end);
+    sampler.start_dir = sampler.end - sampler.start;
+    sampler.start_dir.normalise();
+    sampler.mid_dir = sampler.end_dir = sampler.start_dir;
+    sampler.mid = 0.5 * (sampler.start + sampler.end);
   }
- 
+
   opt = get_options (1); // direction
   if (opt.size()) {
     std::vector<float> v = parse_floats (opt[0][0].get_string());
     if (v.size() != 3) throw Exception ("start direction should be specified as a comma-separated vector of 3 coordinates");
-    start_dir.set (v[0], v[1], v[2]);
+    sampler.start_dir.set (v[0], v[1], v[2]);
     v = parse_floats (opt[0][1].get_string());
     if (v.size() != 3) throw Exception ("end direction should be specified as a comma-separated vector of 3 coordinates");
-    end_dir.set (v[0], v[1], v[2]);
+    sampler.end_dir.set (v[0], v[1], v[2]);
   }
 
   opt = get_options (2); // warp
   if (opt.size()) {
-    warp = new Image::Interp (*opt[0][0].get_image());
-    if (warp->ndim() < 4) throw Exception ("warp image should contain at least 4 dimensions");
-    if (warp->dim(3) < 3) throw Exception ("4th dimension of warp image should have length 3");
+    sampler.warp = new Image::Interp (*opt[0][0].get_image());
+    if (sampler.warp->ndim() < 4) throw Exception ("warp image should contain at least 4 dimensions");
+    if (sampler.warp->dim(3) < 3) throw Exception ("4th dimension of warp image should have length 3");
   }
 
   opt = get_options (3); // num
-  if (opt.size()) nsamples = opt[0][0].get_int();
+  if (opt.size()) sampler.nsamples = opt[0][0].get_int();
 
   Tractography::Writer writer;
   writer.create (argument[1].get_string(), properties);
@@ -180,35 +206,13 @@ EXECUTE {
   ProgressBar::init (0, "resampling tracks...");
 
   while (file.next (tck)) {
-
-    guint idx_start, idx_end;
-    if (get_limits (tck, warp, start, mid, end, start_dir, mid_dir, end_dir, idx_start, idx_end)) {
-      std::reverse (tck.begin(), tck.end());
-      if (get_limits (tck, warp, start, mid, end, start_dir, mid_dir, end_dir, idx_start, idx_end)) {
-        skipped++;
-        continue;
-      }
-    }
+    if (!sampler.limits (tck)) { skipped++; continue; }
 
     std::vector<Point> tck_out;
-    for (guint n = 0; n < nsamples; n++) {
-      float f = float(n) / float (nsamples-1);
-      Point pos = (1.0-f) * start + f * end;
-      Point dir = (1.0-f) * start_dir + f * end_dir;
-
-      for (guint i = idx_start; i <= idx_end; i++) {
-        float d = dir.dot (get_pos (tck[i], warp) - pos);
-        if (d > 0.0) {
-          float f = d / (d - dir.dot (get_pos (tck[i-1], warp) - pos));
-          tck_out.push_back (f*tck[i-1] + (1.0-f)*tck[i]);
-          break;
-        }
-      }
-    }
+    sampler.resample (tck, tck_out);
 
     writer.append (tck_out);
     writer.total_count++;
-    
     ProgressBar::inc();
   }
 

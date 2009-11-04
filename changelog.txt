@@ -1,3 +1,6 @@
+04-11-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/average.cpp: fix -axis option
+
 29-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/mrabs.cpp: new command to take absolute value of image intensities
 

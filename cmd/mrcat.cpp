@@ -134,38 +134,5 @@ EXECUTE {
   }
 
   ProgressBar::done();
-
-    /*
-    int lim = n[i].ndims() > axis ? in[i].dim(axis) : 1 ;
-    for (uint a = 0; a < lim; a++) {
-
-      Coord x(out);
-      do {
-        x[axis] = a;
-        in[i].pos(x);
-
-        x[axis] = count;
-        out.pos(x);
-
-        float val = in[i].re();
-        out.re(val);
-
-        if (out.is_complex()) {
-          val = in[i].is_complex() ? in[i].im() : 0.0 ;
-          out.im(val);
-        }
-
-        x[axis] = 0;
-        ProgressBar::inc();
-
-      } while (x.next(limits));
-
-      count++;
-    }
-
-    in[i].unmap();
-  }
-
-*/
 }
 

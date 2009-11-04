@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+
+    04-11-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix -axis option
+
 */
 
 #include "app.h"
@@ -72,7 +76,7 @@ EXECUTE {
   for (lastdim = header.axes.ndim()-1; lastdim > 0 && header.axes.dim[lastdim] <= 1; lastdim--);
 
   if (axis < 0) axis = lastdim;
-  else if (axis >= lastdim) 
+  else if (axis > lastdim) 
     throw Exception ("averaging along singleton dimension");
 
   info ("averaging along axis " + str (axis));
@@ -93,7 +97,12 @@ EXECUTE {
   do {
     float re = 0.0, im = 0.0;
 
-    for (in.set (3,0); in[3] < in.dim(3); in.inc(3)) {
+    for (int i = 0, n = 0; i < in.ndim(); ++i, ++n) {
+      if (i == axis) ++n;
+      in.set (n, out[i]);
+    }
+
+    for (in.set (axis,0); in[axis] < in.dim(axis); in.inc(axis)) {
       if (geometric) re += log (in.re());
       else {
         re += in.re();
@@ -107,7 +116,6 @@ EXECUTE {
     out.re (re);
     if (in.is_complex()) out.im (norm*im);
 
-    in++;
     ProgressBar::inc();
   } while (out++);
 

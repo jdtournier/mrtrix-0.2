@@ -29,7 +29,7 @@ namespace MR {
 
     Pane::GLArea::GLArea (Pane& parent) : pane (parent)
     {
-      add_events (Gdk::BUTTON_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::SCROLL_MASK);
+      add_events (Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::SCROLL_MASK);
       GdkGLConfig* glconfig = gdk_gl_config_new_by_mode (GdkGLConfigMode (GDK_GL_MODE_RGB | GDK_GL_MODE_DEPTH | GDK_GL_MODE_ALPHA | GDK_GL_MODE_DOUBLE));
       if (!glconfig) { error ("failed to initialise OpenGL!"); return; }
       gtk_widget_set_gl_capability (GTK_WIDGET (gobj()), glconfig, NULL, true, GDK_GL_RGBA_TYPE);

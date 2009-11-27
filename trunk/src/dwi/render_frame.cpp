@@ -67,7 +67,7 @@ namespace MR {
       lightpos[0] = 1.0; lightpos[1] = 1.0; lightpos[2] = 3.0; lightpos[3] = 0.0;
       color[0] = 1.0; color[1] = 1.0; color[2] = 0.0;
 
-      add_events (Gdk::BUTTON_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::SCROLL_MASK);
+      add_events (Gdk::BUTTON_MOTION_MASK | Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::SCROLL_MASK);
       GdkGLConfig* glconfig = gdk_gl_config_new_by_mode (GdkGLConfigMode (GDK_GL_MODE_RGB | GDK_GL_MODE_DEPTH | GDK_GL_MODE_DOUBLE));
       if (!glconfig) { error ("failed to initialise OpenGL!"); return; }
       gtk_widget_set_gl_capability (GTK_WIDGET (gobj()), glconfig, NULL, true, GDK_GL_RGBA_TYPE);

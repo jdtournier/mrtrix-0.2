@@ -82,6 +82,14 @@ namespace MR {
                             return;
             }
             return;
+          case 0x0019U: 
+            switch (item.element) {
+              case 0x10A8U: bvalue = item.get_float()[0]; return;
+              case 0x10BBU: G[0] = item.get_float()[0]; return;
+              case 0x10BCU: G[1] = item.get_float()[0]; return;
+              case 0x10BDU: G[2] = item.get_float()[0]; return;
+            }
+            return;
           case 0x0020U: 
             switch (item.element) {
               case 0x0012U: acq = item.get_uint()[0]; return;

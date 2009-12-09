@@ -311,9 +311,12 @@ namespace MR {
             if ((H.DW_scheme(s, 3) = DW_scheme[s]->bvalue) != 0.0) {
               float norm = Math::magnitude (DW_scheme[s]->G);
               H.DW_scheme(s, 3) *= norm;
-              H.DW_scheme(s, 0) = -DW_scheme[s]->G[0]/norm;
-              H.DW_scheme(s, 1) = -DW_scheme[s]->G[1]/norm;
-              H.DW_scheme(s, 2) = DW_scheme[s]->G[2]/norm;
+              if (norm) {
+                H.DW_scheme(s, 0) = -DW_scheme[s]->G[0]/norm;
+                H.DW_scheme(s, 1) = -DW_scheme[s]->G[1]/norm;
+                H.DW_scheme(s, 2) = DW_scheme[s]->G[2]/norm;
+              }
+              else H.DW_scheme(s, 0) = H.DW_scheme(s, 1) = H.DW_scheme(s, 2) = 0.0;
             }
             else H.DW_scheme(s, 0) = H.DW_scheme(s, 1) = H.DW_scheme(s, 2) = 0.0;
           }

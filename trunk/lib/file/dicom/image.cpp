@@ -28,6 +28,12 @@
     17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * added preliminary support to read Philips DW information
 
+    09-12-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * preliminary GE gradient information support
+
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * improve GE gradient information support
+
 */
 
 #include <glibmm/miscutils.h>
@@ -60,6 +66,9 @@ namespace MR {
                 filename = Glib::build_filename (filename, V[n]);
             }
             break;
+          case 0x0008U: 
+            if (item.element == 0x0070U) manufacturer = item.get_string()[0];
+            return;
           case 0x0018U: 
             switch (item.element) {
               case 0x0050U: slice_thickness = item.get_float()[0]; return;
@@ -83,8 +92,7 @@ namespace MR {
             }
             return;
           case 0x0019U: 
-            switch (item.element) {
-              case 0x10A8U: bvalue = item.get_float()[0]; return;
+            switch (item.element) { // GE DW encoding info:
               case 0x10BBU: G[0] = item.get_float()[0]; return;
               case 0x10BCU: G[1] = item.get_float()[0]; return;
               case 0x10BDU: G[2] = item.get_float()[0]; return;
@@ -127,6 +135,9 @@ namespace MR {
               return;
             }
             else return;
+          case 0x0043U: // GEMS_PARMS_01 block
+              if (item.element == 0x1039U) bvalue = item.get_int()[0];
+              return;
           case 0x2001U: // Philips DW encoding info: 
             if (item.element == 0x1003) bvalue = item.get_float()[0];
             return;

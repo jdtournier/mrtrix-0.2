@@ -28,6 +28,13 @@
     18-03-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * fix serious bug that caused the tracking to be incorrect with obliquely aligned data sets
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * new option to prevent tri-linear interpolation of mask regions
+
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * tracking now stops immediately before the track leaves the mask, rather
+    * than immediately before it.
+
 */
 
 #ifndef __dwi_tractography_tracker_base_h__
@@ -84,7 +91,7 @@ namespace MR {
             Point pos, dir;
             int num_points, num_max;
 
-            bool excluded;
+            bool excluded, no_mask_interp;
 
             class Sphere {
               public:
@@ -103,16 +110,25 @@ namespace MR {
 
             class Mask {
               public:
-                Mask (Image::Object& image) : i (image), lower (i.dim(0), i.dim(1), i.dim(2)), upper (0.0, 0.0, 0.0), volume (0.0), included (false) { get_bounds(); }
+                Mask (Image::Object& image, bool no_mask_interp) : 
+                  i (image), lower (i.dim(0), i.dim(1), i.dim(2)), upper (0.0, 0.0, 0.0), volume (0.0), included (false), no_interp (no_mask_interp) { 
+                    get_bounds(); 
+                  }
 
                 Image::Interp i;
                 Point lower, upper;
                 float volume;
-                bool included;
+                bool included, no_interp;
 
                 bool contains (const Point& pt) { 
                   Point y (i.R2P (pt));
                   if (y[0] < lower[0] || y[0] >= upper[0] || y[1] < lower[1] || y[1] >= upper[1] || y[2] < lower[2] || y[2] >= upper[2]) return (false);
+                  if (no_interp) {
+                    i.set (0, int(y[0]+0.5));
+                    i.set (1, int(y[1]+0.5));
+                    i.set (2, int(y[2]+0.5));
+                    return (i.Image::Position::value () > 0.5);
+                  }
                   i.P (y);
                   return (i.value() >= 0.5);
                 }
@@ -162,7 +178,6 @@ namespace MR {
                 std::vector<Mask>  seed, include, exclude, mask;
             } masks;
 
-            void inc_pos () { pos += step_size * dir; }
 
             int get_source_data (const Point& p, float* values)
             {

@@ -22,6 +22,9 @@
     18-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * modify eigenvector computation to allow thread-safe operation
     
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * tracking now stops immediately before the track leaves the mask, rather
+    * than immediately before it.
 
 */
 
@@ -101,7 +104,6 @@ namespace MR {
             dir[1] = -dir[1];
             dir[2] = -dir[2];
           }
-          inc_pos ();
           return (false);
         }
 

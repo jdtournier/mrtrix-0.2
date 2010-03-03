@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * tracking now stops immediately before the track leaves the mask, rather
+    * than immediately before it.
+
 */
 
 #include "dwi/tractography/tracker/sd_prob.h"
@@ -112,7 +116,6 @@ namespace MR {
               if (val > max_val) info ("max_val exceeded!!! (val = " + str(val) + ", max_val = " + str (max_val) + ")");
               if (rng.uniform() < val/max_val) {
                 dir = new_dir;
-                inc_pos ();
                 return (false);
               }
             }

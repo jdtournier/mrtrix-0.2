@@ -25,6 +25,13 @@
     18-03-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * fix serious bug that caused the tracking to be incorrect with obliquely aligned data sets
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * new option to prevent tri-linear interpolation of mask regions
+
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * tracking now stops immediately before the track leaves the mask, rather
+    * than immediately before it.
+
 */
 
 #include "dwi/tractography/tracker/base.h"
@@ -40,12 +47,15 @@ namespace MR {
           total_seed_volume (0.0),
           step_size (0.1),
           threshold (0.1),
-          num_points (0)
+          num_points (0),
+          no_mask_interp (false)
         {
           if (props["step_size"].empty()) props["step_size"] = str (step_size); step_size = to<float> (props["step_size"]); 
           if (props["threshold"].empty()) props["threshold"] = str (threshold); else threshold = to<float> (props["threshold"]); 
           if (props["init_threshold"].empty()) { init_threshold = 2.0*threshold; props["init_threshold"] = str (init_threshold); }
           else init_threshold = to<float> (props["init_threshold"]); 
+          if (props["no_mask_interp"].empty()) { no_mask_interp = false; props["no_mask_interp"] = "0"; } 
+          else no_mask_interp = to<bool> (props["no_mask_interp"]);
 
           float max_dist = 200.0;
           if (props["max_dist"].empty()) props["max_dist"] = str(max_dist); else max_dist = to<float> (props["max_dist"]);
@@ -62,19 +72,19 @@ namespace MR {
             switch (roi.type) {
               case ROI::Seed:
                 if (roi.mask.empty()) spheres.seed.push_back (Sphere (roi.position, roi.radius));
-                else masks.seed.push_back (Mask (*roi.mask_object)); 
+                else masks.seed.push_back (Mask (*roi.mask_object, no_mask_interp)); 
                 break;
               case ROI::Include:
                 if (roi.mask.empty()) spheres.include.push_back (Sphere (roi.position, roi.radius));
-                else masks.include.push_back (Mask (*roi.mask_object));
+                else masks.include.push_back (Mask (*roi.mask_object, no_mask_interp));
                 break;
               case ROI::Exclude:
                 if (roi.mask.empty()) spheres.exclude.push_back (Sphere (roi.position, roi.radius));
-                else masks.exclude.push_back (Mask (*roi.mask_object));
+                else masks.exclude.push_back (Mask (*roi.mask_object, no_mask_interp));
                 break;
               case ROI::Mask:
                 if (roi.mask.empty()) spheres.mask.push_back (Sphere (roi.position, roi.radius));
-                else masks.mask.push_back (Mask (*roi.mask_object));
+                else masks.mask.push_back (Mask (*roi.mask_object, no_mask_interp));
                 break;
               default: assert (0);
             }
@@ -112,15 +122,17 @@ namespace MR {
         {
           if (excluded) return (false);
           if (num_points >= num_max) return (false);
-          if (not_in_mask (pos)) return (false);
           if (next_point()) return (false);
-          num_points++;
+          pos += step_size * dir; 
+          if (not_in_mask (pos)) return (false);
 
           for (std::vector<Sphere>::iterator i = spheres.exclude.begin(); i != spheres.exclude.end(); ++i) { if (i->contains (pos)) { excluded = true; return (false); } }
           for (std::vector<Mask>::iterator i = masks.exclude.begin(); i != masks.exclude.end(); ++i) { if (i->contains (pos)) { excluded = true; return (false); } }
 
           for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) if (!i->included) if (i->contains (pos)) i->included = true; 
           for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) if (!i->included) if (i->contains (pos)) i->included = true;
+
+          num_points++;
 
           return (true);
         }

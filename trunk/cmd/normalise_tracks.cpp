@@ -22,6 +22,9 @@
     31-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * various optimisations to improve performance
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * skip points in the tracks file is they are outside the supplied warp
+
 */
 
 #include <fstream>
@@ -67,19 +70,23 @@ EXECUTE {
   Tractography::Writer writer;
   writer.create (argument[2].get_string(), properties);
 
-  std::vector<Point> tck;
+  std::vector<Point> tck, out;
 
   Image::Interp interp (tranform_image);
   ProgressBar::init (0, "normalising tracks...");
 
   while (file.next (tck)) {
+    out.clear();
     for (std::vector<Point>::iterator i = tck.begin(); i != tck.end(); ++i) {
       interp.R (*i);
-      interp.set(3,0); (*i)[0] = interp.value();
-      interp.set(3,1); (*i)[1] = interp.value();
-      interp.set(3,2); (*i)[2] = interp.value();
+      if (!interp) continue;
+      Point p;
+      interp.set(3,0); p[0] = interp.value();
+      interp.set(3,1); p[1] = interp.value();
+      interp.set(3,2); p[2] = interp.value();
+      out.push_back (p);
     }
-    writer.append (tck);
+    writer.append (out);
     writer.total_count++;
     ProgressBar::inc();
   }

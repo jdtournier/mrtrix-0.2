@@ -34,6 +34,9 @@
     09-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * include <cstdio> to allow compilation on Fedora 11
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix bug in handling of IS sequences
+
 */
 
 #include <cstdio>
@@ -266,7 +269,7 @@ namespace MR {
           for (const guint8* p = data; p < data + size; p += sizeof (gint16)) 
             V.push_back (get<gint16> (p, is_BE));
         else if (VR == VR_IS) {
-          std::vector<String> strings (get_string ());
+          std::vector<String> strings (split (String ((const gchar*) data, size), "\\", false));
           V.resize (strings.size());
           for (guint n = 0; n < V.size(); n++) V[n] = to<gint32> (strings[n]);
         }

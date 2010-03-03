@@ -31,6 +31,9 @@
     19-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * handle cases where the data size is greater than expected, and interpret as multi-channel data
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * improve GE gradient information support
+
 */
 
 #include "image/header.h"
@@ -307,14 +310,23 @@ namespace MR {
 
         if (DW_scheme.size()) {
           H.DW_scheme.allocate (DW_scheme.size(), 4);
+          bool is_not_GE = image.manufacturer.compare (0, 2, "GE");
           for (guint s = 0; s < DW_scheme.size(); s++) {
             if ((H.DW_scheme(s, 3) = DW_scheme[s]->bvalue) != 0.0) {
               float norm = Math::magnitude (DW_scheme[s]->G);
               H.DW_scheme(s, 3) *= norm;
               if (norm) {
-                H.DW_scheme(s, 0) = -DW_scheme[s]->G[0]/norm;
-                H.DW_scheme(s, 1) = -DW_scheme[s]->G[1]/norm;
-                H.DW_scheme(s, 2) = DW_scheme[s]->G[2]/norm;
+                float d[] = { DW_scheme[s]->G[0]/norm, DW_scheme[s]->G[1]/norm, DW_scheme[s]->G[2]/norm };
+                if (is_not_GE) {
+                  H.DW_scheme(s, 0) = - d[0];
+                  H.DW_scheme(s, 1) = - d[1];
+                  H.DW_scheme(s, 2) = d[2];
+                }
+                else {
+                  H.DW_scheme(s, 0) = M(0,0)*d[0] + M(0,1)*d[1] - M(0,2)*d[2];
+                  H.DW_scheme(s, 1) = M(1,0)*d[0] + M(1,1)*d[1] - M(1,2)*d[2];
+                  H.DW_scheme(s, 2) = M(2,0)*d[0] + M(2,1)*d[1] - M(2,2)*d[2];
+                }
               }
               else H.DW_scheme(s, 0) = H.DW_scheme(s, 1) = H.DW_scheme(s, 2) = 0.0;
             }

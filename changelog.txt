@@ -1,3 +1,23 @@
+03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/image.h:
+    * lib/file/dicom/image.cpp:
+    * lib/file/dicom/mapper.cpp:
+      improve GE gradient information support
+
+    * lib/file/dicom/element.cpp: fix bug in handling of IS sequences
+
+09-12-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/mapper.cpp: handle zero directions in gradient scheme
+    * lib/file/dicom/image.cpp: preliminary GE gradient information support
+
+02-12-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/key_value.cpp: minor bug that prevented reading read-only files
+
+27-11-2009 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/pane.cpp:
+    * src/dwi/render_frame.cpp:
+      minor change to receive mouse move events on newer linux distributions (e.g. Ubuntu Karmic)
+
 04-11-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/average.cpp: fix -axis option
 
@@ -9,8 +29,8 @@
 
 13-10-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/streamtrack.cpp: 
-      clarified the meaning of command-line options "number" & "maxnum"
-      fixed incorrect default setting of "maxnum" value
+      - clarified the meaning of command-line options "number" & "maxnum"
+      - fixed incorrect default setting of "maxnum" value
 
 25-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/dwi2SH.cpp:

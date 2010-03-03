@@ -22,6 +22,9 @@
     08-09-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * fix handling of mosaic slice ordering (using SliceNormalVector entry in CSA header)
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * improve GE gradient information support
+
 */
 
 #ifndef __file_dicom_image_h__
@@ -46,6 +49,7 @@ namespace MR {
 
           String            filename;
           String            sequence_name;
+          String            manufacturer;
           Series*           series;
 
           guint             acq_dim[2], dim[2], instance, acq, sequence;

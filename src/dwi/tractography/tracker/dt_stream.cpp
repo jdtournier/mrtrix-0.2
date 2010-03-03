@@ -24,7 +24,7 @@
     
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * tracking now stops immediately before the track leaves the mask, rather
-    * than immediately before it.
+    * than immediately after.
 
 */
 

@@ -1,4 +1,23 @@
+=======================================================================
+VERSION 0.2.8
+=======================================================================
+
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+
 03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/streamtrack.cpp:
+    * src/dwi/tractography/tracker/base.h:
+    * src/dwi/tractography/tracker/base.cpp:
+      new option to prevent tri-linear interpolation of mask regions.
+
+    * src/dwi/tractography/tracker/base.h:
+    * src/dwi/tractography/tracker/base.cpp:
+    * src/dwi/tractography/tracker/dt_stream.cpp:
+    * src/dwi/tractography/tracker/sd_stream.cpp:
+    * src/dwi/tractography/tracker/sd_prob.cpp:
+      tracking now stops immediately before the track leaves the mask, rather
+      than immediately before it.
+
     * lib/file/dicom/image.h:
     * lib/file/dicom/image.cpp:
     * lib/file/dicom/mapper.cpp:

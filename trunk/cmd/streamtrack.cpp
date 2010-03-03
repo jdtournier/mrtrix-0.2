@@ -38,6 +38,9 @@
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * new option to prevent tri-linear interpolation of mask regions
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * new option to stop tracking as soon as track enters any include region
+
 */
 
 #include <glibmm/thread.h>
@@ -118,6 +121,8 @@ OPTIONS = {
 
   Option ("initcutoff", "intial cutoff threshold", "set the minimum FA or FOD amplitude for initiating tracks (default is twice the normal cutoff).")
     .append (Argument ("value", "value", "the initial cutoff to use.").type_float (0, 1e6, 0.1)),
+
+  Option ("stop", "stop when included", "stop track as soon as it enters any of the include regions."),
 
   Option ("nomaskinterp", "no interpolation of mask regions", "do NOT perform tri-linear interpolation of mask images."),
 
@@ -307,6 +312,7 @@ EXECUTE {
   properties["min_dist"] = "10";
   properties["threshold"] = "0.1";
   properties["unidirectional"] = "0";
+  properties["stop_when_included"] = "0";
   properties["no_mask_interp"] = "0";
   properties["sh_precomputed"] = "1";
 
@@ -357,17 +363,20 @@ EXECUTE {
   opt = get_options (12); // initcutoff
   if (opt.size()) properties["init_threshold"] = str (opt[0][0].get_float());
 
-  opt = get_options (13); // nomaskinterp
+  opt = get_options (13); // stop
+  if (opt.size()) properties["stop_when_included"] = "1";
+
+  opt = get_options (14); // nomaskinterp
   if (opt.size()) properties["no_mask_interp"] = "1";
 
-  opt = get_options (14); // trials
+  opt = get_options (15); // trials
   if (opt.size()) properties["max_trials"] = str (opt[0][0].get_int());
 
-  opt = get_options (15); // unidirectional
+  opt = get_options (16); // unidirectional
   if (opt.size()) properties["unidirectional"] = "1";
 
   Point init_dir;
-  opt = get_options (16); // initdirection
+  opt = get_options (17); // initdirection
   if (opt.size()) {
     std::vector<float> V = parse_floats (opt[0][0].get_string());
     if (V.size() != 3) throw Exception (String ("invalid initial direction \"") + opt[0][0].get_string() + "\"");
@@ -378,7 +387,7 @@ EXECUTE {
     properties["init_direction"] = opt[0][0].get_string();
   }
 
-  opt = get_options (17); // noprecomputed
+  opt = get_options (18); // noprecomputed
   if (opt.size()) properties["sh_precomputed"] = "0";
 
   Glib::thread_init();

@@ -2,9 +2,12 @@
 VERSION 0.2.8
 =======================================================================
 
-    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
-
 03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/streamtrack.cpp:
+    * src/dwi/tractography/tracker/base.h:
+    * src/dwi/tractography/tracker/base.cpp:
+      new option to stop tracking as soon as track enters any include region.
+
     * cmd/streamtrack.cpp:
     * src/dwi/tractography/tracker/base.h:
     * src/dwi/tractography/tracker/base.cpp:

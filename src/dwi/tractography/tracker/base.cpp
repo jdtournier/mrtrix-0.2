@@ -32,6 +32,9 @@
     * tracking now stops immediately before the track leaves the mask, rather
     * than immediately before it.
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * new option to stop tracking as soon as track enters any include region
+
 */
 
 #include "dwi/tractography/tracker/base.h"
@@ -48,12 +51,18 @@ namespace MR {
           step_size (0.1),
           threshold (0.1),
           num_points (0),
-          no_mask_interp (false)
+          no_mask_interp (false), 
+          stop_when_included (false), 
+          included (false)
         {
           if (props["step_size"].empty()) props["step_size"] = str (step_size); step_size = to<float> (props["step_size"]); 
           if (props["threshold"].empty()) props["threshold"] = str (threshold); else threshold = to<float> (props["threshold"]); 
           if (props["init_threshold"].empty()) { init_threshold = 2.0*threshold; props["init_threshold"] = str (init_threshold); }
           else init_threshold = to<float> (props["init_threshold"]); 
+
+          if (props["stop_when_included"].empty()) { stop_when_included = false; props["stop_when_included"] = "0"; } 
+          else stop_when_included = to<bool> (props["stop_when_included"]);
+
           if (props["no_mask_interp"].empty()) { no_mask_interp = false; props["no_mask_interp"] = "0"; } 
           else no_mask_interp = to<bool> (props["no_mask_interp"]);
 
@@ -105,7 +114,7 @@ namespace MR {
 
         void Base::new_seed (const Point& seed_dir)
         {
-          excluded = false;
+          excluded = included = false;
           for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) i->included = false;
           for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) i->included = false;
 
@@ -121,18 +130,37 @@ namespace MR {
         bool Base::next () 
         {
           if (excluded) return (false);
+          if (stop_when_included && included) return (false);
           if (num_points >= num_max) return (false);
           if (next_point()) return (false);
           pos += step_size * dir; 
           if (not_in_mask (pos)) return (false);
 
-          for (std::vector<Sphere>::iterator i = spheres.exclude.begin(); i != spheres.exclude.end(); ++i) { if (i->contains (pos)) { excluded = true; return (false); } }
-          for (std::vector<Mask>::iterator i = masks.exclude.begin(); i != masks.exclude.end(); ++i) { if (i->contains (pos)) { excluded = true; return (false); } }
+          for (std::vector<Sphere>::iterator i = spheres.exclude.begin(); i != spheres.exclude.end(); ++i) { 
+            if (i->contains (pos)) { 
+              excluded = true;
+              return (false); 
+            } 
+          }
 
-          for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) if (!i->included) if (i->contains (pos)) i->included = true; 
-          for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) if (!i->included) if (i->contains (pos)) i->included = true;
+          for (std::vector<Mask>::iterator i = masks.exclude.begin(); i != masks.exclude.end(); ++i) {
+            if (i->contains (pos)) {
+              excluded = true; 
+              return (false); 
+            }
+          }
 
           num_points++;
+
+          for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) 
+            if (!i->included)
+              if (i->contains (pos)) 
+                included = i->included = true; 
+
+          for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) 
+            if (!i->included) 
+              if (i->contains (pos)) 
+                included = i->included = true;
 
           return (true);
         }

@@ -35,6 +35,9 @@
     * tracking now stops immediately before the track leaves the mask, rather
     * than immediately before it.
 
+    03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * new option to stop tracking as soon as track enters any include region
+
 */
 
 #ifndef __dwi_tractography_tracker_base_h__
@@ -91,7 +94,7 @@ namespace MR {
             Point pos, dir;
             int num_points, num_max;
 
-            bool excluded, no_mask_interp;
+            bool excluded, no_mask_interp, stop_when_included, included;
 
             class Sphere {
               public:

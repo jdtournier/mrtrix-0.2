@@ -2,6 +2,10 @@
 VERSION 0.2.8
 =======================================================================
 
+04-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/scaling.h: 
+      fix automatic windowing in the presence of infinite or NaN voxel values.
+
 03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/normalise_tracks.cpp: 
       skip points in the tracks file is they are outside the supplied warp

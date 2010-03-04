@@ -18,6 +18,9 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+    04-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix automatic windowing in the presence of infinite or NaN voxel values.
+
 */
 
 #ifndef __mrview_scaling_h__
@@ -49,7 +52,7 @@ namespace MR {
         void          reset () { multiplier = offset = GSL_NAN; }
 
         void          rescale_start () const         { min = GSL_POSINF; max = GSL_NEGINF; }
-        void          rescale_add (float val) const  { if (min > val) min = val; if (max < val) max = val; }
+        void          rescale_add (float val) const  { if (!gsl_finite (val)) return; if (min > val) min = val; if (max < val) max = val; }
         void          rescale_add (float val[3]) const { rescale_add (val[0]); rescale_add (val[1]); rescale_add (val[2]); }
         void          rescale_end ()
         { 

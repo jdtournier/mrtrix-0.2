@@ -21,6 +21,10 @@
     15-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * a few bug fixes + memory performance improvements for the depth blend option
     
+    12-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * a few bug fixes for the colour handling and support for depth blend on
+    * 64 bit systems
+    
 */
 
 #ifndef __mrview_sidebar_tractography_track_list_h__
@@ -79,8 +83,9 @@ namespace MR {
           float previous_Z;
 
           static const guint8 colour_by_dir_data[16*16*4];
-          static TrackListItem::Track::Point* root;
-          static bool compare (guint a, guint b) { return (root[a] < root[b]); }
+          static bool compare (guint a, guint b) {
+            return (TrackListItem::Track::Point::root[a] < TrackListItem::Track::Point::root[b]); 
+          }
 
           friend class Tractography;
       };

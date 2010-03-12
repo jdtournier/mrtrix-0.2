@@ -26,6 +26,10 @@
     15-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * a few bug fixes + memory performance improvements for the depth blend option
     
+    12-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * a few bug fixes for the colour handling and support for depth blend on
+    * 64 bit systems
+    
 */
 
 #ifndef __mrview_sidebar_tractography_tracklist_item_h__
@@ -61,12 +65,25 @@ namespace MR {
                   GLubyte C[4];
 
                   void set_pos (const MR::Point& p) { pos[0] = p[0]; pos[1] = p[1]; pos[2] = p[2]; }
-                  void set_colour (const MR::Point& dir) { C[0] = abs((int) (255*dir[0])); C[1] = abs((int) (255*dir[1])); C[2] = abs((int) (255*dir[2])); }
-                  void set_colour (GLubyte c[3]) { C[0] = c[0]; C[1] = c[1]; C[2] = c[2]; }
-                  gsize index () const { return (((gsize) this)/sizeof(Point)); }
+                  void set_colour (const MR::Point& dir, GLubyte alpha) { 
+                    C[0] = abs(int(255*dir[0]));
+                    C[1] = abs(int(255*dir[1])); 
+                    C[2] = abs(int(255*dir[2])); 
+                    C[3] = alpha;
+                  }
+                  void set_colour (const GLubyte c[3], GLubyte alpha) {
+                    C[0] = c[0]; 
+                    C[1] = c[1]; 
+                    C[2] = c[2]; 
+                    C[3] = alpha;
+                  }
+                  gsize index () const { return (this-root); }
 
-                  bool operator< (const Point& b) { return ((pos[0]-b.pos[0])*normal[0] + (pos[1]-b.pos[1])*normal[1] + (pos[2]-b.pos[2])*normal[2] < 0.0); }
+                  bool operator< (const Point& b) const { 
+                    return ((pos[0]-b.pos[0])*normal[0] + (pos[1]-b.pos[1])*normal[1] + (pos[2]-b.pos[2])*normal[2] < 0.0);
+                  }
                   static MR::Point normal;
+                  static const Point* root;
               };
 
 
@@ -87,7 +104,7 @@ namespace MR {
 
           class Allocator {
             public:
-              Allocator () : next (NULL), end (NULL) { }
+              Allocator () : next (NULL), end (NULL), min ((guint8*) (-1)) { }
               ~Allocator () { clear(); }
 
               Track::Point* operator () (guint size) { 
@@ -99,18 +116,29 @@ namespace MR {
                 return (p);
               }
 
-              void clear () { for (std::list<guint8*>::iterator i = blocks.begin(); i != blocks.end(); ++i) delete [] *i; blocks.clear(); next = end = NULL; }
+              void clear () { 
+                for (std::list<guint8*>::iterator i = blocks.begin(); i != blocks.end(); ++i) 
+                  delete [] *i; 
+                blocks.clear(); 
+                next = end = NULL;
+                min = (guint8*) (-1);
+              }
+
+              const guint8* root() const { return (min); }
 
             private:
               std::list<guint8*> blocks;
               guint8* next;
               guint8* end;
+              guint8* min;
 
               void new_block () {
                 next = new guint8 [TRACK_ALLOCATOR_SLAB_SIZE];
                 end = next + TRACK_ALLOCATOR_SLAB_SIZE;
                 blocks.push_back (next); 
-                if (guint rem = (next - (guint8*) NULL ) % sizeof(Track::Point)) next += sizeof(Track::Point)-rem;
+                if (guint rem = (next - (guint8*) NULL ) % sizeof(Track::Point)) 
+                  next += sizeof(Track::Point)-rem;
+                if (next < min) min = next;
               }
           };
 
@@ -130,32 +158,27 @@ namespace MR {
           {
             if (force || colour_by_dir != colour_by_dir_previous || alpha != alpha_previous) {
               GLubyte A = (GLubyte) (255.0*get_alpha());
+              GLubyte default_colour[] = { 255, 255, 255 };
               for (std::list<Track>::iterator i = tracks.begin(); i != tracks.end(); ++i) {
                 Track& tck (*i);
 
                 if (colour_by_dir) {
-                  GLubyte default_colour[] = { 255, 255, 255 };
-                  tck[0].set_colour (default_colour);
-                  tck[0].C[3] = A;
                   if (tck.size() > 1) {
                     gsize n;
                     Point dir (tck[1].pos[0]- tck[0].pos[0], tck[1].pos[1]- tck[0].pos[1], tck[1].pos[2]- tck[0].pos[2]);
-                    tck[0].set_colour (dir.normalise());
+                    tck[0].set_colour (dir.normalise(), A);
                     for (n = 1; n < tck.size()-1; n++) {
                       dir.set (tck[n+1].pos[0]- tck[n-1].pos[0], tck[n+1].pos[1]- tck[n-1].pos[1], tck[n+1].pos[2]- tck[n-1].pos[2]);
-                      tck[n].set_colour (dir.normalise());
-                      tck[n].C[3] = A;
+                      tck[n].set_colour (dir.normalise(), A);
                     }
                     dir.set (tck[n].pos[0]- tck[n-1].pos[0], tck[n].pos[1]- tck[n-1].pos[1], tck[n].pos[2]- tck[n-1].pos[2]);
-                    tck[n].set_colour (dir.normalise());
-                    tck[n].C[3] = A;
+                    tck[n].set_colour (dir.normalise(), A);
                   }
+                  else tck[0].set_colour (default_colour, A);
                 }
                 else {
-                  for (gsize n = 0; n < tck.size(); n++) {
-                    tck[n].set_colour (colour);
-                    tck[n].C[3] = A;
-                  }
+                  for (gsize n = 0; n < tck.size(); n++) 
+                    tck[n].set_colour (colour, A);
                 }
               }
               colour_by_dir_previous = colour_by_dir;
@@ -169,8 +192,12 @@ namespace MR {
           bool refresh ()
           {
             struct stat S;
-            if (g_stat (file.c_str(), &S)) throw Exception ("error accessing tracks file \"" + file + "\": " + Glib::strerror (errno));
-            if (mtime != S.st_mtime) { load (file); return (true); }
+            if (g_stat (file.c_str(), &S))
+              throw Exception ("error accessing tracks file \"" + file + "\": " + Glib::strerror (errno));
+            if (mtime != S.st_mtime) { 
+              load (file);
+              return (true);
+            }
             return (false);
           }
 
@@ -183,14 +210,16 @@ namespace MR {
             return (n);
           }
 
+          const Track::Point* root () { return ((const Track::Point*) alloc.root()); }
 
           void add (std::vector<guint>& vertices, float min_dist, float max_dist)
           {
             for (std::list<Track>::iterator i = tracks.begin(); i != tracks.end(); ++i) {
-              for (guint n = 0; n < i->size(); n++) {
+              for (gsize n = 0; n < i->size(); n++) {
                 Track::Point& P ((*i)[n]);
                 float Z = Track::Point::normal.dot (Point (P.pos));
-                if (Z > min_dist && Z < max_dist) vertices.push_back (P.index());
+                if (Z > min_dist && Z < max_dist) 
+                  vertices.push_back (P.index());
               }
             }
           }

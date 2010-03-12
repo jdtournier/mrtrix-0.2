@@ -21,6 +21,10 @@
     15-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * a few bug fixes + memory performance improvements for the depth blend option
     
+    12-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * a few bug fixes for the colour handling and support for depth blend on
+    * 64 bit systems
+    
 */
 
 #include <gtk/gtkgl.h>
@@ -37,6 +41,7 @@ namespace MR {
     namespace SideBar {
 
       Point TrackListItem::Track::Point::normal;
+      const TrackListItem::Track::Point* TrackListItem::Track::Point::root = NULL;
 
       void TrackListItem::load (const String& filename) 
       {
@@ -50,29 +55,37 @@ namespace MR {
         DWI::Tractography::Reader reader;
         reader.open (file, properties); 
         GLubyte default_colour[] = { 255, 255, 255 };
+        GLubyte A = (GLubyte) (255.0*get_alpha());
 
         std::vector<Point> tck;
         while (reader.next (tck)) {
           if (tck.size()) {
             Track dest (alloc, tck.size());
 
-            dest[0].set_pos (tck[0]);
-            dest[0].set_colour (default_colour);
+            if (colour_by_dir) {
+              dest[0].set_pos (tck[0]);
+              if (dest.size() > 1) {
+                Point dir = tck[1] - tck[0];
+                dest[0].set_colour (dir.normalise(), A);
 
-            if (dest.size() > 1) {
-              Point dir = tck[1] - tck[0];
-              dest[0].set_colour (dir.normalise());
+                guint i;
+                for (i = 1; i < dest.size()-1; i++) {
+                  dest[i].set_pos (tck[i]);
+                  dir = tck[i+1] - tck[i-1];
+                  dest[i].set_colour (dir.normalise(), A);
+                }
 
-              guint i;
-              for (i = 1; i < dest.size()-1; i++) {
                 dest[i].set_pos (tck[i]);
-                dir = tck[i+1] - tck[i-1];
-                dest[i].set_colour (dir.normalise());
+                dir = tck[i] - tck[i-1];
+                dest[i].set_colour (dir.normalise(), A);
               }
-
-              dest[i].set_pos (tck[i]);
-              dir = tck[i] - tck[i-1];
-              dest[i].set_colour (dir.normalise());
+              else dest[0].set_colour (default_colour, A);
+            }
+            else {
+              for (guint i = 0; i < dest.size(); i++) {
+                dest[i].set_pos (tck[i]);
+                dest[i].set_colour (colour, A);
+              }
             }
 
             tracks.push_back (dest);

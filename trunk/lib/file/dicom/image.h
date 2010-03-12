@@ -23,7 +23,7 @@
     * fix handling of mosaic slice ordering (using SliceNormalVector entry in CSA header)
 
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
-    * improve GE gradient information support
+    * improved GE gradient information support
 
 */
 

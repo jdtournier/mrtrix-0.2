@@ -23,7 +23,7 @@
     * various optimisations to improve performance
 
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
-    * skip points in the tracks file is they are outside the supplied warp
+    * skip points in the tracks file if they are outside the supplied warp
 
 */
 

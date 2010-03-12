@@ -21,6 +21,10 @@
     15-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * a few bug fixes + memory performance improvements for the depth blend option
     
+    12-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * a few bug fixes for the colour handling and support for depth blend on
+    * 64 bit systems
+    
 */
 
 #include <gtkmm/treerowreference.h>
@@ -42,8 +46,6 @@ PFNGLBLENDCOLORPROC pglBlendColor = NULL;
 namespace MR {
   namespace Viewer {
     namespace SideBar {
-
-      TrackListItem::Track::Point* TrackList::root  = NULL;
 
 
 
@@ -122,12 +124,15 @@ namespace MR {
           if (vertices.empty() || Z != previous_Z || normal != previous_normal) {
 
             if (gsl_finite (thickness) || vertices.empty()) {
+              TrackListItem::Track::Point::root = (const TrackListItem::Track::Point*) (-1);
               guint count = 0;
               for (Gtk::TreeModel::Children::iterator iter = tracks.begin(); iter != tracks.end(); ++iter) {
                 bool show = (*iter)[columns.show];
                 if (show) {
                   RefPtr<TrackListItem> tck = (*iter)[columns.track];
                   count += tck->count();
+                  if (TrackListItem::Track::Point::root > tck->root()) 
+                    TrackListItem::Track::Point::root = tck->root();
                 }
               }
               vertices.clear();
@@ -137,7 +142,7 @@ namespace MR {
                 bool show = (*iter)[columns.show];
                 if (show) {
                   RefPtr<TrackListItem> tck = (*iter)[columns.track];
-                  tck->add (vertices, Z-0.5*thickness, Z+0.5*thickness);
+                  tck->add (vertices, Z-0.5f*thickness, Z+0.5f*thickness);
                 }
               }
             }
@@ -166,8 +171,8 @@ namespace MR {
           glEnableClientState (GL_VERTEX_ARRAY);
           glEnableClientState (GL_COLOR_ARRAY);
 
-          glVertexPointer (3, GL_FLOAT, sizeof(TrackListItem::Track::Point), root[0].pos);
-          glColorPointer (4, GL_UNSIGNED_BYTE, sizeof(TrackListItem::Track::Point), root[0].C);
+          glVertexPointer (3, GL_FLOAT, sizeof(TrackListItem::Track::Point), TrackListItem::Track::Point::root[0].pos);
+          glColorPointer (4, GL_UNSIGNED_BYTE, sizeof(TrackListItem::Track::Point), TrackListItem::Track::Point::root[0].C);
           glDrawElements (GL_POINTS, vertices.size(), GL_UNSIGNED_INT, &vertices[0]);
 
           glDisableClientState (GL_VERTEX_ARRAY);
@@ -403,7 +408,7 @@ namespace MR {
             Glib::RefPtr<Gdk::Pixbuf> pix = Gdk::Pixbuf::create (Gdk::COLORSPACE_RGB, false, 8, 16, 16);
             pix->fill (track->colour[0] << 24 | track->colour[1] << 16 | track->colour[2] << 8 | 255);
             (*iter)[columns.pix] = pix;
-            track->update_RGBA(); 
+            track->update_RGBA(true); 
           }
           Window::Main->update (&parent);
         }

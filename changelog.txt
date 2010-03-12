@@ -2,6 +2,14 @@
 VERSION 0.2.8
 =======================================================================
 
+12-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/tractography/track_list.h:
+    * src/mrview/sidebar/tractography/track_list.cpp:
+    * src/mrview/sidebar/tractography/track_list_item.h:
+    * src/mrview/sidebar/tractography/track_list_item.cpp:
+      a few bug fixes for the colour handling and support for depth blend on
+      64 bit systems
+    
 04-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * src/mrview/scaling.h: 
       fix automatic windowing in the presence of infinite or NaN voxel values.

@@ -8,7 +8,7 @@ VERSION 0.2.8
 
 03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/normalise_tracks.cpp: 
-      skip points in the tracks file is they are outside the supplied warp
+      skip points in the tracks file if they are outside the supplied warp
 
     * cmd/streamtrack.cpp:
     * src/dwi/tractography/tracker/base.h:
@@ -31,7 +31,7 @@ VERSION 0.2.8
     * lib/file/dicom/image.h:
     * lib/file/dicom/image.cpp:
     * lib/file/dicom/mapper.cpp:
-      improve GE gradient information support
+      improved GE gradient information support
 
     * lib/file/dicom/element.cpp: fix bug in handling of IS sequences
 

@@ -32,7 +32,7 @@
     * handle cases where the data size is greater than expected, and interpret as multi-channel data
 
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
-    * improve GE gradient information support
+    * improved GE gradient information support
 
 */
 

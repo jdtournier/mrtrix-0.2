@@ -37,6 +37,9 @@
     31-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * include <cstring> & <cstdlib> to allow compilation on Fedora 9
 
+    15-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * add shorten() function to reduce long filenames 
+
 */
 
 #ifndef __mrtrix_h__
@@ -252,6 +255,14 @@ namespace MR {
     return (stream.str());
   }
 
+
+
+  inline String shorten (const String& string, guint longest = 40, guint prefix = 10) 
+  {
+    if (string.size() > longest) 
+      return (string.substr (0,prefix) + "..." + string.substr (string.size()-longest+prefix-3));
+    else return (string);
+  }
 
 
 

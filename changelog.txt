@@ -2,6 +2,12 @@
 VERSION 0.2.8
 =======================================================================
 
+15-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/mrtrix.h:
+    * lib/file/dicom/tree.cpp:
+      add shorten() function to reduce long filenames 
+
+
 12-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * src/mrview/sidebar/tractography/track_list.h:
     * src/mrview/sidebar/tractography/track_list.cpp:

@@ -25,6 +25,9 @@
     19-12-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * various sanity checks to ignore non-image DICOM files
 
+    15-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * add shorten() function to reduce long filenames 
+
 */
 
 #include <glibmm/fileutils.h>
@@ -121,7 +124,7 @@ namespace MR {
 
       void Tree::read (const String& filename)
       {
-        ProgressBar::init (0, "scanning DICOM folder \"" + filename + "\"");
+        ProgressBar::init (0, "scanning DICOM folder \"" + shorten (filename) + "\"");
         read_dir (filename);
         ProgressBar::done();
 

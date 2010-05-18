@@ -34,7 +34,7 @@ namespace MR {
   namespace Viewer {
     namespace SideBar {
 
-      DP_ROIList::DP_ROIList (const ROIAnalysis& sidebar) : parent (sidebar), set (true), editing (false)
+      DP_ROIList::DP_ROIList (const ROIAnalysis& sidebar) : parent (sidebar), set (true)
       {
         using namespace Gtk::Menu_Helpers;
         popup_menu.items().push_back (StockMenuElem(Gtk::Stock::OPEN, sigc::mem_fun(*this, &DP_ROIList::on_open) ) );

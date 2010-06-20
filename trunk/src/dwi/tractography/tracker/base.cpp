@@ -119,8 +119,11 @@ namespace MR {
           for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) i->included = false;
 
           Point seed_point;
-          do { seed_point = gen_seed(); } while (not_in_mask (seed_point));
-          set (seed_point, seed_dir);
+          do {
+            do { 
+              seed_point = gen_seed(); 
+            } while (not_in_mask (seed_point));
+          } while (set (seed_point, seed_dir));
         }
 
 

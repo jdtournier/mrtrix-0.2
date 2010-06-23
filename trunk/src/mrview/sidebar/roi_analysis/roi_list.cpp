@@ -300,7 +300,7 @@ namespace MR {
         ima.set (0, round (pos[0]));
         ima.set (1, round (pos[1]));
         ima.set (2, round (pos[2]));
-        if (ima[0] < 0 || ima[1] >= ima.dim(0) || ima[1] < 0 || ima[1] >= ima.dim(1) || ima[2] < 0 || ima[2] >= ima.dim(2)) return;
+        if (ima[0] < 0 || ima[0] >= ima.dim(0) || ima[1] < 0 || ima[1] >= ima.dim(1) || ima[2] < 0 || ima[2] >= ima.dim(2)) return;
 
         ima.value (set ? 1.0 : 0.0);
         Window::Main->update (&parent);

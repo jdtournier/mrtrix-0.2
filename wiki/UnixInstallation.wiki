@@ -2,6 +2,7 @@
 
 MRtrix depends on a number of other packages. Most, if not all of these packages should be available on any recent Linux distribution via the appropriate package manager. MRtrix has been written and tested on Ubuntu Linux 7.10 (Gutsy Gibbon) through to 10.04 (Lucid Lynx). On all these distributions, all dependencies are available via the Synaptic Package Manager.
 
+----
 = Compile-time dependencies =
 
 Before any of the programs included in the MRtrix packages can be used, they need to be compiled (i.e. translated into machine code suitable for your specific computer platform). This will generate the required executables and dynamic library. The following packages and corresponding development files (i.e. headers) are required for this step:
@@ -37,6 +38,7 @@ On Ubuntu, these packages can be installed via the Synaptic Package Manager (or 
    * The nVidia® driver already includes the required development files
  * libglu1-mesa-dev
 
+----
 = Run-time dependencies =
 
 Once all the executables have been compiled (as in the previous steps), they can be used provided the following packages are also installed. Note that these should already be installed on your system, either by default or as a result of having installed the corresponding development packages in the previous compilation step.
@@ -66,7 +68,7 @@ On Ubuntu, these packages can be installed via the Synaptic Package Manager (or 
  * nvidia-glx or nvidia-glx-new (if using a nVidia® graphics card)
  * libglu1-mesa
 
-
+----
 = Compilation from source =
 
 Once all dependencies are installed, MRtrix can be compiled by issuing the commands (modify as appropriate):
@@ -81,7 +83,7 @@ If this completes with no errors, all executables should be located in the `bin/
 
 If any errors do occur, you may need to modify the configuration file. The relevant file will be located in the sysconfig/ folder, will have a `*.py` suffix, and will be named according to the target platform. Unfortunately a full discussion of the various options that can be modified is beyond the scope of this document.
 
-= Compilation on 64-bit systems (x86-64) =
+== Compilation on 64-bit systems (x86-64) ==
 
 MRtrix can be compiled in 64-bit mode by editing the sysconf/linux.py file prior to issuing the ./build command. Note that MRtrix will run just as well in 32-bit mode on these systems; enabling 64-bit mode allows MRtrix to access a larger address space, and consequently to process larger data sets. If you need to process very large data sets (i.e. 2GB or more), then compiling MRtrix in 64-bit mode may be recommended.
 
@@ -101,6 +103,7 @@ Save the file and exit the editor. You can now issue the `./build` command to ca
 ./build
 }}}
 
+----
 = Installation of executables =
 
 Once all executables and the dynamic library have been successfully created, they can be made available for use. The recommended installation procedure is as follows (note that this can be tailored to your needs). The following commands will need to be issued from the root account. If you do not have root or administrative access to your system, you can simply install the files to a location that you have write permissions for (i.e. anywhere in your home folder), in which case the following commands can be issued from your own account.
@@ -192,7 +195,7 @@ mrview
 }}}
 which should open the MRtrix viewing tool.
 
-
+----
 = Final configuration =
 
 Once the software is up and running, is it worth taking the time to perform a few simple configurations steps. The following important application behaviours can be modified by setting the relevant variables in the configuration file (described in more detail in the Appendix). Note that if the configuration file does not exist, or if the variables are not set, default values will be used instead.

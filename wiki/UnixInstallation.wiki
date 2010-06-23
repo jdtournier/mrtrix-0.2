@@ -17,7 +17,7 @@ Before any of the programs included in the MRtrix packages can be used, they nee
  * gtkmm (version > 2.12)
    * both available from http://www.gtkmm.org/
  * gtkglext (version > 1.0)
-   * available from http://www.k-3d.org/gtkglext/Main_Page
+   * available from http://projects.gnome.org/gtkglext/
  * GSL (GNU Scientific Library; version > 1.8)
    * available from http://www.gnu.org/software/gsl/
  * a working OpenGL implementation (version > 1.2)

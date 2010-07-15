@@ -208,7 +208,7 @@ class Entry:
     
   def set_library (self):
     self.action = 'LD'
-    for root, dirs, files in os.walk (os.path.split(self.name)[0]):
+    for root, dirs, files in os.walk (os.path.split(self.name)[0], followlinks=True):
       for file in files:
         if file[0] == '.': continue
         if file.endswith (cpp_suffix):
@@ -543,7 +543,7 @@ def gen_command_html_help ():
 
 def clean_cmd ():
   files_to_remove = []
-  for root, dirs, files in os.walk ('.'):
+  for root, dirs, files in os.walk ('.', followlinks=True):
     for file in files:
       if file[0] == '.': continue
       if file.endswith (obj_suffix) or ( file.startswith (lib_prefix) and file.endswith (lib_suffix) ):
@@ -551,7 +551,7 @@ def clean_cmd ():
         
   dirs_to_remove = []
   if os.path.isdir (bin_dir):
-    for root, dirs, files in os.walk (bin_dir, topdown=False):
+    for root, dirs, files in os.walk (bin_dir, topdown=False, followlinks=True):
       for file in files: files_to_remove.append (os.path.join (root, file))
       for entry in dirs: dirs_to_remove.append (os.path.join (root, entry))
     dirs_to_remove.append (bin_dir)
@@ -559,7 +559,7 @@ def clean_cmd ():
   if os.path.isdir (dev_dir):
     print '[RM] development doc'
     sys.stdout.flush()
-    for root, dirs, files in os.walk (dev_dir, topdown=False):
+    for root, dirs, files in os.walk (dev_dir, topdown=False, followlinks=True):
       for entry in files:
         os.remove (os.path.join (root, entry))
     for entry in dirs:

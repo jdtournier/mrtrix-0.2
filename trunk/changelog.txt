@@ -2,6 +2,21 @@
 VERSION 0.2.8
 =======================================================================
 
+15-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * build: 
+      fix to allow the use of symbolic links (problem identified by Rob
+      Smith)
+
+    * Doxyfile: version number upped to 0.2.9
+
+    * lib/mrtrix.h: MRTRIX_MICRO_VERSION upped to 9
+
+
+
+=======================================================================
+VERSION 0.2.8
+=======================================================================
+
 15-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * lib/mrtrix.h:
     * lib/file/dicom/tree.cpp:

@@ -40,6 +40,9 @@
     15-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * add shorten() function to reduce long filenames 
 
+    15-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * MRTRIX_MICRO_VERSION upped to 9
+
 */
 
 #ifndef __mrtrix_h__
@@ -71,7 +74,7 @@
 
 #define MRTRIX_MAJOR_VERSION 0
 #define MRTRIX_MINOR_VERSION 2
-#define MRTRIX_MICRO_VERSION 8
+#define MRTRIX_MICRO_VERSION 9
 
 
 /** Prints the file and line number. Useful for debugging purposes. */

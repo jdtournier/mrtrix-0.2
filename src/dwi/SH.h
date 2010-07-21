@@ -18,6 +18,11 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+    21-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * improved SH::delta() function
+
 */
 
 #ifndef __spherical_deconvolution_h__
@@ -62,7 +67,7 @@ namespace MR {
       void precompute (int lmax, int num = 256);
       float value_precomputed (const float *values, const Point& unit_dir);
 
-      void delta (Coefs& SH, const Math::Matrix& dirs, float azimuth, float elevation, int lmax);
+      void delta (Coefs& SH, float azimuth, float elevation, int lmax);
 
       void init_transform (Math::Matrix& SHT, const Math::Matrix& dirs, int lmax);
 

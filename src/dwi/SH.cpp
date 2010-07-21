@@ -29,6 +29,9 @@
     * fix bug in computation of second derivative of SH series (pointed out by
     * Ben Jeurissen).
     
+    21-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * improved SH::delta() function
+
 */
 
 #include <gsl/gsl_sf_legendre.h>
@@ -94,50 +97,25 @@ namespace MR {
 
 
 
-      void delta (Coefs& SH, const Math::Matrix& dirs, float azimuth, float elevation, int lmax)
+
+
+      void delta (Coefs& SH, float azimuth, float elevation, int lmax)
       {
         SH.lmax (lmax);
-        SH.V.zero();
-        for (int n = 0; n <= lmax; n+=2)
-          SH (n,0) = value (0.0, 0.0, n, 0);
+        float cel = cos(elevation);
+        double AL [lmax+1];
 
-        Math::Matrix cart(3, dirs.rows());
-        for (guint n = 0; n < dirs.rows(); n++) {
-          double d = sin (dirs(n,1));
-          cart(0,n) = d*cos (dirs(n,0));
-          cart(1,n) = d*sin (dirs(n,0));
-          cart(2,n) = cos (dirs(n,1));
+        gsl_sf_legendre_sphPlm_array (lmax, 0, cel, AL);
+        for (int l = 0; l <= lmax; l+=2) SH(l,0) = AL[l];
+        for (int m = 1; m <= lmax; m++) {
+          gsl_sf_legendre_sphPlm_array (lmax, m, cel, AL);
+          float c = cos (m*azimuth);
+          float s = sin (m*azimuth);
+          for (int l = ((m&1) ? m+1 : m); l <= lmax; l+=2) {
+            SH(l,m)  = 2.0 * AL[l-m] * c;
+            SH(l,-m) = 2.0 * AL[l-m] * s;
+          }
         }
-
-        Math::Matrix A(3,3), B(3,3);
-        A.identity();
-        A(0,0) = cos(azimuth);
-        A(0,1) = -sin(azimuth);
-        A(1,0) = -A(0,1);
-        A(1,1) = A(0,0);
-
-        B.identity();
-        B(0,0) = cos(elevation);
-        B(0,2) = sin(elevation);
-        B(2,0) = -B(0,2);
-        B(2,2) = B(0,0);
-
-        Math::Matrix R;
-        R.multiply (A, B);
-        B.multiply (R, cart);
-
-        A.allocate (dirs);
-        for (guint n = 0; n < dirs.rows(); n++) {
-          A(n,1) = acos (B(2,n));
-          A(n,0) = atan2 (B(1,n), B(0,n));
-        }
-
-        Transform rotated (A, lmax);
-        Transform non_rotated (dirs, lmax);
-
-        Math::Vector tmp (NforL (lmax));
-        rotated.SH2A (tmp, SH);
-        non_rotated.A2SH (SH, tmp);
       }
 
 

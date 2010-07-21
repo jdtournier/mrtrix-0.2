@@ -3,6 +3,10 @@ VERSION 0.2.8
 =======================================================================
 
 21-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/dwi/SH.h:
+    * src/dwi/SH.cpp:
+      improved SH::delta() function
+
     * src/mrview/sidebar/overlay.h:
     * src/mrview/sidebar/overlay.cpp:
     * src/mrview/sidebar/main.h:

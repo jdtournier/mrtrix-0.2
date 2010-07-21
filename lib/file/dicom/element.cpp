@@ -37,6 +37,9 @@
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * fix bug in handling of IS sequences
 
+    16-08-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix bug in handling of big-endian files
+
 */
 
 #include <cstdio>
@@ -207,15 +210,15 @@ namespace MR {
             switch (element) {
               case ELEMENT_TRANSFER_SYNTAX_UID:
                 if (strncmp ((const gchar*) data, "1.2.840.10008.1.2.1", size) == 0) {
-                  is_BE = false; // explicit VR Little Endian
+                  is_BE = previous_BO_was_BE = false; // explicit VR Little Endian
                   is_explicit = true;
                 }
                 else if (strncmp ((const gchar*) data, "1.2.840.10008.1.2.2", size) == 0) {
-                  is_BE = true; // Explicit VR Big Endian
+                  is_BE = previous_BO_was_BE = true; // Explicit VR Big Endian
                   is_explicit = true;
                 }
                 else if (strncmp ((const gchar*) data, "1.2.840.10008.1.2", size) == 0) {
-                  is_BE = false; // Implicit VR Little Endian
+                  is_BE = previous_BO_was_BE = false; // Implicit VR Little Endian
                   is_explicit = false;
                 }
                 else if (strncmp ((const gchar*) data, "1.2.840.10008.1.2.1.99", size) == 0) {

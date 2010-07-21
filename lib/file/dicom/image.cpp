@@ -34,6 +34,9 @@
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * improved GE gradient information support
 
+    16-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * check for readable data in GE private DW tags before assigning
+
 */
 
 #include <glibmm/miscutils.h>
@@ -93,9 +96,9 @@ namespace MR {
             return;
           case 0x0019U: 
             switch (item.element) { // GE DW encoding info:
-              case 0x10BBU: G[0] = item.get_float()[0]; return;
-              case 0x10BCU: G[1] = item.get_float()[0]; return;
-              case 0x10BDU: G[2] = item.get_float()[0]; return;
+              case 0x10BBU: if (item.get_float().size()) G[0] = item.get_float()[0]; return;
+              case 0x10BCU: if (item.get_float().size()) G[1] = item.get_float()[0]; return;
+              case 0x10BDU: if (item.get_float().size()) G[2] = item.get_float()[0]; return;
             }
             return;
           case 0x0020U: 
@@ -136,7 +139,7 @@ namespace MR {
             }
             else return;
           case 0x0043U: // GEMS_PARMS_01 block
-              if (item.element == 0x1039U) bvalue = item.get_int()[0];
+              if (item.element == 0x1039U) if (item.get_int().size()) bvalue = item.get_int()[0];
               return;
           case 0x2001U: // Philips DW encoding info: 
             if (item.element == 0x1003) bvalue = item.get_float()[0];

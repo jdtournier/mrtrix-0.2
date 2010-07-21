@@ -28,6 +28,7 @@
 #include "mrview/sidebar/base.h"
 #include "mrview/sidebar/tractography.h"
 #include "mrview/sidebar/roi_analysis.h"
+#include "mrview/sidebar/overlay.h"
 #include "mrview/sidebar/orientation_plot.h"
 #include "mrview/sidebar/screen_capture.h"
 
@@ -38,6 +39,7 @@ namespace MR {
       const char* Main::names[] = { 
         "tractography",
         "ROI analysis",
+        "overlay",
         "orientation plot",
         "screen capture"
       }; 
@@ -74,6 +76,11 @@ namespace MR {
         row[entry.name] = names[3];
         list[3] = NULL;
 
+        row = *(selector_list->append());
+        row[entry.ID] = 4;
+        row[entry.name] = names[4];
+        list[4] = NULL;
+
         box.pack_start (selector, Gtk::PACK_SHRINK);
         selector.signal_changed().connect (sigc::mem_fun (*this, &Main::on_selector));
 
@@ -94,7 +101,8 @@ namespace MR {
           Gtk::TreeModel::Row row = *iter;
           if (row) {   
             int id = row[entry.ID];
-            if (!list[id]) init (id);
+            if (!list[id])
+              init (id);
 
             for (guint n = 1; n < box.children().size(); n++)
               box.children()[n].get_widget()->hide();
@@ -117,8 +125,9 @@ namespace MR {
         switch (index) {
           case 0:  list[0] = manage (new Tractography); break;
           case 1:  list[1] = manage (new ROIAnalysis); break;
-          case 2:  list[2] = manage (new OrientationPlot); break;
-          case 3:  list[3] = manage (new ScreenCapture); break;
+          case 2:  list[2] = manage (new Overlay); break;
+          case 3:  list[3] = manage (new OrientationPlot); break;
+          case 4:  list[4] = manage (new ScreenCapture); break;
           default: list[index] = manage (new Base (-1)); break;
         }
         box.pack_start (*list[index]);

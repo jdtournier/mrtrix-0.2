@@ -30,7 +30,7 @@
 
 #include "mrtrix.h"
 
-#define NUM_SIDEBAR 4
+#define NUM_SIDEBAR 5
 
 namespace MR {
   namespace Viewer {

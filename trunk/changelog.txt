@@ -2,6 +2,14 @@
 VERSION 0.2.8
 =======================================================================
 
+21-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/sidebar/overlay.h:
+    * src/mrview/sidebar/overlay.cpp:
+    * src/mrview/sidebar/main.h:
+    * src/mrview/sidebar/main.cpp:
+      added new overlay sidebar tool
+
+
 16-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * lib/file/dicom/image.cpp:
       check for readable data in GE private DW tags before assigning

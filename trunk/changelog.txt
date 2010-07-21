@@ -2,6 +2,14 @@
 VERSION 0.2.8
 =======================================================================
 
+16-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/dicom/image.cpp:
+      check for readable data in GE private DW tags before assigning
+
+    * lib/file/dicom/element.cpp:
+      fix bug in handling of big-endian files
+
+
 15-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * build: 
       fix to allow the use of symbolic links (problem identified by Rob

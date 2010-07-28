@@ -30,6 +30,9 @@
     * a few bug fixes for the colour handling and support for depth blend on
     * 64 bit systems
     
+    28-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * increased allocator slab size to 32MB to force release of RAM to OS on close()
+
 */
 
 #ifndef __mrview_sidebar_tractography_tracklist_item_h__
@@ -44,7 +47,7 @@
 #include "math/vector.h"
 #include "dwi/tractography/properties.h"
 
-#define TRACK_ALLOCATOR_SLAB_SIZE 0x100000U
+#define TRACK_ALLOCATOR_SLAB_SIZE 0x2000000U
 #define TRANSPARENCY_EXPONENT 4.9 
 
 namespace MR {

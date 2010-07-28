@@ -136,44 +136,6 @@ Unfortunately a full discussion of the various options that can be modified is b
 </p>
 
 <p class=sep><a href="#top">top</a></p>
-<h3><a name='x86-64'>Compilation on 64-bit systems (x86-64)</a></h3>
-<p>
-MRtrix can be compiled in 64-bit mode by editing the <kbd>sysconf/linux.py</kbd> file prior to issuing the <kbd>./build</kbd> command.
-Note that MRtrix will run just as well in 32-bit mode on these systems; 
-enabling 64-bit mode allows MRtrix to access a larger address space,
-and consequently to process larger data sets. 
-If you need to process very large data sets (i.e. 2GB or more), then compiling MRtrix in 64-bit mode may be recommended.
-</p>
-<p>
-To enable 64-bit mode, open the <kbd>sysconf/linux.py</kbd> file using a text editor:
-</p>
-<pre>
-&gt; <b>gedit sysconf/linux.py</b>
-</pre>
-<p>
-Find the line that specifies the C++ compiler flags, and change the <kbd>-march</kbd> option to <kbd>x86-64</kbd> 
-(note the use of a hyphen, rather than an underscore as produced by the <kbd>uname</kbd> command).
-The modified line should now read:
-</p>
-<pre>
-cpp_flags = [ '-Wall', '-march=<b>x86-64</b>', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES' ]
-</pre>
-<p>
-Save the file and exit the editor. You can now issue the <kbd>./build</kbd> command to carry out the compilation itself.
-</p>
-<p>
-<strong>Note:</strong> if you had issued the <kbd>./build</kbd> command at any point before editing the <kbd>sysconf/linux.py</kbd> file,
-you will most likely need to remove any intermediate files that may have already been generated. 
-To do this, issue the commands:
-</p>
-<pre>
-&gt; <b>./build clean</b>
-&gt; <b>./build</b>
-</pre>
-
-
-<p class=sep><a href="#top">top</a></p>
-
 
 <h2><a name='install'>Installation of executables</a></h2>
 <p>

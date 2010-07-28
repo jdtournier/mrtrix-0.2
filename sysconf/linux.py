@@ -6,7 +6,7 @@ lib_prefix = 'lib'
 lib_suffix = '.so'
 
 cpp = [ 'g++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
-cpp_flags = [ '-Wall', '-march=i686', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1' ]
+cpp_flags = [ '-Wall', '-march=native', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1' ]
 
 ld = [ 'g++', '$flags$', '$path$', '$obj$', '$mrtrix$', '$gsl$', '$gtk$', '-o', '$bin$' ]
 ld_flags = []

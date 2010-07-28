@@ -27,6 +27,7 @@
   <li><a href='#coreg'>I want to coregister my anatomical images with the DWI/tracks</a></li>
   <li><a href='#probmap'>How do I produce an image of the track count through each voxel?</a></li>
   <li><a href='#temp'>What are these 'mrtrix-azdj28.mif' files that keep appearing in my folder?</a></li>
+  <li><a href='#analyse'>Why am I getting strange alignment issues with my Analyse format data?</a></li>
 </ul>
 
 <p class=sep><a href="#top">top</a></p>
@@ -210,6 +211,34 @@ MRtrix will produce temporary files when <a href='general/cmdline.html#pipes'>da
 If one of the programs in the pipeline crashes, these files will not be deleted (see <a href='general/cmdline.html#pipes'>here</a> for details).
 If you find one or more of these files amongst your data, you can safely delete them &ndash; 
 assuming of course that there are no currently running MRtrix programs that may be accessing the file!
+</p>
+
+<p class=sep><a href="#top">top</a></p>
+
+<h3><a name='analyse'>Why am I getting strange alignment issues with my Analyse format data?</a></h3>
+<p>
+If you use the Analyse image format to store your data, you may find that your
+FOD orientations or tractography results are not correctly aligned with the
+image. This is due to a limitation of the Analyse image format: it is not
+capable of storing the image transformation matrix. If the data were acquired
+in a non-axial orientation, and the DW gradient orientations were not
+reoriented to match the image axes, this will cause an orientation mismatch.
+This problem can also occur if the processing is performed in a different
+format that does support storing of the transform (e.g. MRtrix or NIfTI), and
+the results subsequently converted to Analyse format. 
+</p>
+<p>
+ Another issue with the Analyse image format is the lack of a clear
+convention for left-right ordering. In particular, certain versions of SPM used
+the convention that the data were stored left to right, which is the opposite
+of the official Analyse application. In other versions of SPM, the convention
+to use for this ordering can be set by editing a configuration file. An image
+generated using one convention will be flipped if read assuming the opposite
+convention.  Consequently, it impossible to guarantee that images stored in
+Analyse format are correctly oriented.
+</p>
+<p>
+For these reasons, the use of Analyse images is <b>strongly discouraged</b>.
 </p>
 
 

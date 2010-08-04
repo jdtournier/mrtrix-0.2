@@ -62,7 +62,7 @@ namespace MR {
       Point&       operator*= (float M)                 { p[0] *= M; p[1] *= M; p[2] *= M; return (*this); }
 
       float        dot (const Point& A) const           { return (p[0]*A[0] + p[1]*A[1] + p[2]*A[2]); }
-      Point        cross (const Point& A)               { return (Point (p[1]*A[2]-p[2]*A[1], p[2]*A[0]-p[0]*A[2], p[0]*A[1]-p[1]*A[0])); }
+      Point        cross (const Point& A) const         { return (Point (p[1]*A[2]-p[2]*A[1], p[2]*A[0]-p[0]*A[2], p[0]*A[1]-p[1]*A[0])); }
 
       void         invalidate ()                        { set (GSL_NAN, GSL_NAN, GSL_NAN); }
       static Point Invalid;

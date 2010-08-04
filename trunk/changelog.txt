@@ -1,6 +1,15 @@
 =======================================================================
-VERSION 0.2.8
+VERSION 0.2.9
 =======================================================================
+
+04-08-2010 Robert Smith <r.smith@brain.org.au>
+    * cmd/tracks2prob.cpp:
+      reverted to previous interpretation of track 'density'
+      (no scaling factor, finer interpolation & unary track->voxel contribution)
+
+    * lib/point.h:
+      added const qualifier to declaration of member function Point::cross()
+
 
 28-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * src/mrview/sidebar/tractography/track_list_item.h:
@@ -45,6 +54,11 @@ VERSION 0.2.8
     * Doxyfile: version number upped to 0.2.9
 
     * lib/mrtrix.h: MRTRIX_MICRO_VERSION upped to 9
+
+
+14-07-2010 Robert Smith <r.smith@brain.org.au>
+    * cmd/tracks2prob.cpp:
+      major overhaul of tracks2prob
 
 
 

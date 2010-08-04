@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+    04-08-2010 Robert E. Smith <r.smith@brain.org.au>
+    * reverted to previous interpretation of voxel values as the number
+      of tracks detected as entering each voxel, without normalisation
+
 */
 
 
@@ -26,6 +30,8 @@
 #include "math/matrix.h"
 #include "dwi/tractography/file.h"
 #include "dwi/tractography/properties.h"
+
+#include <set>
 
 
 
@@ -78,9 +84,18 @@ OPTIONS = {
 };
 
 
-
+// Value of tension for Hermite interpolation
 #define HERMITE_TENSION 0.1
+
+// When generating a custom image header from the data set, do not
+// read more than this number of tracks to determine the real-space
+// bounds of the data
 #define MAX_TRACKS_READ_FOR_HEADER 1000000
+
+// When automatically determining an appropriate interpolation factor,
+// force the approximate step size of the interpolated track to be
+// AT MOST this fraction of the minimum voxel dimension
+#define INTERP_VOX_DIM_FRACTION 0.5
 
 
 
@@ -111,6 +126,16 @@ class Voxel
       return (*this);
     }
 
+    bool operator< (const Voxel& v) const
+    {
+      return (x == v.x ? (y == v.y ? (z == v.z ? 1 : 0) : (y < v.y)) : (x < v.x));
+    }
+
+    bool operator== (const Voxel& v) const
+    {
+      return (x == v.x && y == v.y && z == v.z);
+    }
+
     bool test_bounds (const Image::Header& H) const 
     {
       return (x < size_t(H.dim(0)) && y < size_t(H.dim(1)) && z < size_t(H.dim(2)));
@@ -136,6 +161,11 @@ class VoxelDir : public Voxel
       dir[0] = fabs (dp[0]);
       dir[1] = fabs (dp[1]);
       dir[2] = fabs (dp[2]);
+    }
+
+    bool operator< (const VoxelDir& v) const
+    {
+      return (Voxel::operator< (v));
     }
 
     Point dir;
@@ -208,7 +238,7 @@ template <class T> class TrackMapper
       resample_matrix (interp_matrix),
       R (resample_matrix, 3) { }
 
-    void map (std::vector<Point>& tck, std::vector<T>& output)
+    void map (std::vector<Point>& tck, std::set<T>& output)
     {
       Math::Matrix data;
       if (R.valid()) {
@@ -254,22 +284,22 @@ template <class T> class TrackMapper
       out.swap (tck);
     }
 
-    void voxelise (const std::vector<Point>& tck, std::vector<T>& voxels) const;
+    void voxelise (const std::vector<Point>& tck, std::set<T>& voxels) const;
 
 };
 
 
-template<> void TrackMapper<Voxel>::voxelise (const std::vector<Point>& tck, std::vector<Voxel>& voxels) const
+template<> void TrackMapper<Voxel>::voxelise (const std::vector<Point>& tck, std::set<Voxel>& voxels) const
 {
   for (std::vector<Point>::const_iterator i = tck.begin(); i != tck.end(); ++i) {
     Voxel vox (interp.R2P (*i));
     if (vox.test_bounds (H)) 
-      voxels.push_back (vox);
+      voxels.insert (vox);
   }
 }
 
 
-template<> void TrackMapper<VoxelDir>::voxelise (const std::vector<Point>& tck, std::vector<VoxelDir>& voxels) const
+template<> void TrackMapper<VoxelDir>::voxelise (const std::vector<Point>& tck, std::set<VoxelDir>& voxels) const
 {
   std::vector<Point>::const_iterator prev = tck.begin();
   const std::vector<Point>::const_iterator last = tck.end() - 1;
@@ -278,14 +308,14 @@ template<> void TrackMapper<VoxelDir>::voxelise (const std::vector<Point>& tck, 
     VoxelDir vox (interp.R2P (*i));
     if (vox.test_bounds (H)) {
       vox.set_dir ((*(i+1) - *prev).normalise());
-      voxels.push_back (vox);
+      voxels.insert (vox);
     }
     prev = i;
   }
   VoxelDir vox (interp.R2P (*last));
   if (vox.test_bounds (H)) {
     vox.set_dir ((*last - *prev).normalise());
-    voxels.push_back (vox);
+    voxels.insert (vox);
   }
 }
 
@@ -307,7 +337,7 @@ template <class T> class MapWriterBase
       buffer_size = H.dim(0) * H.dim(1) * H.dim(2);
     }
 
-    virtual void write (const std::vector<T>& voxels) = 0;
+    virtual void write (const std::set<T>& voxels) = 0;
 
    protected:
     Image::Position& pos;
@@ -349,9 +379,9 @@ class MapWriter : public MapWriterBase<Voxel>
       delete[] buffer;
     }
 
-    void write (const std::vector<Voxel>& voxels)
+    void write (const std::set<Voxel>& voxels)
     {
-      for (std::vector<Voxel>::const_iterator i = voxels.begin(); i != voxels.end(); ++i)
+      for (std::set<Voxel>::const_iterator i = voxels.begin(); i != voxels.end(); ++i)
         buffer[voxel_to_index(*i)] += 1;
     }
 
@@ -391,10 +421,17 @@ class MapWriterColour : public MapWriterBase<VoxelDir>
       delete[] buffer;
     }
 
-    void write (const std::vector<VoxelDir>& voxels)
+    void write (const std::set<VoxelDir>& voxels)
     {
-      for (std::vector<VoxelDir>::const_iterator i = voxels.begin(); i != voxels.end(); ++i)
-        buffer[voxel_to_index(*i)] += i->dir;
+      std::set<VoxelDir>::const_iterator i = voxels.begin();
+      while (i != voxels.end()) {
+        const std::set<VoxelDir>::const_iterator this_voxel = i;
+        Point this_voxel_dir(0.0, 0.0, 0.0);
+        do {
+          this_voxel_dir += i->dir;
+        } while ((++i) != voxels.end() && *i == *this_voxel);
+        buffer[voxel_to_index(*this_voxel)] += this_voxel_dir.normalise();
+      }
     }
 
 
@@ -588,7 +625,6 @@ EXECUTE {
     header.comments.push_back ("comment: " + *i);
 
   float scaling_factor = fibre_fraction ? 1.0 / float(num_tracks) : 1.0;
-  scaling_factor *= properties["step_size"].empty() ? 1.0 : (to<float>(properties["step_size"]) / minvalue (header.vox(0), header.vox(1), header.vox(2)));
   header.comments.push_back("scaling_factor: " + str(scaling_factor));
   info ("intensity scaling factor set to " + str(scaling_factor));
 
@@ -599,10 +635,8 @@ EXECUTE {
     info ("track interpolation factor manually set to " + str(resample_factor));
   } 
   else if (step_size) {
-    const float min_vox = minvalue (header.vox(0), header.vox(1), header.vox(2));
-    resample_factor = ceil (step_size / min_vox);
+    resample_factor = ceil (step_size / (minvalue (header.vox(0), header.vox(1), header.vox(2)) * INTERP_VOX_DIM_FRACTION));
     info ("track interpolation factor automatically set to " + str(resample_factor));
-    properties["step_size"] = str(step_size / resample_factor);
   } 
   else {
     resample_factor = 1;
@@ -630,7 +664,7 @@ EXECUTE {
 
     ProgressBar::init (num_tracks, "mapping tracks to colour image... ");
     while (file.next (tck)) {
-      std::vector<VoxelDir> mapped_voxels;
+      std::set<VoxelDir> mapped_voxels;
       mapper.map (tck, mapped_voxels);
       writer.write (mapped_voxels);
       ProgressBar::inc();
@@ -649,7 +683,7 @@ EXECUTE {
 
     ProgressBar::init (num_tracks, "mapping tracks to image... ");
     while (file.next (tck)) {
-      std::vector<Voxel> mapped_voxels;
+      std::set<Voxel> mapped_voxels;
       mapper.map (tck, mapped_voxels);
       writer.write (mapped_voxels);
       ProgressBar::inc();

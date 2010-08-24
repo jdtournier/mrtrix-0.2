@@ -128,7 +128,7 @@ class Voxel
 
     bool operator< (const Voxel& v) const
     {
-      return (x == v.x ? (y == v.y ? (z == v.z ? 1 : 0) : (y < v.y)) : (x < v.x));
+      return (x == v.x ? (y == v.y ? (z < v.z ? 1 : 0) : (y < v.y)) : (x < v.x));
     }
 
     bool operator== (const Voxel& v) const

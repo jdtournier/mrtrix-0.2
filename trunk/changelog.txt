@@ -2,6 +2,10 @@
 VERSION 0.2.9
 =======================================================================
 
+24-08-2010 Robert Smith <r.smith@brain.org.au>
+    * cmd/tracks2prob.cpp:
+      fix bug in handling of multiple contributions to a single voxel from a single track
+
 04-08-2010 Robert Smith <r.smith@brain.org.au>
     * cmd/tracks2prob.cpp:
       reverted to previous interpretation of track 'density'

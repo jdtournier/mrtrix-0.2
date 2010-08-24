@@ -22,6 +22,9 @@
     * reverted to previous interpretation of voxel values as the number
       of tracks detected as entering each voxel, without normalisation
 
+    24-08-2010 Robert Smith <r.smith@brain.org.au>
+    * fix bug in handling of multiple contributions to a single voxel from a single track
+
 */
 
 

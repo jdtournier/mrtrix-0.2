@@ -41,7 +41,7 @@
     * add shorten() function to reduce long filenames 
 
     15-07-2010 J-Donald Tournier <d.tournier@brain.org.au>
-    * MRTRIX_MICRO_VERSION upped to 9
+    * version upped to 9
 
 */
 

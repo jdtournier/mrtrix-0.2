@@ -198,7 +198,7 @@ namespace MR {
         I.P (pix);
         value = I.value();
         pos = printf ("%.2f %.2f %.2f ", pix[0], pix[1], pix[2]);
-        for (int n = 3; n < I.ndim(); n++) pos += str (I.dim(n)) + " ";
+        for (int n = 3; n < I.ndim(); n++) pos += str (I[n]) + " ";
       }
       else {
         P.set (0, round (pix[0]));

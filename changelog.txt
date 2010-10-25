@@ -2,9 +2,14 @@
 VERSION 0.2.9
 =======================================================================
 
+25-10-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * src/mrview/slice.cpp: fix initial position of focus so that it is centered on a voxel
+
+
 24-08-2010 Robert Smith <r.smith@brain.org.au>
     * cmd/tracks2prob.cpp:
       fix bug in handling of multiple contributions to a single voxel from a single track
+
 
 04-08-2010 Robert Smith <r.smith@brain.org.au>
     * cmd/tracks2prob.cpp:

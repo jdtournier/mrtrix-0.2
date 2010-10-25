@@ -18,6 +18,10 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+
+    25-10-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix initial position of focus so that it is centered on a voxel
+
 */
 
 #include "mrview/slice.h"
@@ -387,7 +391,7 @@ namespace MR {
           MR::Image::Interp &I (*image->interp);
 
           if (projection > 2) projection = minindex (I.dim(0)*I.vox(0), I.dim(1)*I.vox(1), I.dim(2)*I.vox(2));
-          if (!focus) focus = I.P2R (Point (I.dim(0)/2.0, I.dim(1)/2.0, I.dim(2)/2.0));
+          if (!focus) focus = I.P2R (Point (floor ((I.dim(0)-1)/2.0), floor ((I.dim(1)-1)/2.0), floor ((I.dim(2)-1)/2.0)));
         }
 
 

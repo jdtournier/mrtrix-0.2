@@ -18,6 +18,11 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+
+    05-11-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix incorrect progressbar count, and handling of large numbers of input
+    * files.
+
 */
 
 #include "app.h"
@@ -75,7 +80,7 @@ EXECUTE {
   Image::Position out (*argument[num_images].get_image (header));
 
 
-  ProgressBar::init (out.voxel_count(), "adding...");
+  ProgressBar::init (num_images * out.voxel_count(), "adding...");
 
   for (guint i = 0; i < num_images; i++) {
     Image::Position y (*in[i]);
@@ -98,6 +103,7 @@ EXECUTE {
 
     } while (out++);
 
+    in[i] = NULL;
   }
 
   ProgressBar::done();

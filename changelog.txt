@@ -2,6 +2,10 @@
 VERSION 0.2.9
 =======================================================================
 
+09-11-2010 Robert Smith <r.smith@brain.org.au>
+    * cmd/threshold.cpp: added -nonbinary output mode
+
+
 25-10-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * src/mrview/slice.cpp: fix initial position of focus so that it is centered on a voxel
 

@@ -164,8 +164,8 @@ namespace MR {
           debug ("preparing file \"" + fname + "\"");
 
           base->filename = fname;
-          struct stat sbuf;
-          if (g_stat (base->filename.c_str(), &sbuf)) {
+          struct_stat64 sbuf;
+          if (stat64 (base->filename.c_str(), &sbuf)) {
 
             if (errno != ENOENT) 
               throw Exception ("cannot stat file \"" + base->filename + "\": " + Glib::strerror(errno));
@@ -232,8 +232,8 @@ namespace MR {
     bool MMap::changed () const
     { 
       if (!base) return (false);
-      struct stat sbuf;
-      if (g_stat (base->filename.c_str(), &sbuf)) return (false);
+      struct_stat64 sbuf;
+      if (stat64 (base->filename.c_str(), &sbuf)) return (false);
       if (off_t (base->msize) != sbuf.st_size) return (true);
       if (base->mtime != sbuf.st_mtime) return (true);
       return (false);

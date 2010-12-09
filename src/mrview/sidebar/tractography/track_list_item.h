@@ -194,8 +194,8 @@ namespace MR {
           void load (const String& filename);
           bool refresh ()
           {
-            struct stat S;
-            if (g_stat (file.c_str(), &S))
+            struct_stat64 S;
+            if (stat64 (file.c_str(), &S))
               throw Exception ("error accessing tracks file \"" + file + "\": " + Glib::strerror (errno));
             if (mtime != S.st_mtime) { 
               load (file);

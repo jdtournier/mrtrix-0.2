@@ -22,6 +22,9 @@
     04-11-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * fix -axis option
 
+    09-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix -axis option again
+
 */
 
 #include "app.h"
@@ -81,26 +84,28 @@ EXECUTE {
 
   info ("averaging along axis " + str (axis));
 
-  header.axes.set_ndim (lastdim+1);
-  header.axes.dim[axis] = 1;
+  if (axis == lastdim) 
+    header.axes.set_ndim (axis);
+  else 
+    header.axes.dim[axis] = 1;
+
   if (in_obj.is_complex()) header.data_type = DataType::CFloat32;
   else header.data_type = DataType::Float32;
 
   Image::Position in (in_obj);
   Image::Position out (*argument[1].get_image (header));
 
-
   float norm = 1.0 / in.dim (axis);
+  const int ndim = std::min (in.ndim(), out.ndim());
   
   ProgressBar::init (out.voxel_count(), "averaging...");
 
   do {
     float re = 0.0, im = 0.0;
 
-    for (int i = 0, n = 0; i < in.ndim(); ++i, ++n) {
-      if (i == axis) ++n;
-      in.set (n, out[i]);
-    }
+    for (int i = 0; i < ndim; ++i) 
+      if (i != axis) 
+        in.set (i, out[i]);
 
     for (in.set (axis,0); in[axis] < in.dim(axis); in.inc(axis)) {
       if (geometric) re += log (in.re());

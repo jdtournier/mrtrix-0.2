@@ -1,9 +1,30 @@
 =======================================================================
+VERSION 0.2.10
+=======================================================================
+
+09-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/average.cpp: fix -axis option again
+
+02-11-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/file/mmap.cpp:
+    * src/mrview/sidebar/tractography/track_list_item.h:
+    * src/mrview/sidebar/tractography/track_list_item.cpp:
+      avoid use of g_stat(), since it's not guaranteed to use 64-bit versions 
+      of stat() even when available (as on CentOS).
+
+
+
+=======================================================================
 VERSION 0.2.9
 =======================================================================
 
 09-11-2010 Robert Smith <r.smith@brain.org.au>
     * cmd/threshold.cpp: added -nonbinary output mode
+
+
+05-11-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/mradd.cpp: fix incorrect progressbar count, and handling of large
+      numbers of input files.
 
 
 25-10-2010 J-Donald Tournier <d.tournier@brain.org.au>

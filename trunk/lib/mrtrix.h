@@ -74,7 +74,7 @@
 
 #define MRTRIX_MAJOR_VERSION 0
 #define MRTRIX_MINOR_VERSION 2
-#define MRTRIX_MICRO_VERSION 9
+#define MRTRIX_MICRO_VERSION 10
 
 
 /** Prints the file and line number. Useful for debugging purposes. */
@@ -105,6 +105,13 @@
 #define TMPFILE_ROOT "mrtrix-"
 #define TMPFILE_ROOT_LEN 7
 
+
+#ifdef G_OS_WIN32
+typedef struct __stat64 struct_stat64;
+#define _stat64 stat64
+#else 
+typedef struct stat64 struct_stat64;
+#endif
 
 namespace std {
 

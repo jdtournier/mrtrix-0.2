@@ -5,6 +5,7 @@ VERSION 0.2.10
 09-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/average.cpp: fix -axis option again
 
+
 02-11-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * lib/file/mmap.cpp:
     * src/mrview/sidebar/tractography/track_list_item.h:
@@ -13,13 +14,13 @@ VERSION 0.2.10
       of stat() even when available (as on CentOS).
 
 
+09-11-2010 Robert Smith <r.smith@brain.org.au>
+    * cmd/threshold.cpp: added -nonbinary output mode
+
 
 =======================================================================
 VERSION 0.2.9
 =======================================================================
-
-09-11-2010 Robert Smith <r.smith@brain.org.au>
-    * cmd/threshold.cpp: added -nonbinary output mode
 
 
 05-11-2010 J-Donald Tournier <d.tournier@brain.org.au>

@@ -21,7 +21,7 @@
 */
 
 #include "app.h"
-#include "ptr.h"
+#include "dwi/SH.h"
 
 using namespace MR; 
 
@@ -33,21 +33,28 @@ DESCRIPTION = {
 };
 
 
-ARGUMENTS = { Argument::End }; 
+ARGUMENTS = { 
+  Argument ("SH", "SH", "SH").type_file(),
+  Argument ("start", "start", "start").type_sequence_float(),
+  Argument::End 
+}; 
 OPTIONS = { Option::End };
 
 EXECUTE {
-  std::vector<RefPtr<int> > V;
-  for (int n = 0; n < 100; n++) V.push_back (RefPtr<int> (new int (rand())));
-  std::sort (V.begin(), V.end());
+  Math::Vector SHv;
+  SHv.load (argument[0].get_string());
+  float SH [SHv.size()];
+  for (size_t n = 0; n < SHv.size(); n++)
+    SH[n] = SHv[n];
 
-  for (std::vector<RefPtr<int> >::iterator i = V.begin(); i != V.end(); ++i)
-    **i = rand();
+  std::vector<float> start_v = parse_floats (argument[1].get_string());
 
-  std::sort (V.begin(), V.end());
+  Point start (start_v[0], start_v[1], start_v[2]);
+  start.normalise();
+  int lmax = DWI::SH::LforN (SHv.size());
+  VAR (lmax);
 
-  std::vector<RefPtr<int> > V2 (V);
-
-  std::sort (V2.begin(), V2.end());
+  float peak = DWI::SH::get_peak (SH, lmax, start, false);
+  VAR (peak);
 }
 

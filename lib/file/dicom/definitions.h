@@ -18,6 +18,9 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+    14-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * modify format_date() to (not) handle badly formatted date fields
+
 */
 
 #ifndef __file_dicom_dict_h__
@@ -71,7 +74,7 @@ namespace MR {
 
       inline String format_date (const String& date)
       {
-        if (date.empty()) return (date);
+        if (date.empty() || date.size() < 8) return (date);
         return (date.substr(6,2) + "/" + date.substr(4,2) + "/" + date.substr(0,4));
       }
 

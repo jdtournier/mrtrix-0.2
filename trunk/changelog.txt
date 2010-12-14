@@ -3,6 +3,10 @@ VERSION 0.2.10
 =======================================================================
 
 14-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * lib/image/header.cpp:
+      fix bug in transform re-jigging code to handle 45° oblique orientations
+
+14-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * lib/file/dicom/definitions.h:
       modify format_date() to (not) handle badly formatted date fields
 

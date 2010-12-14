@@ -25,6 +25,9 @@
     * - make sure all entries in the transform matrix are finite.
     * use sane defaults otherwise.
 
+    14-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix bug in transform re-jigging code to handle 45° oblique orientations
+
 */
 
 #include "image/header.h"
@@ -85,6 +88,28 @@ namespace MR {
         }
       }
 
+      inline guint not_any_of (guint a, guint b) 
+      {
+        for (guint i = 0; i < 3; ++i) {
+          if (a == i || b == i) 
+            continue;
+          return (i);
+        }
+        assert (0);
+        return (UINT_MAX);
+      }
+
+      void disambiguate_reorientation (guint* permutation) 
+      {
+        if (permutation[0] == permutation[1]) 
+          permutation[0] = not_any_of (permutation[0], permutation[2]);
+
+        if (permutation[0] == permutation[2]) 
+          permutation[0] = not_any_of (permutation[0], permutation[1]);
+
+        if (permutation[1] == permutation[2]) 
+          permutation[1] = not_any_of (permutation[0], permutation[1]);
+      }
     }
 
 
@@ -133,6 +158,8 @@ namespace MR {
         find_max_in_row (trans_I2R, 1),
         find_max_in_row (trans_I2R, 2) 
       };
+
+      disambiguate_reorientation (permutation);
 
       bool flip[3] = {
         ( trans_I2R(0, permutation[0]) < 0.0 ),

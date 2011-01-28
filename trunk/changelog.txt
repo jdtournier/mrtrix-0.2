@@ -2,6 +2,10 @@
 VERSION 0.2.10
 =======================================================================
 
+28-01-2011 J-Donald Tournier <d.tournier@brain.org.au>
+    * build:
+    * lib/app.cpp: add SVN revision number to version printout
+    
 14-12-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * lib/image/header.cpp:
       fix bug in transform re-jigging code to handle 45° oblique orientations

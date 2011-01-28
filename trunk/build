@@ -98,6 +98,19 @@ if profile:
 
 
 
+# SVN revision number:
+revision='unknown'
+try:
+  process = subprocess.Popen ([ 'svn', 'info' ], stdout=subprocess.PIPE)
+  if process.wait() != 0: raise 0
+  for line in process.stdout:
+    if line.startswith ('Revision:'):
+      revision = line.split()[1]
+      break
+except:
+  print 'WARNING: unable to obtain SVN revision number'
+cpp_flags += [ '-DSVN_REVISION='+str(revision) ]
+
 
 
 def pkg (package, target, extras = None):
@@ -631,7 +644,6 @@ if dependencies:
   for entry in headers.keys():
     print entry + ' [' + str(file_flags[entry]) + ']:'
     for item in headers[entry]: print '  ' + item + ' [' + str(file_flags[item]) + ']'
-
 
 
 

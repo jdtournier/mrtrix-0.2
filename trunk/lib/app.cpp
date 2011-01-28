@@ -26,6 +26,9 @@
     17-09-2009 J-Donald Tournier <d.tournier@brain.org.au>
     * fix bug in command-line parsing (fix supplied by Tom Close)
     
+    28-01-2011 J-Donald Tournier <d.tournier@brain.org.au>
+    * add SVN revision number to version printout
+    
 */
 
 #include <glibmm/stringutils.h>
@@ -265,9 +268,9 @@ namespace MR {
           throw 0;
         }
         else if (opt == DEFAULT_OPTIONS_OFFSET+4) {
-          std::printf ("%s %d.%d.%d\n  Author: %s\n  %s\n  using MRtrix %d.%d.%d, glib %d.%d.%d, GSL %s (build " __DATE__ ")\n",
+          std::printf ("%s %d.%d.%d (revision %i)\n  Author: %s\n  %s\n  using MRtrix %d.%d.%d, glib %d.%d.%d, GSL %s (build " __DATE__ ")\n",
               Glib::get_application_name().c_str(), 
-              version[0], version[1], version[2], author, copyright,
+              version[0], version[1], version[2], SVN_REVISION, author, copyright,
               mrtrix_major_version, mrtrix_minor_version, mrtrix_micro_version, 
               glib_major_version, glib_minor_version, glib_micro_version, gsl_version);
           throw 0;

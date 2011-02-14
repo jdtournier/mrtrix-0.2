@@ -2,6 +2,10 @@
 VERSION 0.2.10
 =======================================================================
 
+14-02-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * cmd/mrconvert.cpp: 
+      fix -coord option so that the "end" keyword can be used
+
 28-01-2011 J-Donald Tournier <d.tournier@brain.org.au>
     * build:
     * lib/app.cpp: add SVN revision number to version printout

@@ -26,6 +26,9 @@
     15-10-2008 J-Donald Tournier <d.tournier@brain.org.au>
     * add -layout option to manipulate data ordering within the image file
 
+    14-02-2010 J-Donald Tournier <d.tournier@brain.org.au>
+    * fix -coord option so that the "end" keyword can be used
+
 
 */
 
@@ -193,7 +196,7 @@ EXECUTE {
   for (guint n = 0; n < opt.size(); n++) {
     int axis = opt[n][0].get_int();
     if (pos[axis].size()) throw Exception ("\"coord\" option specified twice for axis " + str (axis));
-    pos[axis] = parse_ints (opt[n][1].get_string());
+    pos[axis] = parse_ints (opt[n][1].get_string(), header.dim(axis)-1);
     header.axes.dim[axis] = pos[axis].size();
   }
 

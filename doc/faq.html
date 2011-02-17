@@ -28,6 +28,7 @@
   <li><a href='#probmap'>How do I produce an image of the track count through each voxel?</a></li>
   <li><a href='#temp'>What are these 'mrtrix-azdj28.mif' files that keep appearing in my folder?</a></li>
   <li><a href='#analyse'>Why am I getting strange alignment issues with my Analyse format data?</a></li>
+  <li><a href='#FSLencoding'>Can I use the same gradient direction tables with MRtrix as I use with FSL?</a></li>
 </ul>
 
 <p class=sep><a href="#top">top</a></p>
@@ -234,7 +235,7 @@ the convention that the data were stored left to right, which is the opposite
 of the official Analyse application. In other versions of SPM, the convention
 to use for this ordering can be set by editing a configuration file. An image
 generated using one convention will be flipped if read assuming the opposite
-convention.  Consequently, it impossible to guarantee that images stored in
+convention.  Consequently, it is impossible to guarantee that images stored in
 Analyse format are correctly oriented.
 </p>
 <p>
@@ -242,6 +243,47 @@ For these reasons, the use of Analyse images is <b>strongly discouraged</b>.
 </p>
 
 
+<p class=sep><a href="#top">top</a></p>
+
+<h3><a name='FSLencoding'>Can I use the same gradient direction tables with MRtrix as I use with FSL?</a></h3>
+<p>
+In general, no. With MRtrix, the gradient directions need to be specified with
+respect to real (scanner) coordinates. This is different from FSL, which
+expects the gradient directions to be specified with respect to the image axes.
+Therefore, if there is any difference between these two coordinate systems, the
+gradient directions will be wrong, and so will the orientations inferred by
+<a href='commands/dwi2tensor.html'>dwi2tensor</a> and 
+<a href='commands/csdeconv.html'>csdeconv</a>. 
+<p>
+The only exception to this rule is when the images were acquired in a pure
+axial orientation: in this case the two coordinate systems will be equivalent.
+You can check this using <a href='commands/mrinfo.html'>mrinfo</a>, by looking
+at the 'transform' entry.  For example:
+<pre>
+&gt; <b><a href='commands/mrinfo.html'>mrinfo</a> dwi.mif</b>
+************************************************
+Image:               "dwi.mif"
+************************************************
+  Format:            MRTrix
+  Dimensions:        112 x 112 x 37 x 68
+  Voxel size:        2.09821 x 2.09821 x 3 x ?
+  Dimension labels:  0. left->right (mm)
+                     1. posterior->anterior (mm)
+                     2. inferior->superior (mm)
+                     3. undefined (?)
+  Data type:         unsigned 16 bit integer (little endian)
+  Data layout:       [ -0 -1 +2 +3 ]
+  Data scaling:      offset = 0, multiplier = 1
+  Comments:          anonymous
+  Transform:                    <b>1           0          -0</b>      -115.4
+                                <b>0           1          -0</b>      -106.6
+                               <b>-0          -0           1</b>      -7.898
+                                0           0           0           1
+</pre>
+The 3&times;3 top-left part of the transform matrix (highlighted in bold)
+specifies the rotation component of the transform. If this part is the identity
+(as it is above), then the acquisition is pure axial, and FSL gradient tables
+can be used with MRtrix.
 
 
 

@@ -35,11 +35,11 @@ For the purposes outlined above, the brain mask should have the same dimensions 
 The simplest approach is to extract the <i>b</i>=0 image from the DWI data set (this example assumes that the first volume in the data set is a <i>b</i>=0 volume):
 </p>
 <pre>
-&gt; <b><a href='../commands/mrconvert.html'>mrconvert</a> dwi.mif -coord 3 0 - | <a href='../commands/threshold.html'>threshold</a> - - | <a href='../commands/median3D.html'>median3D</a> - - | <a href='../commands/median3D.html'>median3D</a> - mask.mif</b>
-<a href='../commands/mrconvert.html'>mrconvert</a>: copying data... 100%
+&gt; <b><a href='../commands/average.html'>average</a> dwi.mif -axis 3 - | <a href='../commands/threshold.html'>threshold</a> - - | <a href='../commands/median3D.html'>median3D</a> - - | <a href='../commands/median3D.html'>median3D</a> - mask.mif</b>
+<a href='../commands/average.html'>average</a>: averaging... 100%
 <a href='../commands/threshold.html'>threshold</a>: finding min/max... 100%
 <a href='../commands/threshold.html'>threshold</a>: building histogram... 100%
-<a href='../commands/threshold.html'>threshold</a>: thresholding at intensity 114.885... 100%
+<a href='../commands/threshold.html'>threshold</a>: thresholding at intensity 25.5115... 100%
 <a href='../commands/median3D.html'>median3D</a>: median filtering... 100%
 <a href='../commands/median3D.html'>median3D</a>: median filtering... 100%
 </pre>
@@ -51,10 +51,12 @@ These are described in more detail <a href='../general/cmdline.html#pipes'>here<
 The threshold value is in this case determined using simple histogram binning.
 You can specify your own threshold if you wish, by supplying the appropriate option to <kbd>threshold</kbd>.
 </p>
-<p>
-This procedure should produce a reasonable mask of the brain, which you can check using <a href='../general/mrview.html'>MRView</a>.
-If you need to edit the mask (for example, if some part of the brain were not included), 
-you can do so using the <a href='../general/mrview.html#roi'>ROI analysis</a> sidebar tool within <a href='../general/mrview.html'>MRView</a>.
+<p> While this procedure should produce a reasonable mask of the brain, it is
+by no means fail-proof. <b>You are strongly encouraged to check the brain mask
+using <a href='../general/mrview.html'>MRView</a></b>.  If you need to edit the
+mask (for example, if some parts of the brain were not included), you can do so
+using the <a href='../general/mrview.html#roi'>ROI analysis</a> sidebar tool
+within <a href='../general/mrview.html'>MRView</a>.
 </p>
 
 <p class=sep><a href="#top">top</a></p>
@@ -112,17 +114,23 @@ First, obtain a mask of high anisotropy voxels.
 These are assumed to contain single fibre-voxels, and will be used to estimate the response function:
 </p>
 <pre>
-&gt; <b><a href='../commands/erode.html'>erode</a> mask.mif - | <a href='../commands/erode.html'>erode</a> - - | <a href='../commands/mrmult.html'>mrmult</a> fa.mif - - | <a href='../commands/threshold.html'>threshold</a> - -abs 0.7 sf.mif</b>
+&gt; <b><a href='../commands/erode.html'>erode</a> mask.mif -npass 3 - | <a href='../commands/mrmult.html'>mrmult</a> fa.mif - - | <a href='../commands/threshold.html'>threshold</a> - -abs 0.7 sf.mif</b>
+<a href='../commands/erode.html'>erode</a>: eroding ... 100%
 <a href='../commands/erode.html'>erode</a>: eroding ... 100%
 <a href='../commands/erode.html'>erode</a>: eroding ... 100%
 <a href='../commands/mrmult.html'>mrmult</a>: multiplying... 100%
 <a href='../commands/threshold.html'>threshold</a>: thresholding at intensity 0.7... 100%
 </pre>
 <p>
-The two initial erosion steps ensure that no edge voxels with artefactually high FA are included in the single-fibre mask.
+The initial erosion step ensure that no edge voxels with artefactually high FA are included in the single-fibre mask.
 This mask is then applied to the FA map, and the resulting image is thresholded at FA = 0.7. 
+<p>
 Note that this value is a guide only - feel free to use a different value if this does not produce satisfactory results. 
-Ideally, you should now have a mask containing a few hundred voxels, all located within high FA white matter regions.
+Ideally, you should now have a mask containing a few hundred voxels, all
+located within high FA white matter regions.  <b>It is very important to check
+that the single-fibre mask is suitable, as otherwise the response function
+produced in the following step may be totally inappropriate, which would
+seriously affect the quality of the CSD output</b>.
 If needed, you can edit this mask image to remove unwanted voxels 
 using the <a href='../general/mrview.html#roi'>ROI analysis</a> sidebar tool within <a href='../general/mrview.html'>MRview</a>.
 </p>

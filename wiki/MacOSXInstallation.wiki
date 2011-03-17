@@ -1,0 +1,34 @@
+#summary Installation on MacOS X
+
+Thanks to Michael Zeineh for providing these instructions.
+
+= Installation =
+
+Installation on MacOS X relies on the packages made available by the [http://www.finkproject.org Fink project]. This project provides Mac versions of the dependencies required to compile MRtrix. Once the dependencies are installed, MRtrix itself can be compiled and installed.
+
+
+Here are the complete instructions:
+
+  # Install the Fink applications, by following [http://www.finkproject.org/download/index.php these instructions].
+
+  # Use Fink to install dependencies:
+  `fink install python glib gtk+ glibmm2.4 gtkmm2.4 gtkglext1 gsl`
+  You may need to repeat the command above multiple times for it complete successfully.
+
+  # build MRtrix:
+  `$ cd mrtrix-0.2.X`
+  `$ ./build`
+
+  # once the compilation stage is complete, copy the contents to a more suitable folder, and change permissions to make it accessible for all users:
+`$ cp -r * /usr/local/mrtrix`
+`$ chmod -R a+rX /usr/local/mrtrix`
+
+  # change the path to include /usr/local/mrtrix
+  
+  # set the library search path appropriately:
+  `export DYLD_LIBRARY_PATH="/usr/local/mrtrix/lib"`
+
+At this point, you should be able to start using MRtrix. You may also want to set up MultiThreading, as per the UnixInstallation instructions, to make full use of a multi-core processor.
+
+
+You may encounter problems related to the freetype library. In this case, you may need to copy the /usr/x11/bin/libfreetype.6.dylib to /sw/lib/freetype219/lib.

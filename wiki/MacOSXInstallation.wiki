@@ -16,7 +16,7 @@ Here are the complete instructions:
   # change the path to include /usr/local/mrtrix
   # set the library search path appropriately: <br> `export DYLD_LIBRARY_PATH="/usr/local/mrtrix/lib"`
 
-At this point, you should be able to start using MRtrix. You may also want to set up MultiThreading, as per the UnixInstallation instructions, to make full use of a multi-core processor.
+At this point, you should be able to start using MRtrix. You may also want to set up [UnixInstallation#Enable_multi-threading multi-threading], as per the UnixInstallation instructions, to make full use of a multi-core processor.
 
 
 You may encounter problems related to the freetype library. In this case, you may need to copy the /usr/x11/bin/libfreetype.6.dylib to /sw/lib/freetype219/lib.

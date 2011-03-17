@@ -85,23 +85,7 @@ If any errors do occur, you may need to modify the configuration file. The relev
 
 == Compilation on 64-bit systems (x86-64) ==
 
-MRtrix can be compiled in 64-bit mode by editing the sysconf/linux.py file prior to issuing the ./build command. Note that MRtrix will run just as well in 32-bit mode on these systems; enabling 64-bit mode allows MRtrix to access a larger address space, and consequently to process larger data sets. If you need to process very large data sets (i.e. 2GB or more), then compiling MRtrix in 64-bit mode may be recommended.
-
-To enable 64-bit mode, open the sysconf/linux.py file using a text editor:
-{{{
-gedit sysconf/linux.py
-}}}
-Find the line that specifies the C++ compiler flags, and change the `-march` option to `x86-64` (note the use of a hyphen, rather than an underscore as produced by the uname command). The modified line should now read:
-{{{
-cpp_flags = [ '-Wall', '-march=x86-64', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES' ]
-}}}
-Save the file and exit the editor. You can now issue the `./build` command to carry out the compilation itself.
-
-*Note:* if you had issued the `./build` command at any point before editing the `sysconf/linux.py` file, you will most likely need to remove any intermediate files that may have already been generated. To do this, issue the commands:
-{{{
-./build clean
-./build
-}}}
+Compilation on 64-bit systems is now identical to that for 32-bit system. There is no longer any need to edit the sysconf/linux.py file as in previous version (the architecture is now set to "-march=native").
 
 ----
 = Installation of executables =

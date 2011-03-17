@@ -1,0 +1,30 @@
+#summary Introduction.
+
+= Introduction =
+MRtrix provides a set of tools to perform diffusion-weighted MRI white matter tractography in the presence of crossing fibres, using Constrained Spherical Deconvolution (Tournier et al.. 2004; Tournier et al. 2007), and a probabilisitic streamlines algorithm (e.g. Behrens et al., 2003; Parker et al., 2003). These applications have been written from scratch in C++, using the functionality provided by the [http://www.gnu.org/software/gsl/ GNU Scientific Library], and [http://www.gtkmm.org/ gtkmm]. The software is currently capable of handling DICOM and AnalyseAVW image formats, amongst others. The source code is distributed under the GNU General Public License.
+
+= Acknowledging this work =
+
+If you wish to include results generated using the MRtrix package in a publication, please include a line such as the following to acknowlegde this work:
+
+_Fibre-tracking was performed using the MRtrix package (J-D Tournier, Brain Research Institute, Melbourne, Australia, http://www.brain.org.au/software/) (Tournier et al. 2007)_
+
+= Warranty =
+
+The software described in this manual has no warranty, it is provided "as is". It is your responsibility to validate the behavior of the routines and their accuracy using the source code provided, or to purchase support and warranties from commercial redistributors. Consult the GNU General Public License for further details.
+
+= License =
+
+MRtrix is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+MRtrix is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with MRtrix. If not, see <http://www.gnu.org/licenses/>.
+
+= Support =
+
+For support, please subscribe to the [http://www.nitrc.org/mailman/listinfo/mrtrix-discussion MRtrix mailing list] and post your questions there. You can also [http://www.nitrc.org/pipermail/mrtrix-discussion/ browse through the archives] to see if your question has already been addressed. Notifications of new releases will also be publicised on that list.
+
+You may also find that your questions have already been answered in the FrequentlyAskedQuestions.
+
+= Supported platforms =

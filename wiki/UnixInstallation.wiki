@@ -85,7 +85,7 @@ If any errors do occur, you may need to modify the configuration file. The relev
 
 == Compilation on 64-bit systems (x86-64) ==
 
-Compilation on 64-bit systems is now identical to that for 32-bit system. There is no longer any need to edit the sysconf/linux.py file as in previous version (the architecture is now set to "-march=native").
+Compilation on 64-bit systems is now identical to that for 32-bit systems. There is no longer any need to edit the sysconf/linux.py file as in previous versions (the architecture is now set to "-march=native").
 
 ----
 = Installation of executables =

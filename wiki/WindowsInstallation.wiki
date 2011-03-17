@@ -1,0 +1,5 @@
+#summary Installation on Microsoft Windows
+
+= Installation =
+
+Thanks to Ben Jeurissen, installation on Windows is simply a matter of downloading and executing the relevant mrtrix-0.2.X-win32.exe (available from the [http://www.nitrc.org/projects/mrtrix/ NITRC website]). 

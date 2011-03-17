@@ -10,9 +10,7 @@ Installation on MacOS X relies on the packages made available by the [http://www
 Here are the complete instructions:
 
   # Install the Fink applications, by following [http://www.finkproject.org/download/index.php these instructions].
-  # Use Fink to install dependencies:
-  `fink install python glib gtk+ glibmm2.4 gtkmm2.4 gtkglext1 gsl`<br>
-  You may need to repeat the command above multiple times for it complete successfully.
+  # Use Fink to install dependencies: <br> `fink install python glib gtk+ glibmm2.4 gtkmm2.4 gtkglext1 gsl` <br> You may need to repeat the command above multiple times for it complete successfully.
   # build MRtrix:
   `$ cd mrtrix-0.2.X`
   `$ ./build`

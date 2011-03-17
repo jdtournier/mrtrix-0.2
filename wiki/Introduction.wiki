@@ -41,7 +41,7 @@ MRtrix should compile and run on any Unix-like system, provided the [http://www.
 
 This manual contains many examples which can be typed at the keyboard. A command entered at the terminal is shown like this:
 
-  *`> command`*
+*`> command`*
 
 The first character on the line is the terminal prompt, and should not be typed. The greater-than sign '>' is used as the standard prompt in this manual, although some systems may use a different character.
 

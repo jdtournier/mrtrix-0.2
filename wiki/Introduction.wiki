@@ -28,3 +28,28 @@ For support, please subscribe to the [http://www.nitrc.org/mailman/listinfo/mrtr
 You may also find that your questions have already been answered in the FrequentlyAskedQuestions.
 
 = Supported platforms =
+
+MRtrix should compile and run on any Unix-like system, provided the [http://www.gnu.org/software/gsl/ GNU Scientific Library], [http://www.gtkmm.org/ gtkmm]and a working implementation of [http://www.opengl.org/ OpenGL] (version > 1.2) are available on that system.
+
+|| Platform	|| Notes ||
+|| Linux (x86)	|| should install on any recent distribution.
+Tested under Ubuntu 7.10 (Gutsy) and 8.04 (Hardy).
+See UnixInstallation for instructions. ||
+|| Windows XP	Pre-compiled binaries are available. See WindowsInstallation for instructions ||
+|| MacOS X	|| Known to compile and run. See MacOSXInstallation for instructions ||
+
+
+Conventions used in this manual
+
+This manual contains many examples which can be typed at the keyboard. A command entered at the terminal is shown like this:
+
+> command
+The first character on the line is the terminal prompt, and should not be typed. The greater-than sign '>' is used as the standard prompt in this manual, although some systems may use a different character.
+
+The text that is actually typed at the keyboard is shown in bold. Any output produced by the program will be displayed in a standard font.
+
+In certain cases (e.g. at installation), the number sign '#' is shown as the terminal prompt. In such cases, the command is expected to be executed with administrative (root) privileges.
+
+These examples are for demonstation purposes only: depending on your specific aims and applications, you may want to omit some of the steps shown, or you may need to perform additional steps.
+
+This manual assumes a GNU/Unix environment. There may be minor differences in the input or output on other systems, and you may need to edit the commands to suit your working environment. For example, in Microsoft Windows, you will need to use the backslash '\' as the directory separator.

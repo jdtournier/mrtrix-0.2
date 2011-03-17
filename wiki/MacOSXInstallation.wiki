@@ -11,15 +11,10 @@ Here are the complete instructions:
 
   # Install the Fink applications, by following [http://www.finkproject.org/download/index.php these instructions].
   # Use Fink to install dependencies: <br> `fink install python glib gtk+ glibmm2.4 gtkmm2.4 gtkglext1 gsl` <br> You may need to repeat the command above multiple times for it complete successfully.
-  # build MRtrix:
-  `$ cd mrtrix-0.2.X`
-  `$ ./build`
-  # once the compilation stage is complete, copy the contents to a more suitable folder, and change permissions to make it accessible for all users:
-  `$ cp -r * /usr/local/mrtrix`
-  `$ chmod -R a+rX /usr/local/mrtrix`
+  # build MRtrix: <br> `$ cd mrtrix-0.2.X` <br> `$ ./build`
+  # once the compilation stage is complete, copy the contents to a more suitable folder, and change permissions to make it accessible for all users: <br> `$ cp -r * /usr/local/mrtrix` <br> `$ chmod -R a+rX /usr/local/mrtrix`
   # change the path to include /usr/local/mrtrix
-  # set the library search path appropriately:
-  `export DYLD_LIBRARY_PATH="/usr/local/mrtrix/lib"`
+  # set the library search path appropriately: <br> `export DYLD_LIBRARY_PATH="/usr/local/mrtrix/lib"`
 
 At this point, you should be able to start using MRtrix. You may also want to set up MultiThreading, as per the UnixInstallation instructions, to make full use of a multi-core processor.
 

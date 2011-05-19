@@ -106,7 +106,7 @@ try:
     if line.startswith ('Revision:'):
       revision = '#define SVN_REVISION ' + str(line.split()[1]) + '\n'
       if revision != open(svn_revision_file).read():
-        open (svn_revision_file, 'w').write ('#define SVN_REVISION ' + str(revision) + '\n') 
+        open (svn_revision_file, 'w').write (revision)
       break
 except:
   pass

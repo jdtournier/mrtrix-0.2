@@ -23,7 +23,6 @@
 #ifndef __mrview_pane_h__
 #define __mrview_pane_h__
 
-#include <GL/glu.h>
 #include <gtk/gtkgl.h>
 #include <gtkmm/frame.h>
 #include <gtkmm/drawingarea.h>

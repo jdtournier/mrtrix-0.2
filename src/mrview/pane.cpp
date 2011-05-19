@@ -20,7 +20,6 @@
 
 */
 
-#include <GL/glu.h>
 #include "mrview/pane.h"
 #include "mrview/window.h"
 

@@ -99,17 +99,16 @@ if profile:
 
 
 # SVN revision number:
-revision='unknown'
 try:
   process = subprocess.Popen ([ 'svn', 'info' ], stdout=subprocess.PIPE)
   if process.wait() != 0: raise 0
   for line in process.stdout:
     if line.startswith ('Revision:'):
       revision = line.split()[1]
+      open (svn_revision_file, 'w').write ('#define SVN_REVISION ' + str(revision) + '\n') 
       break
 except:
-  print 'WARNING: unable to obtain SVN revision number'
-cpp_flags += [ '-DSVN_REVISION='+str(revision) ]
+  pass
 
 
 

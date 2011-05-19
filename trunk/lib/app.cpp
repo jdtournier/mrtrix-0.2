@@ -34,6 +34,7 @@
 #include <glibmm/stringutils.h>
 
 #include "app.h"
+#include "svn_revision.h"
 #include "file/config.h"
 
 

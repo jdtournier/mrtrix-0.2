@@ -23,9 +23,21 @@
 #ifndef __use_gl_h__
 #define __use_gl_h__
 
+#ifdef __APPLE__
+
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <OpenGL/glext.h>
+
+#else
+
 #include <GL/gl.h>
-#ifdef G_OS_WIN32
+#include <GL/glu.h>
 #include <GL/glext.h>
+
+#endif 
+
+#ifdef G_OS_WIN32
 #include <windows.h>
 
 extern PFNGLBLENDEQUATIONPROC pglBlendEquation;

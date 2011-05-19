@@ -25,8 +25,6 @@
 #include "mrview/sidebar/tractography.h"
 #include "mrview/window.h"
 #include "dialog/file.h"
-#include <GL/glext.h>
-
 
 
 namespace MR {

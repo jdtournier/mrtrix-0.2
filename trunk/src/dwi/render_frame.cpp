@@ -25,7 +25,6 @@
 */
 
 #include <fstream>
-#include <GL/glu.h>
 #include <glibmm/stringutils.h>
 #include <gdkmm/cursor.h>
 #include <gtkmm/main.h>

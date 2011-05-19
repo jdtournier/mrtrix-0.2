@@ -24,7 +24,6 @@
 #define __mrview_texture_h__
 
 #include "use_gl.h"
-#include <GL/gl.h>
 #include "point.h"
 
 

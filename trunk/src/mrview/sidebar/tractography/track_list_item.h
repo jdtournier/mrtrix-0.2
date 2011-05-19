@@ -39,9 +39,9 @@
 #define __mrview_sidebar_tractography_tracklist_item_h__
 
 #include <list>
-#include <GL/gl.h>
 #include <glib/gstdio.h>
 
+#include "use_gl.h"
 #include "ptr.h"
 #include "point.h"
 #include "math/vector.h"

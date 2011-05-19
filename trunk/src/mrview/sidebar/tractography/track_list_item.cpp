@@ -28,8 +28,6 @@
 */
 
 #include <gtk/gtkgl.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
 #include <glibmm/stringutils.h>
 
 #include "use_gl.h"

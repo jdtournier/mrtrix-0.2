@@ -23,7 +23,7 @@ cpp_flags_profile = [ '-pg' ] + cpp_flags_debug
 ld_flags_profile = ld_flags_debug + [ '-pg' ]
 ld_lib_flags_profile = ld_lib_flags_debug + [ '-pg' ]
 
-cpp_flags += [ '-O3' ]
+cpp_flags += [ '-O2' ]
 
 cpp_flags_release = [ '-DNDEBUG' ]
 

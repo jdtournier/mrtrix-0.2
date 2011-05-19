@@ -7,6 +7,7 @@ misc_dir = 'src'
 doc_dir = 'doc'
 dev_dir = 'dev'
 gl = os.path.join ('src', 'use_gl.h')
+svn_revision_file = os.path.join ('lib', 'svn_revision.h')
 
 cpp_suffix = '.cpp'
 h_suffix = '.h'

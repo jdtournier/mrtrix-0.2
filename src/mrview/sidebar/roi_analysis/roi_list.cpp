@@ -274,7 +274,8 @@ namespace MR {
       {
         Gtk::TreeModel::iterator iter = get_selection()->get_selected();
         if (!iter) return (false);
-        if ((event->state & MODIFIERS) != GDK_SHIFT_MASK && (event->state & MODIFIERS) != ( GDK_SHIFT_MASK | GDK_CONTROL_MASK )) return (false);
+        if ((event->state & MODIFIERS) != GDK_SHIFT_MASK && 
+            (event->state & MODIFIERS) != ( GDK_SHIFT_MASK | CTRL_CMD_MASK )) return (false);
         row = *iter;
         bool show = row[columns.show];
         if (!show) return (false);

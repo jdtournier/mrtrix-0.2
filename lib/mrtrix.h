@@ -102,15 +102,26 @@
         GDK_HYPER_MASK | \
         GDK_META_MASK )
 
+#ifdef __APPLE__
+# define CTRL_CMD_MASK Gdk::META_MASK
+#else
+# define CTRL_CMD_MASK Gdk::CONTROL_MASK
+#endif
+
 #define TMPFILE_ROOT "mrtrix-"
 #define TMPFILE_ROOT_LEN 7
 
 
 #ifdef G_OS_WIN32
 typedef struct __stat64 struct_stat64;
-#define _stat64 stat64
-#else 
+# define stat64 _stat64
+#else
+# ifdef __APPLE__
+typedef struct stat struct_stat64;
+#  define stat64 stat
+# else
 typedef struct stat64 struct_stat64;
+# endif
 #endif
 
 namespace std {

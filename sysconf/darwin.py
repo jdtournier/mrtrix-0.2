@@ -45,4 +45,6 @@ ld_flags_gl = []
 pkgconfig = [ 'pkg-config' ]
 pkgconfig_env = None
 
+default_installto = '/usr/local/mrtrix'
+default_linkto = '/usr/local'
 

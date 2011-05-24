@@ -37,3 +37,6 @@ pkgconfig = [ 'pkg-config' ]
 pkgconfig_env = None
 
 
+default_installto = '/opt/mrtrix'
+default_linkto = '/usr'
+

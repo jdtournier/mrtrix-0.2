@@ -5,22 +5,18 @@
 The complete documentation for MRtrix is in doc/index.html, 
 including a detailed decription of the installation procedure.
 
-
 Quick install:
 
-1. Unpack archive and compile: 
+- For first-time installation, install required dependencies:
+  g++, python, gtkmm, gtkglext, libgsl & a working OpenGL environment
 
-    tar xjf mrtrix-0.2.1.tar.bz2
-    cd mrtrix-0.2.1/
+1. Unpack archive:
+    tar xjf mrtrix-0.2.X.tar.bz2
+
+2. Compile:
+    cd mrtrix-0.2.X/
     ./build
 
-2. Set appropriate environment variables:
-
-Bash shell:
-    export PATH=/<edit as appropriate>/mrtrix-0.2.1/bin:$PATH
-    export LD_LIBRARY_PATH=/<edit as appropriate>/mrtrix-0.2.1/lib
-
-C shell:
-    setenv PATH /<edit as appropriate>/mrtrix-0.2.1/bin:$PATH
-    setenv LD_LIBRARY_PATH /<edit as appropriate>/mrtrix-0.2.1/lib
+3. Install (as root):
+    ./build install
 

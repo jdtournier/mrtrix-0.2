@@ -47,7 +47,8 @@ namespace MR {
         tracks.clear();
         alloc.clear(); 
         struct_stat64 S;
-        if (stat64 (file.c_str(), &S)) throw Exception ("error accessing tracks file \"" + file + "\": " + Glib::strerror (errno));
+        if (STAT64 (file.c_str(), &S)) 
+          throw Exception ("error accessing tracks file \"" + file + "\": " + Glib::strerror (errno));
         mtime = S.st_mtime;
 
         DWI::Tractography::Reader reader;

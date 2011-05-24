@@ -195,7 +195,7 @@ namespace MR {
           bool refresh ()
           {
             struct_stat64 S;
-            if (stat64 (file.c_str(), &S))
+            if (STAT64 (file.c_str(), &S))
               throw Exception ("error accessing tracks file \"" + file + "\": " + Glib::strerror (errno));
             if (mtime != S.st_mtime) { 
               load (file);

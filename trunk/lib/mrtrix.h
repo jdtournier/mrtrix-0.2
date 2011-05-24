@@ -114,11 +114,11 @@
 
 #ifdef G_OS_WIN32
 typedef struct __stat64 struct_stat64;
-# define stat64 _stat64
+# define STAT64 _stat64
 #else
 # ifdef __APPLE__
 typedef struct stat struct_stat64;
-#  define stat64 stat
+#  define STAT64 stat
 # else
 typedef struct stat64 struct_stat64;
 # endif

@@ -165,7 +165,7 @@ namespace MR {
 
           base->filename = fname;
           struct_stat64 sbuf;
-          if (stat64 (base->filename.c_str(), &sbuf)) {
+          if (STAT64 (base->filename.c_str(), &sbuf)) {
 
             if (errno != ENOENT) 
               throw Exception ("cannot stat file \"" + base->filename + "\": " + Glib::strerror(errno));
@@ -233,7 +233,7 @@ namespace MR {
     { 
       if (!base) return (false);
       struct_stat64 sbuf;
-      if (stat64 (base->filename.c_str(), &sbuf)) return (false);
+      if (STAT64 (base->filename.c_str(), &sbuf)) return (false);
       if (off_t (base->msize) != sbuf.st_size) return (true);
       if (base->mtime != sbuf.st_mtime) return (true);
       return (false);

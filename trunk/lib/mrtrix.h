@@ -121,6 +121,7 @@ typedef struct stat struct_stat64;
 #  define STAT64 stat
 # else
 typedef struct stat64 struct_stat64;
+#  define STAT64 stat64
 # endif
 #endif
 

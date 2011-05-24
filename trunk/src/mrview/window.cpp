@@ -37,6 +37,7 @@
 #include "mrview/dialog/properties.h" 
 #include "mrview/dialog/opengl.h" 
 
+
 namespace MR {
   namespace Viewer {
 
@@ -64,48 +65,150 @@ namespace MR {
 
       menubar.items().push_back (MenuElem ("_File"));
       menubar.items().back().set_submenu (file_menu);
-      file_menu.items().push_back (StockMenuElem (Gtk::Stock::OPEN, sigc::mem_fun(*this, &Window::on_file_open)));
-      file_menu.items().push_back (StockMenuElem (Gtk::Stock::SAVE, sigc::mem_fun(*this, &Window::on_file_save)));
-      file_menu.items().push_back (StockMenuElem (Gtk::Stock::CLOSE, sigc::mem_fun(*this, &Window::on_file_close)));
+
+      file_menu.items().push_back (
+          StockMenuElem (Gtk::Stock::OPEN, 
+            Gtk::AccelKey ('o', CTRL_CMD_MASK), 
+            sigc::mem_fun(*this, &Window::on_file_open)));
+
+      file_menu.items().push_back (
+          StockMenuElem (Gtk::Stock::SAVE,
+            Gtk::AccelKey ('s', CTRL_CMD_MASK),
+            sigc::mem_fun(*this, &Window::on_file_save)));
+
+      file_menu.items().push_back (
+          StockMenuElem (Gtk::Stock::CLOSE,
+            Gtk::AccelKey ('w', CTRL_CMD_MASK),
+            sigc::mem_fun(*this, &Window::on_file_close)));
+
       file_menu.items().push_back (SeparatorElem());
-      file_menu.items().push_back (StockMenuElem (Gtk::Stock::PROPERTIES, sigc::mem_fun(*this, &Window::on_file_properties)));
+
+      file_menu.items().push_back (
+          StockMenuElem (Gtk::Stock::PROPERTIES, 
+            sigc::mem_fun(*this, &Window::on_file_properties)));
+
       file_menu.items().push_back (SeparatorElem());
-      file_menu.items().push_back (StockMenuElem (Gtk::Stock::QUIT, sigc::mem_fun(*this, &Window::on_quit)));
+
+      file_menu.items().push_back (
+          StockMenuElem (Gtk::Stock::QUIT,
+            Gtk::AccelKey ('q', CTRL_CMD_MASK),
+            sigc::mem_fun(*this, &Window::on_quit)));
+
 
       file_menu.items()[1].set_sensitive (false);
       file_menu.items()[2].set_sensitive (false);
       file_menu.items()[4].set_sensitive (false);
 
+
       menubar.items().push_back (MenuElem ("_View"));
       menubar.items().back().set_submenu (view_menu);
-      view_menu.items().push_back (CheckMenuElem ("Side_bar", Gtk::AccelKey ("F9"), sigc::mem_fun(*this, &Window::on_view_sidebar)));
-      view_menu.items().push_back (CheckMenuElem ("_Interpolate", Gtk::AccelKey ("<control>I"), sigc::mem_fun (*this, &Window::on_view_interpolate)));
-      view_menu.items().push_back (CheckMenuElem ("_Lock to image axes", sigc::mem_fun (*this, &Window::on_view_lock_to_axes)));
+
+      view_menu.items().push_back (
+          CheckMenuElem ("Side_bar", 
+#ifdef __APPLE__
+            Gtk::AccelKey ('D', Gdk::CONTROL_MASK | Gdk::SHIFT_MASK), 
+#else
+            Gtk::AccelKey (GDK_KEY_F9, Gdk::ModifierType(0)), 
+#endif
+            sigc::mem_fun(*this, &Window::on_view_sidebar)));
+
+      view_menu.items().push_back (
+          CheckMenuElem ("_Interpolate",
+            Gtk::AccelKey ('i', CTRL_CMD_MASK), 
+            sigc::mem_fun (*this, &Window::on_view_interpolate)));
+
+      view_menu.items().push_back (
+          CheckMenuElem ("_Lock to image axes",
+            sigc::mem_fun (*this, &Window::on_view_lock_to_axes)));
+
       view_menu.items().push_back (MenuElem ("Colour _map"));
       view_menu.items().back().set_submenu (colourmap_menu);
-      view_menu.items().push_back (SeparatorElem());
-      view_menu.items().push_back (RadioMenuElem (projection_group, "_Axial", Gtk::AccelKey ("A"),sigc::mem_fun (*this, &Window::on_view_axial)));
-      view_menu.items().push_back (RadioMenuElem (projection_group, "_Sagittal", Gtk::AccelKey ("S"),sigc::mem_fun (*this, &Window::on_view_sagittal)));
-      view_menu.items().push_back (RadioMenuElem (projection_group, "_Coronal", Gtk::AccelKey ("C"),sigc::mem_fun (*this, &Window::on_view_coronal)));
-      view_menu.items().push_back (SeparatorElem());
-      view_menu.items().push_back (CheckMenuElem ("Show F_ocus", Gtk::AccelKey ("<control>F"), sigc::mem_fun (*this, &Window::on_view_focus)));
-      view_menu.items().push_back (MenuElem ("Reset _Windowing", Gtk::AccelKey ("<control>R"), sigc::mem_fun (*this, &Window::on_view_reset_windowing)));
-      view_menu.items().push_back (MenuElem ("_Reset View", Gtk::AccelKey ("<control><shift>R"), sigc::mem_fun (*this, &Window::on_view_reset)));
-      view_menu.items().push_back (CheckMenuElem ("_Full screen", Gtk::AccelKey ("F11"), sigc::mem_fun (*this, &Window::on_view_full_screen)));
 
-      colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Gray", sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 0)));
-      colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Hot", sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 1)));
-      colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Cool", sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 2)));
-      colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Jet", sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 3)));
+      view_menu.items().push_back (SeparatorElem());
+
+      view_menu.items().push_back (
+          RadioMenuElem (projection_group, "_Axial", 
+            Gtk::AccelKey ('a', Gdk::ModifierType(0)),
+            sigc::mem_fun (*this, &Window::on_view_axial)));
+
+      view_menu.items().push_back (
+          RadioMenuElem (projection_group, "_Sagittal", 
+            Gtk::AccelKey ('s', Gdk::ModifierType(0)),
+            sigc::mem_fun (*this, &Window::on_view_sagittal)));
+
+      view_menu.items().push_back (
+          RadioMenuElem (projection_group, "_Coronal",
+            Gtk::AccelKey ('c', Gdk::ModifierType(0)),
+            sigc::mem_fun (*this, &Window::on_view_coronal)));
+
+      view_menu.items().push_back (SeparatorElem());
+
+      view_menu.items().push_back (
+          CheckMenuElem ("Show F_ocus",
+            Gtk::AccelKey ('f', CTRL_CMD_MASK),
+            sigc::mem_fun (*this, &Window::on_view_focus)));
+
+      view_menu.items().push_back (
+          MenuElem ("Reset _Windowing",
+            Gtk::AccelKey ('r', CTRL_CMD_MASK), 
+            sigc::mem_fun (*this, &Window::on_view_reset_windowing)));
+
+      view_menu.items().push_back (
+          MenuElem ("_Reset View", 
+            Gtk::AccelKey ('r', CTRL_CMD_MASK | Gdk::SHIFT_MASK),
+            sigc::mem_fun (*this, &Window::on_view_reset)));
+
+      view_menu.items().push_back (
+          CheckMenuElem ("_Full screen", 
+#ifdef __APPLE__
+            Gtk::AccelKey ('F', Gdk::CONTROL_MASK | Gdk::SHIFT_MASK), 
+#else
+            Gtk::AccelKey (GDK_KEY_F11, Gdk::ModifierType(0)),
+#endif
+            sigc::mem_fun (*this, &Window::on_view_full_screen)));
+
+
+      colourmap_menu.items().push_back (
+          RadioMenuElem (colourmap_group, "_Gray", 
+            sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 0)));
+
+      colourmap_menu.items().push_back (
+          RadioMenuElem (colourmap_group, "_Hot", 
+            sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 1)));
+
+      colourmap_menu.items().push_back (
+          RadioMenuElem (colourmap_group, "_Cool",
+            sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 2)));
+
+      colourmap_menu.items().push_back (
+          RadioMenuElem (colourmap_group, "_Jet",
+            sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), 3)));
+
       colourmap_menu.items().push_back (SeparatorElem());
-      colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_RGB", sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), COLOURMAP_RGB)));
-      colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "Comple_x", sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), COLOURMAP_COMPLEX)));
+
+      colourmap_menu.items().push_back (
+          RadioMenuElem (colourmap_group, "_RGB", 
+            sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), COLOURMAP_RGB)));
+
+      colourmap_menu.items().push_back (
+          RadioMenuElem (colourmap_group, "Comple_x", 
+            sigc::bind<int> (sigc::mem_fun (*this, &Window::on_colourmap), COLOURMAP_COMPLEX)));
 
       menubar.items().push_back (MenuElem ("_Image"));
       menubar.items().back().set_submenu (image_menu);
-      image_menu.items().push_back (MenuElem ("_Next Image", Gtk::AccelKey ("<control>Page_Up"), sigc::mem_fun(*this, &Window::on_image_next)));
-      image_menu.items().push_back (MenuElem ("_Previous Image", Gtk::AccelKey ("<control>Page_Down"), sigc::mem_fun(*this, &Window::on_image_previous)));
+
+      image_menu.items().push_back (
+          MenuElem ("_Next Image", 
+            Gtk::AccelKey (GDK_KEY_Page_Up, CTRL_CMD_MASK),
+            sigc::mem_fun(*this, &Window::on_image_next)));
+
+      image_menu.items().push_back (
+          MenuElem ("_Previous Image",
+            Gtk::AccelKey (GDK_KEY_Page_Down, CTRL_CMD_MASK), 
+            sigc::mem_fun(*this, &Window::on_image_previous)));
+
       image_menu.items().push_back (SeparatorElem ());
+
       image_menu.items().push_back (MenuElem ("No image loaded"));
 
       image_menu.items()[0].set_sensitive (false);
@@ -114,8 +217,14 @@ namespace MR {
 
       menubar.items().push_back (MenuElem ("_Help"));
       menubar.items().back().set_submenu (help_menu);
-      help_menu.items().push_back (MenuElem ("_OpenGL Info", sigc::mem_fun(*this, &Window::on_help_OpenGL_info)));
-      help_menu.items().push_back (StockMenuElem (Gtk::Stock::ABOUT, sigc::mem_fun(*this, &Window::on_help_about)));
+
+      help_menu.items().push_back (
+          MenuElem ("_OpenGL Info",
+            sigc::mem_fun(*this, &Window::on_help_OpenGL_info)));
+
+      help_menu.items().push_back (
+          StockMenuElem (Gtk::Stock::ABOUT,
+            sigc::mem_fun(*this, &Window::on_help_about)));
 
 
       main_box.pack_start (menubar, Gtk::PACK_SHRINK);

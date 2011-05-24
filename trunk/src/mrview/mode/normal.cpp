@@ -191,7 +191,7 @@ namespace MR {
             float angle = 0.0;
             const GLdouble* M = pane.get_modelview();
 
-            if ((event->state & MODIFIERS) == ( GDK_BUTTON1_MASK | GDK_CONTROL_MASK )) {
+            if ((event->state & MODIFIERS) == ( GDK_BUTTON1_MASK | CTRL_CMD_MASK )) {
               v.set (M[2], M[6], M[10]);
               Point pos = pane.model_to_screen (pane.focus);
               float dx = event->x - 0.5*pane.width();
@@ -199,7 +199,7 @@ namespace MR {
               angle = -atan2 (dy, dx);
               angle += atan2 (dy + incy, dx + incx);
             }
-            else if ((event->state & MODIFIERS) == ( GDK_BUTTON2_MASK | GDK_CONTROL_MASK )) {
+            else if ((event->state & MODIFIERS) == ( GDK_BUTTON2_MASK | CTRL_CMD_MASK )) {
               Point x (-incx*M[0] + incy*M[1], -incx*M[4] + incy*M[5], -incx*M[8] + incy*M[9]);
               Point z (M[2], M[6], M[10]);
               v = x.cross (z);
@@ -238,7 +238,7 @@ namespace MR {
           return (true);
         }
 
-        if ((event->state & MODIFIERS) == GDK_CONTROL_MASK) {
+        if ((event->state & MODIFIERS) == CTRL_CMD_MASK) {
           float inc = 0.0;
           if (event->direction == GDK_SCROLL_UP) inc = -ZOOM_MULTIPLIER;
           else if (event->direction == GDK_SCROLL_DOWN) inc = ZOOM_MULTIPLIER;
@@ -265,18 +265,18 @@ namespace MR {
         if (!S.image) return (false);
 
         if (!(event->state & MODIFIERS)) {
-          if (event->keyval == GDK_Up) {
+          if (event->keyval == GDK_KEY_Up) {
             move_slice (S, 1.0);
             return (true);
           }
-          if (event->keyval == GDK_Down) {
+          if (event->keyval == GDK_KEY_Down) {
             move_slice (S, -1.0);
             return (true);
           }
-          if (event->keyval == GDK_Left) {
+          if (event->keyval == GDK_KEY_Left) {
             if (S.image->interp->ndim() > 3 && S.channel[3] > 0) { S.channel[3]--; Window::Main->update(); }
           }
-          if (event->keyval == GDK_Right) {
+          if (event->keyval == GDK_KEY_Right) {
             if (S.image->interp->ndim() > 3 && S.channel[3] < (int) S.image->interp->dim(3) - 1) { S.channel[3]++; Window::Main->update(); }
           }
         }

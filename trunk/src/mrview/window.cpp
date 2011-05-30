@@ -65,35 +65,13 @@ namespace MR {
 
       menubar.items().push_back (MenuElem ("_File"));
       menubar.items().back().set_submenu (file_menu);
-
-      file_menu.items().push_back (
-          StockMenuElem (Gtk::Stock::OPEN, 
-            Gtk::AccelKey ('o', CTRL_CMD_MASK), 
-            sigc::mem_fun(*this, &Window::on_file_open)));
-
-      file_menu.items().push_back (
-          StockMenuElem (Gtk::Stock::SAVE,
-            Gtk::AccelKey ('s', CTRL_CMD_MASK),
-            sigc::mem_fun(*this, &Window::on_file_save)));
-
-      file_menu.items().push_back (
-          StockMenuElem (Gtk::Stock::CLOSE,
-            Gtk::AccelKey ('w', CTRL_CMD_MASK),
-            sigc::mem_fun(*this, &Window::on_file_close)));
-
+      file_menu.items().push_back (StockMenuElem (Gtk::Stock::OPEN, sigc::mem_fun(*this, &Window::on_file_open)));
+      file_menu.items().push_back (StockMenuElem (Gtk::Stock::SAVE, sigc::mem_fun(*this, &Window::on_file_save)));
+      file_menu.items().push_back (StockMenuElem (Gtk::Stock::CLOSE, sigc::mem_fun(*this, &Window::on_file_close)));
       file_menu.items().push_back (SeparatorElem());
-
-      file_menu.items().push_back (
-          StockMenuElem (Gtk::Stock::PROPERTIES, 
-            sigc::mem_fun(*this, &Window::on_file_properties)));
-
+      file_menu.items().push_back (StockMenuElem (Gtk::Stock::PROPERTIES, sigc::mem_fun(*this, &Window::on_file_properties)));
       file_menu.items().push_back (SeparatorElem());
-
-      file_menu.items().push_back (
-          StockMenuElem (Gtk::Stock::QUIT,
-            Gtk::AccelKey ('q', CTRL_CMD_MASK),
-            sigc::mem_fun(*this, &Window::on_quit)));
-
+      file_menu.items().push_back (StockMenuElem (Gtk::Stock::QUIT, sigc::mem_fun(*this, &Window::on_quit)));
 
       file_menu.items()[1].set_sensitive (false);
       file_menu.items()[2].set_sensitive (false);
@@ -106,15 +84,15 @@ namespace MR {
       view_menu.items().push_back (
           CheckMenuElem ("Side_bar", 
 #ifdef __APPLE__
-            Gtk::AccelKey ('D', Gdk::CONTROL_MASK | Gdk::SHIFT_MASK), 
+            Gtk::AccelKey ("<control><shift>D"), 
 #else
-            Gtk::AccelKey (GDK_KEY_F9, Gdk::ModifierType(0)), 
+            Gtk::AccelKey ("F9"), 
 #endif
             sigc::mem_fun(*this, &Window::on_view_sidebar)));
 
       view_menu.items().push_back (
           CheckMenuElem ("_Interpolate",
-            Gtk::AccelKey ('i', CTRL_CMD_MASK), 
+            Gtk::AccelKey ("<control>I"), 
             sigc::mem_fun (*this, &Window::on_view_interpolate)));
 
       view_menu.items().push_back (
@@ -128,42 +106,42 @@ namespace MR {
 
       view_menu.items().push_back (
           RadioMenuElem (projection_group, "_Axial", 
-            Gtk::AccelKey ('a', Gdk::ModifierType(0)),
+            Gtk::AccelKey ("A"),
             sigc::mem_fun (*this, &Window::on_view_axial)));
 
       view_menu.items().push_back (
           RadioMenuElem (projection_group, "_Sagittal", 
-            Gtk::AccelKey ('s', Gdk::ModifierType(0)),
+            Gtk::AccelKey ("S"),
             sigc::mem_fun (*this, &Window::on_view_sagittal)));
 
       view_menu.items().push_back (
           RadioMenuElem (projection_group, "_Coronal",
-            Gtk::AccelKey ('c', Gdk::ModifierType(0)),
+            Gtk::AccelKey ("C"),
             sigc::mem_fun (*this, &Window::on_view_coronal)));
 
       view_menu.items().push_back (SeparatorElem());
 
       view_menu.items().push_back (
           CheckMenuElem ("Show F_ocus",
-            Gtk::AccelKey ('f', CTRL_CMD_MASK),
+            Gtk::AccelKey ("<control>F"),
             sigc::mem_fun (*this, &Window::on_view_focus)));
 
       view_menu.items().push_back (
           MenuElem ("Reset _Windowing",
-            Gtk::AccelKey ('r', CTRL_CMD_MASK), 
+            Gtk::AccelKey ("<control>R"), 
             sigc::mem_fun (*this, &Window::on_view_reset_windowing)));
 
       view_menu.items().push_back (
           MenuElem ("_Reset View", 
-            Gtk::AccelKey ('r', CTRL_CMD_MASK | Gdk::SHIFT_MASK),
+            Gtk::AccelKey ("<control><shift>R"),
             sigc::mem_fun (*this, &Window::on_view_reset)));
 
       view_menu.items().push_back (
           CheckMenuElem ("_Full screen", 
 #ifdef __APPLE__
-            Gtk::AccelKey ('F', Gdk::CONTROL_MASK | Gdk::SHIFT_MASK), 
+            Gtk::AccelKey ("<control><shift>F"), 
 #else
-            Gtk::AccelKey (GDK_KEY_F11, Gdk::ModifierType(0)),
+            Gtk::AccelKey ("F11"),
 #endif
             sigc::mem_fun (*this, &Window::on_view_full_screen)));
 
@@ -199,12 +177,12 @@ namespace MR {
 
       image_menu.items().push_back (
           MenuElem ("_Next Image", 
-            Gtk::AccelKey (GDK_KEY_Page_Up, CTRL_CMD_MASK),
+            Gtk::AccelKey ("<control>Page_Up"),
             sigc::mem_fun(*this, &Window::on_image_next)));
 
       image_menu.items().push_back (
           MenuElem ("_Previous Image",
-            Gtk::AccelKey (GDK_KEY_Page_Down, CTRL_CMD_MASK), 
+            Gtk::AccelKey ("<control>Page_Down"), 
             sigc::mem_fun(*this, &Window::on_image_previous)));
 
       image_menu.items().push_back (SeparatorElem ());

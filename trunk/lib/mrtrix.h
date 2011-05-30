@@ -103,9 +103,9 @@
         GDK_META_MASK )
 
 #ifdef __APPLE__
-# define CTRL_CMD_MASK Gdk::META_MASK
+# define CTRL_CMD_MASK GDK_META_MASK
 #else
-# define CTRL_CMD_MASK Gdk::CONTROL_MASK
+# define CTRL_CMD_MASK GDK_CONTROL_MASK
 #endif
 
 #define TMPFILE_ROOT "mrtrix-"

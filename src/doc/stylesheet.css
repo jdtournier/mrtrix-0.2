@@ -2,7 +2,9 @@ body { margin-left: 1em; margin-right: 1em; }
 h1 { color: #008080; margin-top: 1em; }
 h2 { color: #008080; margin-top: 1em; }
 h3 { font-style: oblique }
-p.sep { text-align: right; font-style: oblique; margin-top: 1em; margin-bottom: 2em; padding-bottom: 0.3em; border-bottom: 1px solid black; clear: both }
+p.sep, p.footer { text-align: right; font-style: oblique; clear: both }
+p.sep { margin-top: 1em; margin-bottom: 2em; padding-bottom: 0.3em; border-bottom: 1px solid black }
+p.footer { margin-top: 2em; padding-top: 0.3em; border-top: 1px solid black; color: #008080 }
 p.cmdinfo { font-style: oblique; font-weight: bold }
 p.indented { padding-left: 5em; }
 pre { padding-left: 1em; padding-top: 0.5em; padding-bottom: 0.5em; background: #E0E0E0; border: 1px solid black; color: black; }

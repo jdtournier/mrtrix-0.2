@@ -118,7 +118,7 @@ else:
     print ''
   lib_dir = os.path.join (mrtrix_dir, lib_dir)
   misc_dir = os.path.join (mrtrix_dir, misc_dir)
-  include_paths = [ 'src' ]
+  include_paths = [ misc_dir ]
 
 
 # get version info:
@@ -345,7 +345,7 @@ def is_icon (target):
 
 def mtime (target):
   if not os.path.exists (target): return None
-  return os.stat(target).st_mtime
+  return os.path.getmtime(target)
 
 def fillin (template, keyvalue):
   cmd = []
@@ -496,14 +496,46 @@ def build_next (id):
 
 
 
+def html_footer (filename):
+  timestamp = mtime (filename)
+  if not timestamp:
+    print 'error: could not get timestamp for file "' + filename + '"'
+    exit (1)
+  
+  return '''
+<p class=footer>
+Donald Tournier<br>
+MRtrix version ''' + major + '.' + minor + '.' + micro + '''<br>
+Last updated ''' + time.strftime ("%d %B %Y", time.localtime(timestamp)) + '''
+</p>
+
+</body>
+</html>
+'''
+    
+
 def start_html (fid, title, left, up, home, right):
-  fid.write ('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">\n')
-  fid.write ('<title>MRtrix documentation</title>\n<link rel="stylesheet" href="../stylesheet.css" type="text/css" media=screen>\n</head>\n<body>\n\n')
-  fid.write ('<table class=nav>\n<tr>\n<td><a href="' + left + '.html"><img src="../left.png"></a></td>\n')
-  fid.write ('<td><a href="' + up + '.html"><img src="../up.png"></a></td>\n')
-  fid.write ('<td><a href="' + home + '.html"><img src="../home.png"></a></td>\n')
-  fid.write ('<th>' + title + '</th>\n')
-  fid.write ('<td><a href="' + right + '.html"><img src="../right.png"></a></td>\n</tr>\n</table>\n')
+  fid.write ('''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+  <title>MRtrix documentation</title>
+  <link rel="stylesheet" href="../stylesheet.css" type="text/css" media=screen>
+</head>
+
+<body>
+
+<table class=nav>
+  <tr>
+    <td><a href="''' + left + '''.html"><img src="../left.png"></a></td>
+    <td><a href="''' + up + '''.html"><img src="../up.png"></a></td>
+    <td><a href="''' + home + '''.html"><img src="../home.png"></a></td>
+    <th>''' + title + '''</th>
+    <td><a href="''' + right + '''.html"><img src="../right.png"></a></td>
+  </tr>
+</table>
+
+''')
 
 
 
@@ -512,6 +544,8 @@ def gen_command_html_help ():
   binaries = os.listdir (bin_dir)
   binaries.sort()
   description = []
+  most_recent_cmd = None
+  most_recent_timestamp = 0
 
   # generate each program's individual page:
   for n in range (0, len(binaries)):
@@ -598,7 +632,21 @@ def gen_command_html_help ():
       fid.write ('</td></tr>\n')
     fid.write ('</table>\n')
 
-    fid.write ('</body>\n</html>')
+    cmd_file = os.path.join (cmd_dir, binaries[n] + cpp_suffix)
+    timestamp = mtime (cmd_file)
+    if timestamp > most_recent_timestamp: 
+      most_recent_timestamp = timestamp
+      most_recent_cmd = cmd_file
+    fid.write ('''
+<p class=footer>
+Donald Tournier<br>
+MRtrix version #VERSION#<br>
+Last updated #MTIME#
+</p>
+
+</body>
+</html>
+''')
 
     fid.close()
 
@@ -610,8 +658,40 @@ def gen_command_html_help ():
 
   for n in range (0,len(binaries)):
     fid.write ('<tr><td><a href="' + binaries[n] + '.html">' + binaries[n] + '</a></td><td>' + description[n] + '</td></tr>\n')
-  fid.write ('</table>\n</body>\n</html>')
+  fid.write ('''</table>
+
+<p class=footer>
+Donald Tournier<br>
+MRtrix version #VERSION#<br>
+</p>
+
+</body>
+</html>
+''')
   fid.close()
+
+
+
+
+def gen_doc ():
+  shutil.rmtree (doc_dir, True)
+  shutil.copytree (os.path.join (misc_dir, doc_dir), doc_dir)
+  gen_command_html_help()
+  for root, dirs, files in os.walk (doc_dir):
+    for entry in files:
+      if entry[0] == '.': continue
+      if not entry.endswith ('.html'): continue
+      fname = os.path.join (root, entry)
+      with open(fname, 'rb') as fd:
+        contents = fd.read()
+      timestamp = mtime (os.path.join (misc_dir, fname))
+      if not timestamp:
+        timestamp = mtime (os.path.join (cmd_dir, entry.replace (".html", cpp_suffix)))
+      with open(fname, 'wb') as fd:
+        fd.write (contents
+           .replace ('#MTIME#', time.strftime ("%d %B %Y", time.localtime (timestamp)))
+           .replace ('#VERSION#', major + '.' + minor + '.' + micro))
+
 
 
 
@@ -631,15 +711,15 @@ def clean_cmd ():
       for entry in dirs: dirs_to_remove.append (os.path.join (root, entry))
     dirs_to_remove.append (bin_dir)
   
+  if os.path.isdir (doc_dir):
+    print '[RM] doc'
+    sys.stdout.flush()
+    shutil.rmtree (doc_dir, True)
+
   if os.path.isdir (dev_dir):
     print '[RM] development doc'
     sys.stdout.flush()
-    for root, dirs, files in os.walk (dev_dir, topdown=False, followlinks=True):
-      for entry in files:
-        os.remove (os.path.join (root, entry))
-    for entry in dirs:
-        os.rmdir (os.path.join (root, entry))
-    os.rmdir (dev_dir)
+    shutil.rmtree (dev_dir, True)
 
   if len(files_to_remove):
     print '[RM] ' + ' '.join(files_to_remove)
@@ -838,7 +918,7 @@ if 'clean' in targets:
 # doc:
 
 if doc_dir in targets: 
-  exit (gen_command_html_help());
+  exit (gen_doc());
 
 
 

@@ -192,7 +192,7 @@ mrtransform: copying image data... 100%
 <h3><a name='probmap'>How do I produce an image of the track count through each voxel?</a></h3>
 <p>
 The <a href='commands/tracks2prob.html'>tracks2prob</a> command can be used to generate an image 
-where each voxel contains the fraction of the total number of tracks generated that pass through that voxel.
+where each voxel contains the number of tracks that pass through that voxel.
 For example:
 </p>
 <pre>
@@ -200,7 +200,7 @@ For example:
 tracks2prob: generating track count image...  - ok
 </pre>
 <p>
-This will produce an image of the fraction of tracks through each voxel based on the <kbd>anat.mif</kbd> template image.
+This will produce an image of the number of tracks through each voxel based on the <kbd>anat.mif</kbd> template image.
 </p>
 
 
@@ -297,6 +297,12 @@ can be used with MRtrix.
   </tr>
 </table>
 
+<p class=footer>
+Donald Tournier<br>
+MRtrix version #VERSION#<br>
+Last updated #MTIME#
+</p>
+
+
 </body>
 </html>
-

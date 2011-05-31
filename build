@@ -496,30 +496,12 @@ def build_next (id):
 
 
 
-def html_footer (filename):
-  timestamp = mtime (filename)
-  if not timestamp:
-    print 'error: could not get timestamp for file "' + filename + '"'
-    exit (1)
-  
-  return '''
-<p class=footer>
-Donald Tournier<br>
-MRtrix version ''' + major + '.' + minor + '.' + micro + '''<br>
-Last updated ''' + time.strftime ("%d %B %Y", time.localtime(timestamp)) + '''
-</p>
-
-</body>
-</html>
-'''
-    
-
 def start_html (fid, title, left, up, home, right):
   fid.write ('''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
-  <title>MRtrix documentation</title>
+  <title>MRtrix #VERSION# documentation</title>
   <link rel="stylesheet" href="../stylesheet.css" type="text/css" media=screen>
 </head>
 

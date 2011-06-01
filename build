@@ -161,7 +161,7 @@ if profile:
 
 # SVN revision number:
 try:
-  process = subprocess.Popen ([ 'svn', 'info' ], stdout=subprocess.PIPE)
+  process = subprocess.Popen ([ 'svn', 'info' ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   if process.wait() != 0: raise 0
   for line in process.stdout:
     if line.startswith ('Revision:'):

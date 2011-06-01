@@ -94,6 +94,9 @@ namespace MR {
 
         glDisable (GL_TEXTURE_2D);
 
+        Gtk::Clipboard::get()->set_text (
+            printf ("%.2f,%.2f,%.2f", S.focus[0], S.focus[1], S.focus[2]));
+
         if (Window::Main->show_focus()) {
           Point F = pane.model_to_screen (S.focus);
 

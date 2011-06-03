@@ -269,18 +269,18 @@ namespace MR {
         if (!S.image) return (false);
 
         if (!(event->state & MODIFIERS)) {
-          if (event->keyval == GDK_KEY_Up) {
+          if (event->keyval == GDK_Up) {
             move_slice (S, 1.0);
             return (true);
           }
-          if (event->keyval == GDK_KEY_Down) {
+          if (event->keyval == GDK_Down) {
             move_slice (S, -1.0);
             return (true);
           }
-          if (event->keyval == GDK_KEY_Left) {
+          if (event->keyval == GDK_Left) {
             if (S.image->interp->ndim() > 3 && S.channel[3] > 0) { S.channel[3]--; Window::Main->update(); }
           }
-          if (event->keyval == GDK_KEY_Right) {
+          if (event->keyval == GDK_Right) {
             if (S.image->interp->ndim() > 3 && S.channel[3] < (int) S.image->interp->dim(3) - 1) { S.channel[3]++; Window::Main->update(); }
           }
         }

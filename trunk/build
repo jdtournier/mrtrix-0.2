@@ -732,6 +732,12 @@ def apply_recursive (action, source, destination):
     else: action (src, dst)
 
 
+def install (source, destination):
+  if os.path.exists (destination):
+    os.unlink (destination)
+  shutil.copy (source, destination)
+
+
 def create_link (source, destination):
   if os.path.isabs (source): src = source
   else: src = os.path.relpath (source, os.path.dirname(destination))
@@ -871,8 +877,8 @@ if installto is not None:
   dest_bin = os.path.join (installto, 'bin')
   dest_lib = os.path.join (installto, 'lib')
   print 'installing executables to "' + dest_bin + '" and dynamic library to "' + dest_lib + '"...',
-  apply_recursive (shutil.copy, bin_dir, dest_bin)
-  apply_recursive (shutil.copy, os.path.join (lib_dir, libname), os.path.join (dest_lib, libname))
+  apply_recursive (install, bin_dir, dest_bin)
+  apply_recursive (install, os.path.join (lib_dir, libname), os.path.join (dest_lib, libname))
   print 'ok'
 
   if linkto is not None:

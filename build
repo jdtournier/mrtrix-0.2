@@ -692,16 +692,6 @@ def clean_cmd ():
       for file in files: files_to_remove.append (os.path.join (root, file))
       for entry in dirs: dirs_to_remove.append (os.path.join (root, entry))
     dirs_to_remove.append (bin_dir)
-  
-  if os.path.isdir (doc_dir):
-    print '[RM] doc'
-    sys.stdout.flush()
-    shutil.rmtree (doc_dir, True)
-
-  if os.path.isdir (dev_dir):
-    print '[RM] development doc'
-    sys.stdout.flush()
-    shutil.rmtree (dev_dir, True)
 
   if len(files_to_remove):
     print '[RM] ' + ' '.join(files_to_remove)

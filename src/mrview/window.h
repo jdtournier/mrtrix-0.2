@@ -35,6 +35,8 @@
 #include "mrview/display_area.h"
 #include "mrview/slice.h"
 
+#define ZOOM_MULTIPLIER 0.1
+
 namespace Gtk {
   namespace Menu_Helpers {
     class MenuList;
@@ -71,6 +73,8 @@ namespace MR {
         bool                 show_focus () const;
         bool                 sidebar_displayed () const { return (dynamic_cast<const Gtk::CheckMenuItem&> (view_menu.items()[0]).get_active()); }
 
+        void                 zoom (int increment) { pane().FOV *= exp (increment * ZOOM_MULTIPLIER); update(); }
+
         guint                axes[2];
 
         Slice::Info          slice;
@@ -102,6 +106,8 @@ namespace MR {
         void                 on_view_sagittal ();
         void                 on_view_coronal ();
         void                 on_view_focus ();
+        void                 on_zoom_in ();
+        void                 on_zoom_out ();
         void                 on_view_reset_windowing ();
         void                 on_view_reset ();
         void                 on_view_full_screen ();

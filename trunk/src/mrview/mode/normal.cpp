@@ -28,7 +28,6 @@
 #include "mrview/slice.h"
 #include "mrview/mode/normal.h"
 
-#define ZOOM_MULTIPLIER 0.1
 #define ROTATION_INC 0.002
 
 
@@ -243,15 +242,12 @@ namespace MR {
         }
 
         if ((event->state & MODIFIERS) == CTRL_CMD_MASK) {
-          float inc = 0.0;
-          if (event->direction == GDK_SCROLL_UP) inc = -ZOOM_MULTIPLIER;
-          else if (event->direction == GDK_SCROLL_DOWN) inc = ZOOM_MULTIPLIER;
+          int inc;
+          if (event->direction == GDK_SCROLL_UP) inc = -1;
+          else if (event->direction == GDK_SCROLL_DOWN) inc = 1;
           else return (false);
 
-          pane.FOV *= exp (inc);
-          if (pane.FOV < 0.1) pane.FOV = 0.1;
-          if (pane.FOV > 2000.0) pane.FOV = 2000.0;
-
+          Window::Main->zoom (inc);
           Window::Main->update();
           return (true); 
         }

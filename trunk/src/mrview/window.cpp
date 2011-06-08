@@ -122,9 +122,22 @@ namespace MR {
       view_menu.items().push_back (SeparatorElem());
 
       view_menu.items().push_back (
+          MenuElem ("Zoom in",
+            Gtk::AccelKey ("Home"),
+            sigc::mem_fun (*this, &Window::on_zoom_in)));
+
+      view_menu.items().push_back (
+          MenuElem ("Zoom out",
+            Gtk::AccelKey ("End"),
+            sigc::mem_fun (*this, &Window::on_zoom_out)));
+
+      view_menu.items().push_back (SeparatorElem());
+
+      view_menu.items().push_back (
           CheckMenuElem ("Show F_ocus",
             Gtk::AccelKey ("<control>F"),
             sigc::mem_fun (*this, &Window::on_view_focus)));
+      dynamic_cast<Gtk::CheckMenuItem&> (view_menu.items().back()).set_active (true);
 
       view_menu.items().push_back (
           MenuElem ("Reset _Windowing",
@@ -216,7 +229,6 @@ namespace MR {
       sidebar.hide();
 
       signal_key_press_event().connect (sigc::mem_fun(display_area, &DisplayArea::on_key_press), false);
-      dynamic_cast<Gtk::CheckMenuItem&> (view_menu.items()[9]).set_active (true);
 
       realize();
       for (guint n = 0; n < argument.size(); n++) manage (argument[n].get_image());
@@ -445,6 +457,21 @@ namespace MR {
     }
 
 
+
+    void Window::on_zoom_in () 
+    {
+      Slice::Current S (pane());
+      if (!S.image) return;
+      zoom (-1);
+    }
+
+    void Window::on_zoom_out () 
+    {
+      Slice::Current S (pane());
+      if (!S.image) return;
+      zoom (1);
+    }
+
     void Window::on_view_interpolate () 
     {
       Slice::Current S (pane());
@@ -631,7 +658,7 @@ namespace MR {
 
 
 
-    bool Window::show_focus () const { return (dynamic_cast<Gtk::CheckMenuItem&> (view_menu.items()[9]).get_active()); }
+    bool Window::show_focus () const { return (dynamic_cast<Gtk::CheckMenuItem&> (view_menu.items()[12]).get_active()); }
 
 
   }

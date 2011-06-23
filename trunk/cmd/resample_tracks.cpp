@@ -25,6 +25,8 @@
 
 #include "app.h"
 #include "get_set.h"
+#include "math/matrix.h"
+#include "math/linalg.h"
 #include "dwi/tractography/file.h"
 #include "dwi/tractography/properties.h"
 
@@ -58,6 +60,9 @@ OPTIONS = {
     .append (Argument ("start", "start direction", "a vector pointing along the direction of the resampling at the start of the range.").type_sequence_float ())
     .append (Argument ("end", "end direction", "a vector pointing along the direction of the resampling at the end of the range.").type_sequence_float ()),
 
+  Option ("waypoint", "way point", "specify a way point for curved resampling. The resampling will be performed along an arc of a circle through all start, end and way points.")
+    .append (Argument ("point", "way point", "a piont lying along the curved path to be resampled.").type_sequence_float ()),
+
   Option ("warp", "warp image", "specify an image containing the warp field to the space in which the resampling is to take place.")
     .append (Argument ("image", "warp image", "the warp image.").type_image_in()),
  
@@ -69,6 +74,18 @@ OPTIONS = {
 
 
 class Resampler {
+  private:
+    class Plane {
+      public:
+        Plane (const Point& pos, const Point& dir) : n (dir) { n.normalise(); d = n.dot (pos); }
+        float dist (const Point& pos) { return n.dot (pos) - d; }
+      private:
+        Point n;
+        float d;
+    };
+
+    std::vector<Plane> planes;
+
   public:
     RefPtr<Image::Interp> warp;
     Point start, mid, end, start_dir, mid_dir, end_dir;
@@ -89,7 +106,13 @@ class Resampler {
     }
 
     int state (const Point& p) {
-      return (((start_dir.dot (p - start) >= 0) << 2 ) | ((mid_dir.dot (p - mid) > 0) << 1) | (end_dir.dot (p - end) > 0));
+      bool after_start = start_dir.dot (p - start) >= 0;
+      bool after_mid = mid_dir.dot (p - mid) > 0.0;
+      bool after_end = end_dir.dot (p - end) >= 0.0;
+      if (!after_start && !after_mid) return -1; // before start;
+      if (after_start && !after_mid) return 0; // after start;
+      if (after_mid && !after_end) return 1; // before end
+      return 2; // after end
     }
 
     int limits (const std::vector<Point>& tck) {
@@ -100,10 +123,10 @@ class Resampler {
       for (guint i = 0; i < tck.size(); ++i) {
         int s = state (pos (tck[i]));
         if (i) {
-          if (prev_s == 0 && s == 4) a = i-1;
-          if (prev_s == 4 && s == 0) a = i;
-          if (prev_s == 6 && s == 7) b = i;
-          if (prev_s == 7 && s == 6) b = i-1;
+          if (prev_s == -1 && s == 0) a = i-1;
+          if (prev_s == 0 && s == -1) a = i;
+          if (prev_s == 1 && s == 2) b = i;
+          if (prev_s == 2 && s == 1) b = i-1;
 
           if (a && b) {
             if (b - a > idx_end - idx_start) {
@@ -116,32 +139,86 @@ class Resampler {
         prev_s = s;
       }
 
+      ++idx_end;
+
       return (idx_start && idx_end);
+    }
+
+    void init () {
+      for (guint n = 0; n < nsamples; n++) {
+        float f = float(n) / float (nsamples-1);
+        planes.push_back (Plane ((1.0-f) * start + f * end, (1.0-f) * start_dir + f * end_dir));
+      }
+    }
+
+    void init (const Point& waypoint) {
+
+      Math::Matrix M (3,3);
+
+      M(0,0) = start[0] - waypoint[0];
+      M(0,1) = start[1] - waypoint[1];
+      M(0,2) = start[2] - waypoint[2];
+
+      M(1,0) = end[0] - waypoint[0];
+      M(1,1) = end[1] - waypoint[1];
+      M(1,2) = end[2] - waypoint[2];
+
+      Point n ((start-waypoint).cross (end-waypoint));
+      M(2,0) = n[0];
+      M(2,1) = n[1];
+      M(2,2) = n[2];
+
+      Math::Vector centre, a(3);
+      a[0] = 0.5 * (start+waypoint).dot(start-waypoint);
+      a[1] = 0.5 * (end+waypoint).dot(end-waypoint);
+      a[2] = start.dot(n);
+      centre.multiply (M, a);
+
+      Math::QR_solve (M, a, centre);
+      Point c (centre[0], centre[1], centre[2]);
+
+      Point x (start-c);
+      float R = x.norm();
+      
+      Point y (waypoint-c);
+      y -= y.dot(x)/(x.norm()*y.norm()) * x;
+      y *= R / y.norm();
+
+      Point e (end-c);
+      float ex (x.dot (e)), ey (y.dot (e));
+
+      float angle = atan2 (ey, ex);
+      if (angle < 0.0) angle += 2.0 * M_PI;
+
+      for (guint n = 0; n < nsamples; n++) {
+        float f = angle * float(n) / float (nsamples-1);
+        planes.push_back (Plane (c + x*cos(f) + y*sin(f), y*cos(f) - x*sin(f)));
+      }
+
+      start_dir = y;
+      end_dir = y*cos(angle) - x*sin(angle);
     }
 
 
     void resample (const std::vector<Point>& tck, std::vector<Point>& rtck) {
       assert (tck.size());
+      assert (planes.size());
       bool reverse = idx_start > idx_end;
       guint i = idx_start;
 
       for (guint n = 0; n < nsamples; n++) {
-        float f = float(n) / float (nsamples-1);
-        Point p = (1.0-f) * start + f * end;
-        Point dir = (1.0-f) * start_dir + f * end_dir;
-
         while (i != idx_end) {
-          float d = dir.dot (pos (tck[i]) - p);
+          float d = planes[n].dist (pos (tck[i]));
           if (d > 0.0) {
-            float f = d / (d - dir.dot (pos (tck[reverse ? i+1 : i-1]) - p));
+            float f = d / (d - planes[n].dist (pos (tck[reverse ? i+1 : i-1])));
             rtck.push_back (f*tck[i-1] + (1.0-f)*tck[i]);
             break;
           }
           reverse ? --i : ++i;
         }
       }
-
     }
+
 };
 
 
@@ -187,14 +264,14 @@ EXECUTE {
     sampler.end_dir.set (v[0], v[1], v[2]);
   }
 
-  opt = get_options (2); // warp
+  opt = get_options (3); // warp
   if (opt.size()) {
     sampler.warp = new Image::Interp (*opt[0][0].get_image());
     if (sampler.warp->ndim() < 4) throw Exception ("warp image should contain at least 4 dimensions");
     if (sampler.warp->dim(3) < 3) throw Exception ("4th dimension of warp image should have length 3");
   }
 
-  opt = get_options (3); // num
+  opt = get_options (4); // num
   if (opt.size()) sampler.nsamples = opt[0][0].get_int();
 
   Tractography::Writer writer;
@@ -202,6 +279,14 @@ EXECUTE {
 
   std::vector<Point> tck;
   guint skipped = 0;
+
+  opt = get_options (2); // waypoint
+  if (opt.size()) { 
+    std::vector<float> v = parse_floats (opt[0][0].get_string());
+    if (v.size() != 3) throw Exception ("waypoint should be specified as a comma-separated vector of 3 coordinates");
+    sampler.init (Point (v[0], v[1], v[2]));
+  }
+  else sampler.init ();
 
   ProgressBar::init (0, "resampling tracks...");
 

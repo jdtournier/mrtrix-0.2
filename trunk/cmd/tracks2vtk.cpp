@@ -69,40 +69,6 @@ Point scanner_to_voxel_space (const Image::Object& H, const Point& pos)
       M(2,0)*pos[0] + M(2,1)*pos[1] + M(2,2)*pos[2] + M(2,3) );
 }
 
-int ReferenceToVoxelCoordinates (Image::Object* in,float x, float y, float z, float& VoxelX, float& VoxelY, float& VoxelZ)
-{
-  Math::Vector PositionInRef (4);
-  PositionInRef[0]=x;
-  PositionInRef[1]=y;
-  PositionInRef[2]=z;
-  PositionInRef[3]=1.0;
-  Math::Matrix  trans_R2I = in->R2I();
-  Math::Vector PositionInImage;
-  PositionInImage.multiply (trans_R2I, PositionInRef);
-  VoxelX=PositionInImage[0]/in->vox (0);
-  VoxelY=PositionInImage[1]/in->vox (1);
-  VoxelZ=PositionInImage[2]/in->vox (2);
-  return 0;
-
-}
-
-int ReferenceToImageSpace (Image::Object* in,float x, float y, float z, float& VoxelX, float& VoxelY, float& VoxelZ)
-{
-  Math::Vector PositionInRef (4);
-  PositionInRef[0]=x;
-  PositionInRef[1]=y;
-  PositionInRef[2]=z;
-  PositionInRef[3]=1.0;
-  Math::Matrix  trans_R2I = in->R2I();
-  Math::Vector PositionInImage;
-  PositionInImage.multiply (trans_R2I, PositionInRef);
-  VoxelX=PositionInImage[0];
-  VoxelY=PositionInImage[1];
-  VoxelZ=PositionInImage[2];
-  return 0;
-
-}
-
 
 SET_VERSION_DEFAULT;
 

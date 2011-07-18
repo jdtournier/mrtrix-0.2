@@ -38,7 +38,7 @@ namespace MR {
           lmax (SH::LforN (source.dim(3))),
           precomputed (true)
         {
-          float min_curv = step_size / ( 2.0 * sin (0.5 * acos (M_PI_2)));
+          float min_curv = step_size / ( 2.0 * sin (0.5 * M_PI_2));
 
           properties["method"] = "SD_STREAM";
           if (props["min_curv"].empty()) props["min_curv"] = str (min_curv); else min_curv = to<float> (props["min_curv"]);

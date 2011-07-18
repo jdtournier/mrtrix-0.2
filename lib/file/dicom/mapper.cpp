@@ -242,19 +242,24 @@ namespace MR {
         guint8* mem = NULL;
         guint8* data = NULL;
 
+        guint acq_dim[2] = { image.acq_dim[0], image.acq_dim[1] };
+
         if (image.images_in_mosaic) {
           if (axes.dim[2] != 1) 
             throw Exception ("DICOM mosaic contains multiple slices in image \"" + H.name + "\"");
 
-          if (image.dim[0] % image.acq_dim[0] || image.dim[1] % image.acq_dim[1]) 
-            throw Exception ("acquisition matrix [ " + str (image.acq_dim[0]) + " " + str (image.acq_dim[1]) 
+          if (image.dim[0] % acq_dim[0] || image.dim[1] % acq_dim[1]) {
+            error ("WARNING: acquisition matrix [ " + str (acq_dim[0]) + " " + str (acq_dim[1]) 
                 + " ] does not fit into DICOM mosaic [ " + str (image.dim[0]) + " " + str (image.dim[1]) 
-                + " ] in image \"" + H.name + "\"");
+                + " ] in image \"" + H.name + "\" - adjusting matrix size to suit");
+            acq_dim[0] = image.dim[0] / guint (float(image.dim[0]) / float(acq_dim[0]));
+            acq_dim[1] = image.dim[1] / guint (float(image.dim[1]) / float(acq_dim[1]));
+          }
 
           ProgressBar::init (dim[0]*dim[2]*series.size(), "DICOM image contains mosaic files - reformating..."); 
 
-          axes.dim[0] = image.acq_dim[0];
-          axes.dim[1] = image.acq_dim[1];
+          axes.dim[0] = acq_dim[0];
+          axes.dim[1] = acq_dim[1];
           axes.dim[2] = image.images_in_mosaic;
           guint msize = H.data_type.bytes();
           for (int i = 0; i < axes.ndim(); i++) 
@@ -282,19 +287,19 @@ namespace MR {
                   fmap.init ((*series[s])[n]->filename);
                   fmap.map();
                   guint nbytes = H.data_type.bytes();
-                  guint nbytes_row = nbytes * image.acq_dim[0];
+                  guint nbytes_row = nbytes * acq_dim[0];
                   guint8* mosaic_data = (guint8*) fmap.address() + (*series[s])[n]->data;
                   guint nx = 0, ny = 0;
                   for (guint z = 0; z < image.images_in_mosaic; z++) {
-                    guint ox = nx*image.acq_dim[0];
-                    guint oy = ny*image.acq_dim[1];
-                    for (guint y = 0; y < image.acq_dim[1]; y++) {
+                    guint ox = nx*acq_dim[0];
+                    guint oy = ny*acq_dim[1];
+                    for (guint y = 0; y < acq_dim[1]; y++) {
                       memcpy (data, mosaic_data + nbytes*(ox+image.dim[0]*(y+oy)), nbytes_row);
                       data += nbytes_row;
                     }
 
                     nx++;
-                    if (nx >= image.dim[0]/image.acq_dim[0]) { nx = 0; ny++; }
+                    if (nx >= image.dim[0]/acq_dim[0]) { nx = 0; ny++; }
                   }
 
                   ProgressBar::inc();

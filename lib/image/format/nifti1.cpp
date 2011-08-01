@@ -290,7 +290,8 @@ namespace MR {
         strncpy ((gchar*) &NH->data_type, "dsr      \0", 10);
         strncpy ((gchar*) &NH->db_name, H.comments.size() ? H.comments[0].c_str() : "untitled\0\0\0\0\0\0\0\0\0\0\0", 18);
         put<gint32> (16384, &NH->extents, is_BE);
-        strncpy ((gchar*) &NH->regular, "r\0", 2);
+        NH->regular = 'r';
+        NH->dim_info = 0;
 
         // data set dimensions:
         put<gint16> (H.ndim(), &NH->dim[0], is_BE);

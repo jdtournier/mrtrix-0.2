@@ -95,7 +95,7 @@ namespace MR {
         orientation_y[0] = orientation_y[1] = orientation_y[2] = GSL_NAN;
         orientation_z[0] = orientation_z[1] = orientation_z[2] = GSL_NAN;
         distance = GSL_NAN;
-        pixel_size[0] = pixel_size[0] = slice_thickness = GSL_NAN; 
+        pixel_size[0] = pixel_size[1] = slice_thickness = GSL_NAN; 
         scale_intercept = 0.0;
         scale_slope = 1.0;
         bvalue = G[0] = G[1] = G[2] = GSL_NAN;

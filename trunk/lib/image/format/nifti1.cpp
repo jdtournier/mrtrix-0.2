@@ -141,7 +141,45 @@ namespace MR {
           H.comments.push_back (descrip);
         }
 
-        if (get<gint16> (&NH->sform_code, is_BE)) {
+        if (get<gint16> (&NH->qform_code, is_BE)) {
+          Math::Quaternion Q (
+              get<float32> (&NH->quatern_b, is_BE), 
+              get<float32> (&NH->quatern_c, is_BE),
+              get<float32> (&NH->quatern_d, is_BE));
+          float transform[9];
+          Q.to_matrix (transform);
+          Math::Matrix M (4,4);
+
+          M(0,0) = transform[0];
+          M(0,1) = transform[1];
+          M(0,2) = transform[2];
+
+          M(1,0) = transform[3];
+          M(1,1) = transform[4];
+          M(1,2) = transform[5];
+          
+          M(2,0) = transform[6];
+          M(2,1) = transform[7];
+          M(2,2) = transform[8];
+          
+          M(0,3) = get<float32> (&NH->qoffset_x, is_BE);
+          M(1,3) = get<float32> (&NH->qoffset_y, is_BE);
+          M(2,3) = get<float32> (&NH->qoffset_z, is_BE);
+          
+          M(3,0) = M(3,1) = M(3,2) = 0.0;
+          M(3,3) = 1.0;
+
+          // qfac:
+          float qfac = get<float32> (&NH->pixdim[0], is_BE);
+          if (qfac != 0.0) {
+            M(0,2) = -M(0,2);
+            M(1,2) = -M(1,2);
+            M(2,2) = -M(2,2);
+          }
+
+          H.set_transform (M);
+        }
+        else if (get<gint16> (&NH->sform_code, is_BE)) {
           Math::Matrix M (4,4);
           M(0,0) = get<float32> (&NH->srow_x[0], is_BE);
           M(0,1) = get<float32> (&NH->srow_x[1], is_BE);
@@ -178,41 +216,6 @@ namespace MR {
           M(0,2) /= H.axes.vox[2];
           M(1,2) /= H.axes.vox[2];
           M(2,2) /= H.axes.vox[2];
-
-          H.set_transform (M);
-        }
-        else if (get<gint16> (&NH->qform_code, is_BE)) {
-          Math::Quaternion Q (get<float32> (&NH->quatern_b, is_BE), get<float32> (&NH->quatern_c, is_BE), get<float32> (&NH->quatern_d, is_BE));
-          float transform[9];
-          Q.to_matrix (transform);
-          Math::Matrix M (4,4);
-
-          M(0,0) = transform[0];
-          M(0,1) = transform[1];
-          M(0,2) = transform[2];
-
-          M(1,0) = transform[3];
-          M(1,1) = transform[4];
-          M(1,2) = transform[5];
-          
-          M(2,0) = transform[6];
-          M(2,1) = transform[7];
-          M(2,2) = transform[8];
-          
-          M(0,3) = get<float32> (&NH->qoffset_x, is_BE);
-          M(1,3) = get<float32> (&NH->qoffset_y, is_BE);
-          M(2,3) = get<float32> (&NH->qoffset_z, is_BE);
-          
-          M(3,0) = M(3,1) = M(3,2) = 0.0;
-          M(3,3) = 1.0;
-
-          // qfac:
-          float qfac = get<float32> (&NH->pixdim[0], is_BE);
-          if (qfac != 0.0) {
-            M(0,2) *= qfac;
-            M(1,2) *= qfac;
-            M(2,2) *= qfac;
-          }
 
           H.set_transform (M);
         }
@@ -326,6 +329,9 @@ namespace MR {
         put<gint16> (dt, &NH->datatype, is_BE);  
         put<gint16> (H.data_type.bits(), &NH->bitpix, is_BE);
 
+        // qfac:
+        put<float32> (0.0, &NH->pixdim[0], is_BE);
+
         // voxel sizes:
         for (gint i = 0; i < H.ndim(); i++) 
           put<float32> (H.vox(i), &NH->pixdim[i+1], is_BE);
@@ -352,11 +358,27 @@ namespace MR {
         }
         strncpy ((gchar*) &NH->descrip, descrip, 80);
 
-        put<gint16> (NIFTI_XFORM_UNKNOWN, &NH->qform_code, is_BE);
+        put<gint16> (NIFTI_XFORM_SCANNER_ANAT, &NH->qform_code, is_BE);
         put<gint16> (NIFTI_XFORM_SCANNER_ANAT, &NH->sform_code, is_BE);
 
         const Math::Matrix& M (H.transform());
 
+        // qform:
+        const float R [] = { 
+          M(0,0), M(0,1), M(0,2), 
+          M(1,0), M(1,1), M(1,2), 
+          M(2,0), M(2,1), M(2,2) };
+        const Math::Quaternion Q (R);
+
+        put<float32> (Q[1], &NH->quatern_b, is_BE);
+        put<float32> (Q[2], &NH->quatern_c, is_BE);
+        put<float32> (Q[3], &NH->quatern_d, is_BE);
+
+        put<float32> (M(0,3), &NH->qoffset_x, is_BE);
+        put<float32> (M(1,3), &NH->qoffset_y, is_BE);
+        put<float32> (M(2,3), &NH->qoffset_z, is_BE);
+
+        // sform:
         put<float32> (H.axes.vox[0]*M(0,0), &NH->srow_x[0], is_BE);
         put<float32> (H.axes.vox[1]*M(0,1), &NH->srow_x[1], is_BE);
         put<float32> (H.axes.vox[2]*M(0,2), &NH->srow_x[2], is_BE);
@@ -372,23 +394,6 @@ namespace MR {
         put<float32> (H.axes.vox[2]*M(2,2), &NH->srow_z[2], is_BE);
         put<float32> (M(2,3), &NH->srow_z[3], is_BE);
 
-
-        /*
-        const float transform[] = { 
-          M(0,0), M(0,1), M(0,2), 
-          M(1,0), M(1,1), M(1,2), 
-          M(2,0), M(2,1), M(2,2)
-        };
-        Math::Quaternion Q (transform);
-
-        put<float32> (Q[1], &NH->quatern_b, is_BE);
-        put<float32> (Q[2], &NH->quatern_c, is_BE);
-        put<float32> (Q[3], &NH->quatern_d, is_BE);
-
-        put<float32> (H.transform()(0,3), &NH->qoffset_x, is_BE);
-        put<float32> (H.transform()(1,3), &NH->qoffset_y, is_BE);
-        put<float32> (H.transform()(2,3), &NH->qoffset_z, is_BE);
-        */
 
         strncpy ((gchar*) &NH->magic, "n+1\0", 4);
         fmap.unmap();

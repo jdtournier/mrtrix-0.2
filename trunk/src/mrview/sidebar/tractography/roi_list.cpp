@@ -37,14 +37,6 @@ namespace MR {
       ROIList::ROIList (const Tractography& sidebar) : 
         parent (sidebar) 
       {
-        /*
-           using namespace Gtk::Menu_Helpers;
-           popup_menu.items().push_back (StockMenuElem(Gtk::Stock::OPEN, sigc::mem_fun(*this, &ROIList::on_open) ) );
-           popup_menu.items().push_back (StockMenuElem(Gtk::Stock::CLOSE, sigc::mem_fun(*this, &ROIList::on_close) ) );
-           popup_menu.items().push_back (SeparatorElem());
-           popup_menu.items().push_back (StockMenuElem(Gtk::Stock::CLEAR, sigc::mem_fun(*this, &ROIList::on_clear) ) );
-           popup_menu.accelerate (*this);
-           */
         model = Gtk::ListStore::create (columns);
         set_model (model);
 

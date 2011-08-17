@@ -430,6 +430,7 @@ namespace MR {
         if (!parent.show()) return (true);
         Gtk::TreeModel::Children tracks = model->children();
         if (tracks.size() == 0) return (true);
+        std::vector<Gtk::TreeModel::Children::iterator> iterators_to_delete;
         for (Gtk::TreeModel::Children::iterator iter = tracks.begin(); iter != tracks.end(); ++iter) {
           bool show = (*iter)[columns.show];
           if (show) {
@@ -441,9 +442,18 @@ namespace MR {
                 Window::Main->update (&parent);
               }
             }
-            catch (...) { }
+            catch (...) { 
+              iterators_to_delete.push_back (iter);
+            }
           }
         }
+
+        for (size_t n = 0; n < iterators_to_delete.size(); ++n)
+          model->erase (iterators_to_delete[n]);
+
+        if (iterators_to_delete.size()) 
+          Window::Main->update (&parent);
+
         return (true);
       }
 

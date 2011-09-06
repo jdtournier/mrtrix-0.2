@@ -141,45 +141,7 @@ namespace MR {
           H.comments.push_back (descrip);
         }
 
-        if (get<gint16> (&NH->qform_code, is_BE)) {
-          Math::Quaternion Q (
-              get<float32> (&NH->quatern_b, is_BE), 
-              get<float32> (&NH->quatern_c, is_BE),
-              get<float32> (&NH->quatern_d, is_BE));
-          float transform[9];
-          Q.to_matrix (transform);
-          Math::Matrix M (4,4);
-
-          M(0,0) = transform[0];
-          M(0,1) = transform[1];
-          M(0,2) = transform[2];
-
-          M(1,0) = transform[3];
-          M(1,1) = transform[4];
-          M(1,2) = transform[5];
-          
-          M(2,0) = transform[6];
-          M(2,1) = transform[7];
-          M(2,2) = transform[8];
-          
-          M(0,3) = get<float32> (&NH->qoffset_x, is_BE);
-          M(1,3) = get<float32> (&NH->qoffset_y, is_BE);
-          M(2,3) = get<float32> (&NH->qoffset_z, is_BE);
-          
-          M(3,0) = M(3,1) = M(3,2) = 0.0;
-          M(3,3) = 1.0;
-
-          // qfac:
-          float qfac = get<float32> (&NH->pixdim[0], is_BE);
-          if (qfac != 0.0) {
-            M(0,2) = -M(0,2);
-            M(1,2) = -M(1,2);
-            M(2,2) = -M(2,2);
-          }
-
-          H.set_transform (M);
-        }
-        else if (get<gint16> (&NH->sform_code, is_BE)) {
+        if (get<gint16> (&NH->sform_code, is_BE)) {
           Math::Matrix M (4,4);
           M(0,0) = get<float32> (&NH->srow_x[0], is_BE);
           M(0,1) = get<float32> (&NH->srow_x[1], is_BE);
@@ -216,6 +178,44 @@ namespace MR {
           M(0,2) /= H.axes.vox[2];
           M(1,2) /= H.axes.vox[2];
           M(2,2) /= H.axes.vox[2];
+
+          H.set_transform (M);
+        }
+        else if (get<gint16> (&NH->qform_code, is_BE)) {
+          Math::Quaternion Q (
+              get<float32> (&NH->quatern_b, is_BE), 
+              get<float32> (&NH->quatern_c, is_BE),
+              get<float32> (&NH->quatern_d, is_BE));
+          float transform[9];
+          Q.to_matrix (transform);
+          Math::Matrix M (4,4);
+
+          M(0,0) = transform[0];
+          M(0,1) = transform[1];
+          M(0,2) = transform[2];
+
+          M(1,0) = transform[3];
+          M(1,1) = transform[4];
+          M(1,2) = transform[5];
+          
+          M(2,0) = transform[6];
+          M(2,1) = transform[7];
+          M(2,2) = transform[8];
+          
+          M(0,3) = get<float32> (&NH->qoffset_x, is_BE);
+          M(1,3) = get<float32> (&NH->qoffset_y, is_BE);
+          M(2,3) = get<float32> (&NH->qoffset_z, is_BE);
+          
+          M(3,0) = M(3,1) = M(3,2) = 0.0;
+          M(3,3) = 1.0;
+
+          // qfac:
+          float qfac = get<float32> (&NH->pixdim[0], is_BE);
+          if (qfac != 0.0) {
+            M(0,2) = -M(0,2);
+            M(1,2) = -M(1,2);
+            M(2,2) = -M(2,2);
+          }
 
           H.set_transform (M);
         }

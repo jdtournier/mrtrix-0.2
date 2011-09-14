@@ -1,8 +1,13 @@
 =======================================================================
 VERSION 0.2.10
 =======================================================================
+14-09-2011 Robert Smith <r.smith@brain.org.au>
+    * cmd/filter_tracks.cpp:
+      new binary for selecting tracks according to inclusion/exclusion ROIs
+    * src/dwi/tractography/tracker/base.h:
+      moved class definitions to public specifier
 
-14-02-2010 J-Donald Tournier <d.tournier@brain.org.au>
+14-02-2011 J-Donald Tournier <d.tournier@brain.org.au>
     * cmd/mrconvert.cpp: 
       fix -coord option so that the "end" keyword can be used
 

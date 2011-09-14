@@ -38,6 +38,9 @@
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * new option to stop tracking as soon as track enters any include region
 
+    14-09-2011 Robert E. Smith <r.smith@brain.org.au>
+    * moved class definitions Sphere, Mask, ROISphere and ROIMask to public specifier
+
 */
 
 #ifndef __dwi_tractography_tracker_base_h__
@@ -82,19 +85,6 @@ namespace MR {
 
             static float curv2angle (float step_size, float curv)     { return (2.0 * asin (step_size / (2.0 * curv))); }
 
-          protected:
-            Image::Interp source;
-            Properties& props;
-            Math::RNG rng;
-
-            virtual bool  init_direction (const Point& seed_dir = Point::Invalid) = 0;
-            virtual bool  next_point () = 0;
-
-            float total_seed_volume, step_size, threshold, init_threshold;
-            Point pos, dir;
-            int num_points, num_max;
-
-            bool excluded, no_mask_interp, stop_when_included, included;
 
             class Sphere {
               public:
@@ -105,7 +95,7 @@ namespace MR {
 
                 bool contains (const Point& pt) const { return (dist2 (p, pt) < r2); }
                 Point seed (Math::RNG& rng) const {
-                  Point s; 
+                  Point s;
                   do { s.set (2.0*r*(rng.uniform()-0.5), 2.0*r*(rng.uniform()-0.5), 2.0*r*(rng.uniform()-0.5)); } while (s.norm2() > r2);
                   return (p+s);
                 }
@@ -113,9 +103,9 @@ namespace MR {
 
             class Mask {
               public:
-                Mask (Image::Object& image, bool no_mask_interp) : 
-                  i (image), lower (i.dim(0), i.dim(1), i.dim(2)), upper (0.0, 0.0, 0.0), volume (0.0), included (false), no_interp (no_mask_interp) { 
-                    get_bounds(); 
+                Mask (Image::Object& image, bool no_mask_interp) :
+                  i (image), lower (i.dim(0), i.dim(1), i.dim(2)), upper (0.0, 0.0, 0.0), volume (0.0), included (false), no_interp (no_mask_interp) {
+                    get_bounds();
                   }
 
                 Image::Interp i;
@@ -123,7 +113,8 @@ namespace MR {
                 float volume;
                 bool included, no_interp;
 
-                bool contains (const Point& pt) { 
+                bool contains (const Point& pt) {
+                  if (!pt.valid()) return false;
                   Point y (i.R2P (pt));
                   if (y[0] < lower[0] || y[0] >= upper[0] || y[1] < lower[1] || y[1] >= upper[1] || y[2] < lower[2] || y[2] >= upper[2]) return (false);
                   if (no_interp) {
@@ -135,14 +126,14 @@ namespace MR {
                   i.P (y);
                   return (i.value() >= 0.5);
                 }
-                Point seed (Math::RNG& rng) 
-                { 
+                Point seed (Math::RNG& rng)
+                {
                   Point p;
                   do {
                     p.set (lower[0]+rng.uniform()*(upper[0]-lower[0]), lower[1]+rng.uniform()*(upper[1]-lower[1]), lower[2]+rng.uniform()*(upper[2]-lower[2]));
                     i.P (p);
                   } while (i.value() < 0.5);
-                  return (i.P2R (p)); 
+                  return (i.P2R (p));
                 }
 
               private:
@@ -152,7 +143,7 @@ namespace MR {
                   for (i.set(2,0); i[2] < i.dim(2); i.inc(2)) {
                     for (i.set(1,0); i[1] < i.dim(1); i.inc(1)) {
                       for (i.set(0,0); i[0] < i.dim(0); i.inc(0)) {
-                        if (i.Image::Position::value() >= 0.5) { 
+                        if (i.Image::Position::value() >= 0.5) {
                           count++;
                           if (lower[0] > i[0]) lower[0] = i[0];
                           if (lower[1] > i[1]) lower[1] = i[1];
@@ -171,15 +162,26 @@ namespace MR {
             };
 
 
-            class ROISphere {
-              public:
-                std::vector<Sphere>  seed, include, exclude, mask;
-            } spheres;
+            class ROISphere { public: std::vector<Sphere> seed, include, exclude, mask; };
+            class ROIMask   { public: std::vector<Mask>   seed, include, exclude, mask; };
 
-            class ROIMask {
-              public:
-                std::vector<Mask>  seed, include, exclude, mask;
-            } masks;
+
+          protected:
+            Image::Interp source;
+            Properties& props;
+            Math::RNG rng;
+
+            ROISphere spheres;
+            ROIMask   masks;
+
+            virtual bool  init_direction (const Point& seed_dir = Point::Invalid) = 0;
+            virtual bool  next_point () = 0;
+
+            float total_seed_volume, step_size, threshold, init_threshold;
+            Point pos, dir;
+            int num_points, num_max;
+
+            bool excluded, no_mask_interp, stop_when_included, included;
 
 
             int get_source_data (const Point& p, float* values)
@@ -205,6 +207,7 @@ namespace MR {
               }
               return (gen_seed());
             }
+
         };
 
 

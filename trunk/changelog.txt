@@ -1,6 +1,11 @@
 =======================================================================
 VERSION 0.2.10
 =======================================================================
+
+16-09-2011 Robert Smith <r.smith@brain.org.au>
+    * build:
+      minor fix for compilation of separate project directories on g++ 4.4
+
 14-09-2011 Robert Smith <r.smith@brain.org.au>
     * cmd/filter_tracks.cpp:
       new binary for selecting tracks according to inclusion/exclusion ROIs

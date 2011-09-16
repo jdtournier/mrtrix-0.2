@@ -117,8 +117,9 @@ else:
     print 'compiling separate project against "' + mrtrix_dir + '"'
     print ''
   lib_dir = os.path.join (mrtrix_dir, lib_dir)
-  misc_dir = os.path.join (mrtrix_dir, misc_dir)
   include_paths = [ misc_dir ]
+  misc_dir = os.path.join (mrtrix_dir, misc_dir)
+  
 
 
 # get version info:

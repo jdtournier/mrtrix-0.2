@@ -23,6 +23,8 @@
 #ifndef __dwi_gradient_h__
 #define __dwi_gradient_h__
 
+#include <vector>
+
 namespace MR {
   namespace Math { class Matrix; }
   namespace DWI {

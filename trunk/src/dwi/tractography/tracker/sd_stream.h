@@ -25,6 +25,7 @@
 
 #include "dwi/tractography/tracker/base.h"
 #include "math/linalg.h"
+#include "dwi/SH.h"
 
 namespace MR {
   namespace DWI {
@@ -41,6 +42,29 @@ namespace MR {
 
             virtual bool  init_direction (const Point& seed_dir);
             virtual bool  next_point ();
+
+            bool init_direction (const Point& seed_dir, const float* values)
+            {
+              if (!seed_dir) dir.set (rng.normal(), rng.normal(), rng.normal());
+              else dir = seed_dir;
+              dir.normalise();
+              float val = SH::get_peak (values, lmax, dir, precomputed);
+              if (gsl_finite (val)) if (val > init_threshold) return (false);
+              return (true);
+            }
+
+            bool next_point (const float* values)
+            {
+              Point prev_dir (dir);
+              dir.normalise ();
+              float val = SH::get_peak (values, lmax, dir, precomputed);
+
+              if (!gsl_finite (val)) return (true);
+              if (val < threshold) return (true);
+              if (dir.dot (prev_dir) < min_dp) return (true);
+
+              return (false);
+            }
 
             float         min_dp;
         };

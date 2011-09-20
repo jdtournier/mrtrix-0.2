@@ -90,57 +90,6 @@ namespace MR {
 
 
 
-/*
-      void CSDeconv::init (Math::Vector& response, Math::Vector& init_filter, Math::Matrix& DW_dirs, Math::Matrix& HR_dirs, int lmax)
-      {
-        int lmax_data = (response.size()-1)*2;
-        int n = LforN (DW_dirs.rows());
-        if (lmax_data > n) lmax_data = n;
-        if (lmax_data > lmax) lmax_data = lmax;
-        info ("calculating even spherical harmonic components up to order " + str(lmax_data) + " for initialisation");
-
-        if (init_filter.size() < (guint) (lmax_data/2)+1) 
-          throw Exception ("not enough initial filter coefficients supplied for lmax = " + str (lmax_data));
-
-        Math::Vector RH;
-        SH2RH (RH, response);
-
-        init_transform (fconv, DW_dirs, lmax_data);
-        Math::invert (rconv, fconv);
-
-        int l = 0;
-        guint nl = 1;
-        for (guint row = 0; row < rconv.rows(); row++) {
-          if (row >= nl) { l++; nl = NforL (2*l); }
-          for (guint col = 0; col < rconv.columns(); col++) {
-            rconv(row, col) *= init_filter[l] / RH[l];
-            fconv(col,row) *= RH[l];
-          }
-        }
-
-        init_transform (HR_trans, HR_dirs, lmax);
-        HR_trans.multiply(((float) fconv.rows())*response[0]/((float) HR_trans.rows()));
-
-        M2.allocate (fconv.rows() + HR_trans.rows(), HR_trans.columns());
-        for (guint row = 0; row < fconv.rows(); row++) {
-          for (guint col = 0; col < fconv.columns(); col++)
-            M2(row,col) = fconv(row,col);
-          for (guint col = fconv.columns(); col < HR_trans.columns(); col++)
-            M2(row,col) = 0.0;
-        }
-
-        S.allocate (DW_dirs.rows());
-        S_padded.zero (M2.rows());
-        init_F.allocate (fconv.columns());
-        F.allocate (HR_trans.columns());
-        lambda = 1.0;
-        threshold = 0.0;
-
-        info ("constrained spherical deconvolution initiated successfully");
-      }
-*/
-
-
 
 
       void CSDeconv::set (const Math::Vector& DW_signals)

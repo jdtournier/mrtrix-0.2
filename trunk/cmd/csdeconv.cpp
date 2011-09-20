@@ -133,7 +133,11 @@ class Thread
       bzeros (vec_bzeros),
       dwis (vec_dwis),
       normalise (normalise_to_b0),
-      done (false) { }
+      done (false) { 
+        dwi.set (0,-1);
+        if (mask) mask->set (0,-1);
+      }
+
     ~Thread () { }
 
     void execute ();

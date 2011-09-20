@@ -20,11 +20,6 @@
 
 */
 
-/** \file
-  This file describes a number of functions related to performing
-  Monte Carlo Markhov Chain simulations of regularised spherical deconvolution.
- */
-
 #ifndef __dwi_SH_sdeconv_constrained_h__
 #define __dwi_SH_sdeconv_constrained_h__
 
@@ -48,7 +43,7 @@ namespace MR {
 
 
           CSDeconv (const Common& common);
-          ~CSDeconv() { }
+          virtual ~CSDeconv() { }
 
           void      set (const Math::Vector& DW_signals);
           bool      iterate();

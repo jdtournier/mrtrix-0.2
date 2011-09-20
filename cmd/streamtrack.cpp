@@ -58,7 +58,6 @@
 #include "dwi/tractography/tracker/dt_stream.h"
 #include "dwi/tractography/tracker/sd_stream.h"
 #include "dwi/tractography/tracker/sd_prob.h"
-#include "dwi/tractography/tracker/sd_prob_rb.h"
 
 
 using namespace std; 
@@ -73,10 +72,10 @@ DESCRIPTION = {
   NULL
 };
 
-const gchar* type_choices[] = { "DT_STREAM", "DT_PROB", "SD_STREAM", "SD_PROB", "SD_PROB_RB", NULL };
+const gchar* type_choices[] = { "DT_STREAM", "DT_PROB", "SD_STREAM", "SD_PROB", NULL };
 
 ARGUMENTS = {
-  Argument ("type", "tracking type", "the type of streamlines tracking to be performed. Allowed types are DT_STREAM, SD_STREAM, SD_PROB, SD_PROB_RB.").type_choice (type_choices),
+  Argument ("type", "tracking type", "the type of streamlines tracking to be performed. Allowed types are DT_STREAM, SD_STREAM, SD_PROB.").type_choice (type_choices),
   Argument ("source", "source image", "the image containing the source data. The type of data required depends on the type of tracking as set in the preceeding argument. For DT methods, the base DWI are needed. For SD methods, the SH harmonic coefficients of the FOD are needed.").type_image_in(),
   Argument ("tracks", "output tracks file", "the output file containing the tracks generated.").type_file(),
   Argument::End
@@ -137,15 +136,6 @@ OPTIONS = {
 
   Option ("noprecomputed", "no precomputation", "do NOT pre-compute legendre polynomial values. Warning: this will slow down the algorithm by a factor of approximately 4."),
 
-  Option ("response", "response function", "the diffusion-weighted signal response function for a single fibre population, only used for SD_PROB_RB")
-    .append (Argument ("response", "response function", "the response file.").type_file()),
-
-  Option ("directions", "direction set for constraint", "specify the directions over which to apply the non-negativity constraint (by default, the built-in 300 direction set is used")
-    .append (Argument ("file", "file", "a text file containing the [ el az ] pairs for the directions.").type_file ()),
-
-  Option ("niter", "maximum number of iterations for CSD", "specify the maximum number of iterations for the CSD, only used for SD_PROB_RB. Default is 50.")
-    .append (Argument ("num", "number", "the number of iterations.").type_integer (1, G_MAXINT, 50)),
-
   Option::End
 };
 
@@ -184,41 +174,6 @@ class Threader {
           for (int n = 0; n < num_threads; n++) 
             trackers[n] = new Tracker::SDProb (source, properties);
           break;
-        case 4:
-          {
-            Math::Vector response;
-            response.load (properties["response"]);
-
-            const Math::Matrix& binv (grad ? *grad : source.header().DW_scheme);
-
-            std::vector<int> bzeros, dwis;
-            DWI::guess_DW_directions (dwis, bzeros, binv);
-
-            Math::Matrix DW_dirs;
-            DWI::gen_direction_matrix (DW_dirs, binv, dwis);
-
-            Math::Vector filter;
-            filter.allocate (response.size());
-            filter.zero();
-            filter[0] = filter[1] = filter[2] = 1.0;
-
-            Math::Matrix HR_dirs;
-            HR_dirs.load (properties["hr_dirs"]);
-
-            float lambda = 1.0;
-
-            int lmax = DWI::SH::LforN (dwis.size());
-            if (properties["lmax"].empty()) properties["lmax"] = str (lmax);
-
-            sdeconv_common = new DWI::SH::CSDeconv::Common (response, filter, DW_dirs, HR_dirs, lmax);
-            sdeconv_common->lambda = lambda;
-
-            RB_common = new DWI::SH::ResidualBootstrap::Common (DW_dirs, lmax);
-
-            for (int n = 0; n < num_threads; n++)
-              trackers[n] = new Tracker::SDProb_RB (source, properties, *sdeconv_common, *RB_common, dwis);
-            break;
-          }
         default: throw Exception ("tracking method requested is not implemented yet!");
       }
 
@@ -262,9 +217,6 @@ class Threader {
 
     Tracker::Base** trackers;
     Tractography::Writer writer;
-
-    Ptr<DWI::SH::CSDeconv::Common> sdeconv_common;
-    Ptr<DWI::SH::ResidualBootstrap::Common> RB_common;
 
     std::queue<std::vector<Point>*> fifo;
 
@@ -438,17 +390,7 @@ EXECUTE {
   opt = get_options (18); // noprecomputed
   if (opt.size()) properties["sh_precomputed"] = "0";
 
-  opt = get_options (19); // response function
-  if (opt.size()) properties["response"] = opt[0][0].get_string();
-
-  opt = get_options (20); // HR dirs
-    if (opt.size()) properties["hr_dirs"] = opt[0][0].get_string();
-
-  opt = get_options (21); // niter
-    if (opt.size()) properties["niter"] = opt[0][0].get_string();
-
   Glib::thread_init();
-
   Threader thread (argument[0].get_int(), *argument[1].get_image(), argument[2].get_string(), properties, init_dir, grad);
   thread.run();
 }

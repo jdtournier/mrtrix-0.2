@@ -97,10 +97,21 @@ namespace MR {
             S.image = roi->mask;
             S.focus = slice.focus;
 
-            if (!slice.orientation && slice.image->image->header().transform() == roi->mask->image->header().transform()) { 
-              S.projection = slice.projection;
-            }
+            bool transforms_differ = false;
+            if (slice.orientation) 
+              transforms_differ = true;
             else {
+              for (guint i = 0; i < 4; ++i) {
+                for (guint j = 0; j < 3; ++j) {
+                  if (fabs (slice.image->image->header().transform()(i,j) - roi->mask->image->header().transform()(i,j)) > 1e-5) {
+                    transforms_differ = true;
+                    break;
+                  }
+                }
+              }
+            }
+
+            if (transforms_differ) {
               const GLdouble* M (pane.get_modelview());
               float matrix[] = { 
                 M[0], M[1], M[2],
@@ -110,6 +121,9 @@ namespace MR {
               S.orientation.from_matrix (matrix);
               S.projection = 2;
             }
+            else 
+              S.projection = slice.projection;
+
             S.interpolate = false;
 
             Slice::Current current (S);

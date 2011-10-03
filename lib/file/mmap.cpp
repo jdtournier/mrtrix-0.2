@@ -94,7 +94,7 @@ namespace MR {
       catch (...) {
         close (fd);
         addr = NULL;
-        throw Exception ("memmory-mapping failed for file \"" + filename + "\": " + Glib::strerror(errno));
+        throw Exception ("memory-mapping failed for file \"" + filename + "\": " + Glib::strerror(errno));
       }
     }
 

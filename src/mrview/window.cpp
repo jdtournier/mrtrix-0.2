@@ -535,7 +535,7 @@ namespace MR {
       }
       S.focus.invalidate();
       pane().FOV = GSL_NAN;
-      const MR::Image::Object& ima (*S.image->image);
+      const Image& ima (*S.image);
       S.projection = minindex (ima.dim(0)*ima.vox(0), ima.dim(1)*ima.vox(1), ima.dim(2)*ima.vox(2));
       update_projection();
       update();

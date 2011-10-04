@@ -104,7 +104,7 @@ namespace MR {
 
       for (guint m = 0; m < 3; m++) {
         Point axis_vec_pix (0.0, 0.0, 0.0);
-        axis_vec_pix[m] = image->dim(m)-1;
+        axis_vec_pix[m] = dim(m)-1;
         Point axis_vec_real (interp->vec_P2R (axis_vec_pix));
         int axis1 = (m+1) % 3;
         int axis2 = (m+2) % 3;
@@ -116,8 +116,8 @@ namespace MR {
 
 
           Point ref_point_pix (0.0, 0.0, 0.0);
-          if (n%2) ref_point_pix[axis1] = image->dim (axis1) - 1;
-          if (n/2) ref_point_pix[axis2] = image->dim (axis2) - 1;
+          if (n%2) ref_point_pix[axis1] = dim (axis1) - 1;
+          if (n/2) ref_point_pix[axis2] = dim (axis2) - 1;
 
           Point ref_point_real (interp->P2R (ref_point_pix));
 
@@ -148,6 +148,12 @@ namespace MR {
     void Image::set (RefPtr<MR::Image::Object> I) 
     {
       image = I;
+
+      _voxsize = 0.0;
+      for (int n = 0; n < image->ndim(); ++n) 
+        _voxsize += image->dim(n);
+      _voxsize /= image->ndim();
+
       interp = new MR::Image::Interp (*image); 
 
       const Math::Matrix& A (image->header().P2R());
@@ -162,8 +168,8 @@ namespace MR {
       V[2][1] = A(2,0)*B(1,0) + A(2,1)*B(1,1) + A(2,2)*B(1,2);
       V[2][2] = A(2,0)*B(2,0) + A(2,1)*B(2,1) + A(2,2)*B(2,2);
 
-      projection = minindex (image->dim(0)*image->vox(0), image->dim(1)*image->vox(1), image->dim(2)*image->vox(2));
-      focus = interp->P2R (Point (image->dim(0)/2.0, image->dim(1)/2.0, image->dim(2)/2.0));
+      projection = minindex (dim(0)*vox(0), dim(1)*vox(1), dim(2)*vox(2));
+      focus = interp->P2R (Point (dim(0)/2.0, dim(1)/2.0, dim(2)/2.0));
       if (image->ndim() == 4)
         if (image->dim(3) == 3)
           colourmap = COLOURMAP_RGB;

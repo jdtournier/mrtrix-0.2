@@ -232,8 +232,8 @@ namespace MR {
         int ix, iy;
         get_fixed_axes (slice.projection, ix, iy);
 
-        cached.dim[0] = I.dim (ix);
-        cached.dim[1] = I.dim (iy);
+        cached.dim[0] = slice.image->dim (ix);
+        cached.dim[1] = slice.image->dim (iy);
 
         Point pix = I.R2P (slice.focus);
         cached.slice = round (pix[slice.projection]);
@@ -314,7 +314,7 @@ namespace MR {
       get_fixed_axes (slice.projection, ix, iy);
       MR::Image::Position &pos (*slice.image->interp);
 
-      if (cached.slice < 0 || cached.slice >= (int) pos.dim (slice.projection)) return;
+      if (cached.slice < 0 || cached.slice >= (int) slice.image->dim (slice.projection)) return;
       pos.set (slice.projection, cached.slice);
 
       scaling.rescale_start ();
@@ -346,7 +346,7 @@ namespace MR {
       tex.allocate (MAX (cached.dim[0], cached.dim[1]));
       tex.clear();
 
-      if (cached.slice >= 0 && cached.slice < (int) pos.dim (slice.projection)) {
+      if (cached.slice >= 0 && cached.slice < (int) slice.image->dim (slice.projection)) {
         guint8 RGB[] = { 0, 0, 0 };
         for (pos.set(iy,0); pos[iy] < cached.dim[1]; pos.inc(iy)) {
           for (pos.set(ix,0); pos[ix] < cached.dim[0]; pos.inc(ix)) {
@@ -388,10 +388,12 @@ namespace MR {
         {
           assert (P.source.image != Source::IMAGE);
           if (!image) return;
-          MR::Image::Interp &I (*image->interp);
+          Image& I (*image);
 
-          if (projection > 2) projection = minindex (I.dim(0)*I.vox(0), I.dim(1)*I.vox(1), I.dim(2)*I.vox(2));
-          if (!focus) focus = I.P2R (Point (floor ((I.dim(0)-1)/2.0), floor ((I.dim(1)-1)/2.0), floor ((I.dim(2)-1)/2.0)));
+          if (projection > 2) 
+            projection = minindex (I.dim(0)*I.vox(0), I.dim(1)*I.vox(1), I.dim(2)*I.vox(2));
+          if (!focus) 
+            focus = I.interp->P2R (Point (floor ((I.dim(0)-1)/2.0), floor ((I.dim(1)-1)/2.0), floor ((I.dim(2)-1)/2.0)));
         }
 
 

@@ -99,7 +99,7 @@ namespace MR {
         return (UINT_MAX);
       }
 
-      void disambiguate_reorientation (guint* permutation) 
+      inline void disambiguate_reorientation (guint* permutation) 
       {
         if (permutation[0] == permutation[1]) 
           permutation[0] = not_any_of (permutation[0], permutation[2]);
@@ -117,11 +117,29 @@ namespace MR {
 
     void Header::sanitise_transform ()
     {
+      float default_vox_size = 0.0;
       debug ("sanitising transformation matrix...");
+      {
+        int count = 0;
 
-      if (!gsl_finite (axes.vox[0]) || !gsl_finite (axes.vox[1]) || !gsl_finite (axes.vox[2])) {
-        error ("invalid voxel sizes - resetting to sane defaults");
-        axes.vox[0] = axes.vox[1] = axes.vox[2] = 1.0;
+        for (int n = 0; n < std::min (ndim(), 3); ++n) {
+          if (gsl_finite (axes.vox[n])) {
+            default_vox_size += axes.vox[n];
+            ++count;
+          }
+        }
+
+        default_vox_size = count ? default_vox_size / count : 1.0;
+
+        bool issue_warning = false;
+        for (int n = 0; n < std::min (ndim(), 3); ++n) {
+          if (!gsl_finite (axes.vox[n])) {
+            axes.vox[n] = default_vox_size;
+            issue_warning = true;
+          }
+        }
+        if (issue_warning) 
+          error ("invalid voxel sizes - resetting to sane values");
       }
 
       if (trans_I2R.is_valid()) {
@@ -143,12 +161,19 @@ namespace MR {
         }
       }
 
+      float vox[3];
+      int dim[3];
+      for (int n = 0; n < 3; ++n) {
+        if (n < ndim()) { vox[n] = axes.vox[n]; dim[n] = axes.dim[n]; }
+        else { vox[n] = default_vox_size; dim[n] = 1; }
+      }
+
       if (!trans_I2R.is_valid()) {
         trans_I2R.allocate (4,4);
         trans_I2R.identity();
-        trans_I2R(0,3) = -0.5 * axes.dim[0] * axes.vox[0];
-        trans_I2R(1,3) = -0.5 * axes.dim[1] * axes.vox[1];
-        trans_I2R(2,3) = -0.5 * axes.dim[2] * axes.vox[2];
+        trans_I2R(0,3) = -0.5 * dim[0] * vox[0];
+        trans_I2R(1,3) = -0.5 * dim[1] * vox[1];
+        trans_I2R(2,3) = -0.5 * dim[2] * vox[2];
       }
 
       trans_I2R(3,0) = trans_I2R(3,1) = trans_I2R(3,2) = 0.0; trans_I2R(3,3) = 1.0;
@@ -168,11 +193,13 @@ namespace MR {
       };
 
       if (permutation[0] != 0 || permutation[1] != 1 || permutation[2] != 2 || flip[0] || flip[1] || flip[2]) {
+        if (ndim() < 3) 
+          axes.set_ndim (3);
         
         bool forward[] = { axes.forward [permutation[0]], axes.forward [permutation[1]], axes.forward [permutation[2]] };
-        guint dim[] = { axes.dim [permutation[0]], axes.dim [permutation[1]], axes.dim [permutation[2]] };
+        guint newdim[] = { dim [permutation[0]], dim [permutation[1]], dim [permutation[2]] };
         guint axis[] = { axes.axis [permutation[0]], axes.axis [permutation[1]], axes.axis [permutation[2]] };
-        float vox[] = { axes.vox [permutation[0]], axes.vox [permutation[1]], axes.vox [permutation[2]] };
+        float newvox[] = { vox [permutation[0]], vox [permutation[1]], vox [permutation[2]] };
         String desc[] = { axes.desc [permutation[0]], axes.desc [permutation[1]], axes.desc [permutation[2]] };
         String units[] = { axes.units [permutation[0]], axes.units [permutation[1]], axes.units [permutation[2]] };
 
@@ -182,14 +209,14 @@ namespace MR {
           for (guint n = 0; n < 3; n++) trans_I2R(n, i) = T (n, permutation[i]);
           if (flip[i]) {
             forward[i] = !forward[i];
-            float length = (dim[i]-1) * vox[i];
+            float length = (newdim[i]-1) * newvox[i];
             for (guint n = 0; n < 3; n++) {
               trans_I2R (n, i) = -trans_I2R (n, i);
               trans_I2R (n, 3) += length * T (n, permutation[i]);
             }
           }
-          axes.dim[i] = dim[i];
-          axes.vox[i] = vox[i];
+          axes.dim[i] = newdim[i];
+          axes.vox[i] = newvox[i];
           axes.forward[i] = forward[i];
           axes.axis[i] = axis[i];
           axes.desc[i] = desc[i];
@@ -198,14 +225,19 @@ namespace MR {
 
       }
 
+      for (int n = 0; n < 3; ++n) {
+        if (n < ndim()) vox[n] = axes.vox[n]; 
+        else vox[n] = default_vox_size;
+      }
+
       Math::PseudoInverter pinvert (trans_R2I, trans_I2R);
       pinvert.invert (trans_R2I, trans_I2R);
 
       Math::Matrix V(4,4);
       V.zero();
-      V(0,0) = axes.vox[0];
-      V(1,1) = axes.vox[1];
-      V(2,2) = axes.vox[2];
+      V(0,0) = vox[0];
+      V(1,1) = vox[1];
+      V(2,2) = vox[2];
       V(3,3) = 1.0;
 
       trans_P2R.multiply (trans_I2R, V);

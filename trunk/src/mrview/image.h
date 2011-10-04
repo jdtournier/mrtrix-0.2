@@ -40,7 +40,8 @@ namespace MR {
           format (MR::Image::Real), 
           orientation (GSL_NAN, GSL_NAN, GSL_NAN, GSL_NAN), 
           projection (2),
-          interpolate (true) { memset (channel, 0, MRTRIX_MAX_NDIMS*sizeof(int)); }
+          interpolate (true),
+          _voxsize (GSL_NAN) { memset (channel, 0, MRTRIX_MAX_NDIMS*sizeof(int)); }
 
         Image (RefPtr<MR::Image::Object> I) :
           colourmap (0), 
@@ -73,8 +74,19 @@ namespace MR {
         void    get_bounds (float xbounds[2], float ybounds[2], const Point& vx, const Point& vy, const Point& pos) const;
         void    vox_vector (Point& dest, const Point& src);
 
+        float vox (int axis) const { 
+          if (!image) return GSL_NAN; 
+          return axis < image->ndim() ? image->vox (axis) : _voxsize;
+        }
+
+        float dim (int axis) const { 
+          if (!image) return 0;
+          return axis < image->ndim() ? image->dim (axis) : 1;
+        }
+
       protected:
         float V[3][3];
+        float _voxsize;
 
         friend std::ostream& operator<< (std::ostream& stream, const Image& ima);
     };

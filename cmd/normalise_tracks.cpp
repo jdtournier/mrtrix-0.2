@@ -81,9 +81,9 @@ EXECUTE {
       interp.R (*i);
       if (!interp) continue;
       Point p;
-      interp.set(3,0); p[0] = interp.value();
-      interp.set(3,1); p[1] = interp.value();
-      interp.set(3,2); p[2] = interp.value();
+      interp.set(3,0); p[0] = interp.value(); if (!gsl_finite (p[0])) continue;
+      interp.set(3,1); p[1] = interp.value(); if (!gsl_finite (p[1])) continue;
+      interp.set(3,2); p[2] = interp.value(); if (!gsl_finite (p[2])) continue;
       out.push_back (p);
     }
     writer.append (out);

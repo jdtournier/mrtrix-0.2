@@ -181,7 +181,7 @@ namespace MR {
             Point pos, dir;
             int num_points, num_max;
 
-            bool excluded, no_mask_interp, stop_when_included, included;
+            bool excluded, no_mask_interp, stop_when_included;
 
 
             int get_source_data (const Point& p, float* values)

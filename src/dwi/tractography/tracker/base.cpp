@@ -35,6 +35,9 @@
     03-03-2010 J-Donald Tournier <d.tournier@brain.org.au>
     * new option to stop tracking as soon as track enters any include region
 
+    03-11-2011 Robert E. Smith <r.smith@brain.org.au>
+    * changed handling of -stop option - track must have traversed all regions before being stopped
+
 */
 
 #include "dwi/tractography/tracker/base.h"
@@ -52,8 +55,7 @@ namespace MR {
           threshold (0.1),
           num_points (0),
           no_mask_interp (false), 
-          stop_when_included (false), 
-          included (false)
+          stop_when_included (false)
         {
           if (props["step_size"].empty()) props["step_size"] = str (step_size); step_size = to<float> (props["step_size"]); 
           if (props["threshold"].empty()) props["threshold"] = str (threshold); else threshold = to<float> (props["threshold"]); 
@@ -114,7 +116,7 @@ namespace MR {
 
         void Base::new_seed (const Point& seed_dir)
         {
-          excluded = included = false;
+          excluded = false;
           for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) i->included = false;
           for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) i->included = false;
 
@@ -133,7 +135,7 @@ namespace MR {
         bool Base::next () 
         {
           if (excluded) return (false);
-          if (stop_when_included && included) return (false);
+          if (stop_when_included && track_included()) return (false);
           if (num_points >= num_max) return (false);
           if (next_point()) return (false);
           pos += step_size * dir; 
@@ -158,12 +160,12 @@ namespace MR {
           for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) 
             if (!i->included)
               if (i->contains (pos)) 
-                included = i->included = true; 
+                i->included = true;
 
           for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) 
             if (!i->included) 
               if (i->contains (pos)) 
-                included = i->included = true;
+                i->included = true;
 
           return (true);
         }

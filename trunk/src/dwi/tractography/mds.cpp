@@ -208,7 +208,7 @@ namespace MR {
         else if (tag() == Tags::MinCurv)                properties["min_curv"] = str(get_float32());
         else if (tag() == Tags::MaxNumTracks)           properties["max_num_tracks"] = str(get_uint32());
         else if (tag() == Tags::NumTracksGenerated)     properties["num_tracks_generated"] = str(get_uint32());
-        else if (tag() == Tags::MaxNumTracksGenerated)  properties["max_num_tracks_generated"] = str(get_uint32());
+        else if (tag() == Tags::MaxNumTracksGenerated)  properties["max_num_attempts"] = str(get_uint32());
         else if (tag() == Tags::MaskThreshold)          properties["mask_threshold"] = str(get_float32());
         else if (tag() == Tags::UniDirectional)         properties["unidirectional"] = ( get_uint8() ? "1" : "0" );
         else if (tag() == Tags::Cmd)                    properties["cmd"] = get_string();

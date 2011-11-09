@@ -75,66 +75,128 @@ DESCRIPTION = {
 const gchar* type_choices[] = { "DT_STREAM", "DT_PROB", "SD_STREAM", "SD_PROB", NULL };
 
 ARGUMENTS = {
-  Argument ("type", "tracking type", "the type of streamlines tracking to be performed. Allowed types are DT_STREAM, SD_STREAM, SD_PROB.").type_choice (type_choices),
-  Argument ("source", "source image", "the image containing the source data. The type of data required depends on the type of tracking as set in the preceeding argument. For DT methods, the base DWI are needed. For SD methods, the SH harmonic coefficients of the FOD are needed.").type_image_in(),
-  Argument ("tracks", "output tracks file", "the output file containing the tracks generated.").type_file(),
+
+  Argument ("type", "tracking type", 
+      "the type of streamlines tracking to be performed. "
+      "Allowed types are DT_STREAM, SD_STREAM, SD_PROB.").type_choice (type_choices),
+
+  Argument ("source", "source image", 
+      "the image containing the source data. The type of data required depends "
+      "on the type of tracking as set in the preceeding argument. For DT "
+      "methods, the base DWI are needed. For SD methods, the SH harmonic "
+      "coefficients of the FOD are needed.").type_image_in(),
+
+  Argument ("tracks", "output tracks file",
+      "the output file containing the tracks generated.").type_file(),
+
   Argument::End
 };
 
 
 OPTIONS = {
-  Option ("seed", "seed region", "specify the seed region of interest.", true, true)
-    .append (Argument ("spec", "ROI specification", "specifies the parameters necessary to define the ROI. This should be either the path to a binary mask image, or a comma-separated list of 4 floating-point values, specifying the [x,y,z] coordinates of the centre and radius of a spherical ROI.").type_string()),
+  Option ("seed", "seed region", 
+      "specify the seed region of interest.", true, true)
+    .append (Argument ("spec", "ROI specification", 
+          "specifies the parameters necessary to define the ROI. This should be "
+          "either the path to a binary mask image, or a comma-separated list of "
+          "4 floating-point values, specifying the [x,y,z] coordinates of the "
+          "centre and radius of a spherical ROI.").type_string()),
 
-  Option ("include", "inclusion ROI", "specify an inclusion region of interest, in the same format as the seed region. Only tracks that enter all such inclusion ROI will be produced.", false, true)
-    .append (Argument ("spec", "ROI specification", "specifies the parameters necessary to define the ROI.").type_string()),
+  Option ("include", "inclusion ROI",
+      "specify an inclusion region of interest, in the same format as the seed "
+      "region. Only tracks that enter all such inclusion ROI will be produced.", false, true)
+    .append (Argument ("spec", "ROI specification", 
+          "specifies the parameters necessary to define the ROI.").type_string()),
 
-  Option ("exclude", "exclusion ROI", "specify an exclusion region of interest, in the same format as the seed region. Only tracks that enter any such exclusion ROI will be discarded.", false, true)
-    .append (Argument ("spec", "ROI specification", "specifies the parameters necessary to define the ROI.").type_string()),
+  Option ("exclude", "exclusion ROI", 
+      "specify an exclusion region of interest, in the same format as the seed "
+      "region. Only tracks that enter any such exclusion ROI will be discarded.", false, true)
+    .append (Argument ("spec", "ROI specification",
+          "specifies the parameters necessary to define the ROI.").type_string()),
 
-  Option ("mask", "mask ROI", "specify a mask region of interest, in the same format as the seed region. Tracks will be terminated when they leave any such ROI.", false, true)
-    .append (Argument ("spec", "ROI specification", "specifies the parameters necessary to define the ROI.").type_string()),
+  Option ("mask", "mask ROI", 
+      "specify a mask region of interest, in the same format as the seed region. "
+      "Tracks will be terminated when they leave any such ROI.", false, true)
+    .append (Argument ("spec", "ROI specification", 
+          "specifies the parameters necessary to define the ROI.").type_string()),
 
-  Option ("step", "step size", "set the step size of the algorithm.")
-    .append (Argument ("size", "step size", "the step size to use in mm (default is 0.2 mm).").type_float (1e-6, 10.0, 0.2)),
+  Option ("step", "step size",
+      "set the step size of the algorithm.")
+    .append (Argument ("size", "step size",
+          "the step size to use in mm (default is 0.2 mm).").type_float (1e-6, 10.0, 0.2)),
 
-  Option ("curvature", "radius of curvature", "set the minimum radius of curvature (default is 2 mm for DT_STREAM, 0 for SD_STREAM, 1 mm for SD_PROB and DT_PROB).")
-    .append (Argument ("radius", "radius of curvature", "the radius of curvature to use in mm.").type_float (1e-6, 10.0, 2.0)),
+  Option ("curvature", "radius of curvature", 
+      "set the minimum radius of curvature (default is 2 mm for DT_STREAM, "
+      "0 for SD_STREAM, 1 mm for SD_PROB and DT_PROB).")
+    .append (Argument ("radius", "radius of curvature",
+          "the radius of curvature to use in mm.").type_float (1e-6, 10.0, 2.0)),
 
-  Option ("grad", "DW gradient scheme", "specify the diffusion encoding scheme (may be required for DT_STREAM, ignored otherwise).")
-    .append (Argument ("scheme", "gradient file", "the DW gradient file.").type_file()),
+  Option ("grad", "DW gradient scheme", 
+      "specify the diffusion encoding scheme (may be required for DT_STREAM, "
+      "ignored otherwise).")
+    .append (Argument ("scheme", "gradient file",
+          "the DW gradient file.").type_file()),
 
-  Option ("number", "desired number of tracks", "set the desired number of tracks. The program will continue to generate tracks until this number of tracks have been selected and written to the output file (default is 100 for *_STREAM methods, 1000 for *_PROB methods).")
-    .append (Argument ("tracks", "number of tracks", "the number of tracks.").type_integer (1, G_MAXINT, 1)),
+  Option ("number", "desired number of tracks",
+      "set the desired number of tracks. The program will continue to generate "
+      "tracks until this number of tracks have been selected and written to the "
+      "output file (default is 100 for *_STREAM methods, 1000 for *_PROB methods).")
+    .append (Argument ("tracks", "number of tracks", 
+          "the number of tracks.").type_integer (1, G_MAXINT, 1)),
 
-  Option ("maxnum", "maximum number of tracks to generate", "set the maximum number of tracks to generate. The program will not generate more tracks than this number, even if the desired number of tracks hasn't yet been reached (default is 100 x number).")
-    .append (Argument ("tracks", "maximum number of tracks", "the maximum number of tracks.").type_integer (1, G_MAXINT, 1)),
+  Option ("maxnum", "maximum number of tracks to generate",
+      "set the maximum number of tracks to generate. The program will not "
+      "generate more tracks than this number, even if the desired number of "
+      "tracks hasn't yet been reached (default is 100 x number). Specifying "
+      "zero for this option removes any limit - the algorithm will keep "
+      "generating tracks until the number required has been reached.")
+    .append (Argument ("tracks", "maximum number of tracks", 
+          "the maximum number of tracks.").type_integer (1, G_MAXINT, 1)),
 
-  Option ("length", "track length", "set the maximum length of any track.")
-    .append (Argument ("value", "track distance", "the maximum length to use in mm (default is 200 mm).").type_float (1e-2, 1e6, 200.0)),
+  Option ("length", "track length", 
+      "set the maximum length of any track.")
+    .append (Argument ("value", "track distance",
+          "the maximum length to use in mm (default is 200 mm).").type_float (1e-2, 1e6, 200.0)),
 
-  Option ("minlength", "minimum track length", "set the minimum length of any track.")
-    .append (Argument ("value", "track distance", "the minimum length to use in mm (default is 10 mm).").type_float (1e-2, 1e6, 10.0)),
+  Option ("minlength", "minimum track length", 
+      "set the minimum length of any track.")
+    .append (Argument ("value", "track distance",
+          "the minimum length to use in mm (default is 10 mm).").type_float (1e-2, 1e6, 10.0)),
 
-  Option ("cutoff", "cutoff threshold", "set the FA or FOD amplitude cutoff for terminating tracks (default is 0.1).")
-    .append (Argument ("value", "value", "the cutoff to use.").type_float (0, 1e6, 0.1)),
+  Option ("cutoff", "cutoff threshold",
+      "set the FA or FOD amplitude cutoff for terminating tracks (default is 0.1).")
+    .append (Argument ("value", "value", 
+          "the cutoff to use.").type_float (0, 1e6, 0.1)),
 
-  Option ("initcutoff", "intial cutoff threshold", "set the minimum FA or FOD amplitude for initiating tracks (default is twice the normal cutoff).")
-    .append (Argument ("value", "value", "the initial cutoff to use.").type_float (0, 1e6, 0.1)),
+  Option ("initcutoff", "intial cutoff threshold",
+      "set the minimum FA or FOD amplitude for initiating tracks "
+      "(default is twice the normal cutoff).")
+    .append (Argument ("value", "value",
+          "the initial cutoff to use.").type_float (0, 1e6, 0.1)),
 
-  Option ("stop", "stop when included", "stop track as soon as it enters any of the include regions."),
+  Option ("stop", "stop when included", 
+      "stop track as soon as it enters any of the include regions."),
 
-  Option ("nomaskinterp", "no interpolation of mask regions", "do NOT perform tri-linear interpolation of mask images."),
+  Option ("nomaskinterp", "no interpolation of mask regions",
+      "do NOT perform tri-linear interpolation of mask images."),
 
-  Option ("trials", "number of trials", "set the maximum number of sampling trials at each point (only used for probabilistic tracking).")
+  Option ("trials", "number of trials",
+      "set the maximum number of sampling trials at each point "
+      "(only used for probabilistic tracking).")
     .append (Argument ("number", "number", "the number of trials.").type_integer(1, 10000, 50)),
 
-  Option ("unidirectional", "unidirectional", "track from the seed point in one direction only (default is to track in both directions)."),
+  Option ("unidirectional", "unidirectional", 
+      "track from the seed point in one direction only "
+      "(default is to track in both directions)."),
 
-  Option ("initdirection", "initial direction", "specify an initial direction for the tracking.")
-    .append (Argument ("dir", "direction", "the vector specifying the initial direction.").type_sequence_float()),
+  Option ("initdirection", "initial direction", 
+      "specify an initial direction for the tracking.")
+    .append (Argument ("dir", "direction",
+          "the vector specifying the initial direction.").type_sequence_float()),
 
-  Option ("noprecomputed", "no precomputation", "do NOT pre-compute legendre polynomial values. Warning: this will slow down the algorithm by a factor of approximately 4."),
+  Option ("noprecomputed", "no precomputation", 
+      "do NOT pre-compute legendre polynomial values. "
+      "Warning: this will slow down the algorithm by a factor of approximately 4."),
 
   Option::End
 };

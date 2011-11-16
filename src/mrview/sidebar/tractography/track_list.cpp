@@ -87,6 +87,7 @@ namespace MR {
         Glib::signal_timeout().connect (sigc::mem_fun (*this, &TrackList::on_refresh), 3000);
 
         set_tooltip_text ("right-click for more options");
+        set_tooltip_column (4);
       }
 
 
@@ -255,6 +256,7 @@ namespace MR {
         row[columns.pix] = colour_by_dir_pixbuf;
         row[columns.name] = Glib::path_get_basename (filename);
         row[columns.track] = track;
+        row[columns.tooltip_text] = filename + "\n\nright-click for more options";
 
         vertices.clear();
         get_selection()->select (row);

@@ -114,18 +114,23 @@ namespace MR {
 
 
 
-        void Base::new_seed (const Point& seed_dir)
+        void Base::new_seed (const Point& seed_dir, const float init_dir_tolerance_dp)
         {
           excluded = false;
           for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) i->included = false;
           for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) i->included = false;
 
           Point seed_point;
-          do {
-            do { 
-              seed_point = gen_seed(); 
-            } while (not_in_mask (seed_point));
-          } while (set (seed_point, seed_dir));
+set_loop:
+          do { 
+            seed_point = gen_seed(); 
+          } while (not_in_mask (seed_point));
+          if (!set (seed_point, seed_dir)) {
+            if (!seed_dir) return;
+            if (seed_dir.dot (dir) >= init_dir_tolerance_dp)
+              return;
+          }
+          goto set_loop;
         }
 
 

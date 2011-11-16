@@ -54,12 +54,13 @@ namespace MR {
         protected:
           class Columns : public Gtk::TreeModel::ColumnRecord {
             public:
-              Columns() { add (show); add (pix); add (name); add (track); }
+              Columns() { add (show); add (pix); add (name); add (track); add (tooltip_text); }
 
               Gtk::TreeModelColumn<bool> show;
               Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > pix;
               Gtk::TreeModelColumn<String> name;
               Gtk::TreeModelColumn<RefPtr<TrackListItem> >  track;
+              Gtk::TreeModelColumn<String> tooltip_text;
           };
 
           Columns columns;

@@ -62,7 +62,7 @@ namespace MR {
             virtual ~Base ();
 
             bool          set (const Point& seed, const Point& seed_dir = Point::Invalid) { pos = seed; num_points = 0; return (init_direction (seed_dir)); }
-            void          new_seed (const Point& seed_dir = Point::Invalid);
+            void          new_seed (const Point& seed_dir, const float init_dir_tolerance_dp);
             const Point&  position () const  { return (pos); }
             const Point&  direction () const { return (dir); }
 

@@ -151,7 +151,7 @@ OPTIONS = {
       "zero for this option removes any limit - the algorithm will keep "
       "generating tracks until the number required has been reached.")
     .append (Argument ("tracks", "maximum number of tracks", 
-          "the maximum number of tracks.").type_integer (1, G_MAXINT, 1)),
+          "the maximum number of tracks.").type_integer (0, G_MAXINT, 1)),
 
   Option ("length", "track length", 
       "set the maximum length of any track.")
@@ -190,7 +190,10 @@ OPTIONS = {
       "(default is to track in both directions)."),
 
   Option ("initdirection", "initial direction", 
-      "specify an initial direction for the tracking.")
+      "specify an initial direction for the tracking, and optionally an "
+      "angular tolerance about that direction (default is 20°). The direction "
+      "should be supplied as a comma-separated list of floating-point values "
+      "(3 values for the direction only, 4 if specifying the tolerance).")
     .append (Argument ("dir", "direction",
           "the vector specifying the initial direction.").type_sequence_float()),
 
@@ -206,8 +209,15 @@ OPTIONS = {
 
 class Threader {
   public:
-    Threader (int type_index, Image::Object& source, const String& output_file, Tractography::Properties& properties, Point init_direction, Ptr<Math::Matrix>& grad) :
+    Threader (int type_index, 
+        Image::Object& source, 
+        const String& output_file,
+        Tractography::Properties& properties,
+        Point init_direction,
+        float init_direction_tolerance,
+        Ptr<Math::Matrix>& grad) :
       init_dir (init_direction),
+      init_dir_tolerance_dp (cos (M_PI * init_direction_tolerance / 180.0)),
       currently_running (0)
     {
       source.map();
@@ -239,8 +249,8 @@ class Threader {
         default: throw Exception ("tracking method requested is not implemented yet!");
       }
 
-      max_num_tracks = to<int> (properties["max_num_tracks"]);
-      max_num_attempts = properties["max_num_attempts"].empty() ? 100 * max_num_tracks : to<int> (properties["max_num_attempts"]);
+      max_num_tracks = to<guint> (properties["max_num_tracks"]);
+      max_num_attempts = properties["max_num_attempts"].empty() ? 100 * max_num_tracks : to<guint> (properties["max_num_attempts"]);
       unidirectional = to<int> (properties["unidirectional"]);
       min_size = round (to<float> (properties["min_dist"]) / to<float> (properties["step_size"]));
 
@@ -271,6 +281,7 @@ class Threader {
   protected:
     Math::Matrix binv;
     const Point init_dir;
+    const float init_dir_tolerance_dp;
     guint max_num_tracks, max_num_attempts, min_size;
     int  currently_running, num_threads;
     bool unidirectional;
@@ -329,7 +340,7 @@ class Threader {
       std::vector<Point>* tck = NULL;
       while (writer.count < max_num_tracks && ( max_num_attempts ? writer.total_count < max_num_attempts : true )) {
 
-        tracker->new_seed (init_dir);
+        tracker->new_seed (init_dir, init_dir_tolerance_dp);
         Point seed_dir (tracker->direction());
 
         if (!tck) tck = new std::vector<Point>;
@@ -438,14 +449,18 @@ EXECUTE {
   if (opt.size()) properties["unidirectional"] = "1";
 
   Point init_dir;
+  float init_dir_tolerance = 20.0;
   opt = get_options (17); // initdirection
   if (opt.size()) {
     std::vector<float> V = parse_floats (opt[0][0].get_string());
-    if (V.size() != 3) throw Exception (String ("invalid initial direction \"") + opt[0][0].get_string() + "\"");
+    if (V.size() < 3 || V.size() > 4) 
+      throw Exception (String ("invalid initial direction \"") + opt[0][0].get_string() + "\"");
     init_dir[0] = V[0];
     init_dir[1] = V[1];
     init_dir[2] = V[2];
     init_dir.normalise();
+    if (V.size() > 3) 
+      init_dir_tolerance = V[3];
     properties["init_direction"] = opt[0][0].get_string();
   }
 
@@ -453,6 +468,6 @@ EXECUTE {
   if (opt.size()) properties["sh_precomputed"] = "0";
 
   Glib::thread_init();
-  Threader thread (argument[0].get_int(), *argument[1].get_image(), argument[2].get_string(), properties, init_dir, grad);
+  Threader thread (argument[0].get_int(), *argument[1].get_image(), argument[2].get_string(), properties, init_dir, init_dir_tolerance, grad);
   thread.run();
 }

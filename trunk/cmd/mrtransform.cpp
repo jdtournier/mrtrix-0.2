@@ -58,6 +58,9 @@ OPTIONS = {
 
   Option ("flipx", "assume x-flipped transform", "assume the transform is supplied assuming a coordinate system with the x-axis reversed relative to the MRtrix convention (i.e. x increases from right to left). This is required to handle transform matrices produced by FSL's FLIRT command. This is only used in conjunction with the -reference option."),
 
+  Option ("upsample", "upsample image", "reduce the output voxel size along all 3 axes by the factor specified. This is only used in conjunction with the -template option.")
+    .append (Argument ("factor", "factor", "the factor by which to upsample.").type_float (1.0, 1.0e4, 2.0)),
+
   Option::End 
 };
 
@@ -141,9 +144,25 @@ EXECUTE {
     header.set_transform (template_header.transform());
     header.comments.push_back ("resliced to reference image \"" + template_header.name + "\"");
 
+    opt = get_options (6); // upsample
+    if (opt.size()) {
+      float factor = opt[0][0].get_float();
+      header.axes.dim[0] = round (header.axes.dim[0] * factor);
+      header.axes.dim[1] = round (header.axes.dim[1] * factor);
+      header.axes.dim[2] = round (header.axes.dim[2] * factor);
+      header.axes.vox[0] /= factor;
+      header.axes.vox[1] /= factor;
+      header.axes.vox[2] /= factor;
+      Math::Matrix T (header.transform());
+      float f = (1.0/factor - 1.0);
+      T(0,3) += f * ( header.axes.vox[0]*T(0,0) + header.axes.vox[1]*T(1,0) + header.axes.vox[2]*T(2,0) );
+      T(1,3) += f * ( header.axes.vox[0]*T(0,1) + header.axes.vox[1]*T(1,1) + header.axes.vox[2]*T(2,1) );
+      T(2,3) += f * ( header.axes.vox[0]*T(0,2) + header.axes.vox[1]*T(1,2) + header.axes.vox[2]*T(2,2) );
+      header.set_transform (T);
+    }
+
     Math::Matrix M;
     M.multiply (Mi, header.P2R());
-    VAR (M);
 
     float R[] = { 
       M(0,0), M(0,1), M(0,2), M(0,3), 
@@ -158,6 +177,8 @@ EXECUTE {
 
     ProgressBar::init (out.voxel_count(), "reslicing image...");
     do { 
+      for (int n = 3; n < out.ndim(); ++n)
+        in.set (n, out[n]);
       for (out.set(2,0); out[2] < out.dim(2); out.inc(2)) {
         for (out.set(1,0); out[1] < out.dim(1); out.inc(1)) {
           pos[0] = R[1]*out[1] + R[2]*out[2] + R[3];

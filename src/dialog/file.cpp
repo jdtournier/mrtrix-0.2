@@ -129,6 +129,17 @@ namespace MR {
       if (!cwd.size()) cwd = Glib::get_current_dir();
       show_all_children();
       realize();
+      if (window_position_x < 0 || window_position_y < 0) {
+        int x, y, w, h;
+        if (Window::list_toplevels().size()) {
+          if (*Window::list_toplevels().begin()) {
+            (*Window::list_toplevels().begin())->get_position (x, y);
+            (*Window::list_toplevels().begin())->get_size (w, h);
+            window_position_x = x + (w-window_size_x)/2;
+            window_position_y = y + (h-window_size_y)/2;
+          }
+        }
+      }
       move (window_position_x, window_position_y);
       resize (window_size_x, window_size_y);
 

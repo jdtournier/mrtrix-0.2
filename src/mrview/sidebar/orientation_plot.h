@@ -56,7 +56,7 @@ namespace MR {
           Gtk::Button       source_button;
           Gtk::Label        lmax_label, lod_label;
           Gtk::Table        lmax_lod_table;
-          Gtk::CheckButton  align_with_viewer, interpolate, show_axes, colour_by_direction, use_lighting, hide_neg_lobes, show_overlay;
+          Gtk::CheckButton  align_with_viewer, interpolate, show_axes, colour_by_direction, use_lighting, hide_neg_lobes, show_overlay, progressive_overlay;
           Gtk::Adjustment   lmax_adjustment, lod_adjustment;
           Gtk::SpinButton   lmax, lod;
           DWI::RenderFrame  render;
@@ -73,7 +73,8 @@ namespace MR {
           sigc::connection       idle_connection;
           bool   on_idle ();
 
-          void  refresh_overlay () { if (show_overlay.get_active()) Window::Main->update (this); }
+          void   refresh_overlay () { Window::Main->update (this); }
+          void   draw_overlay ();
 
           void   set_values ();
           void   get_values (std::vector<float>& values, const Point& position);

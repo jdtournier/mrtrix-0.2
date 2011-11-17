@@ -106,8 +106,9 @@ namespace MR {
             void  end() { gdk_gl_drawable_gl_end (gtk_widget_get_gl_drawable (GTK_WIDGET (gobj()))); }
             void  swap () {
               GdkGLDrawable* gldrawable = gtk_widget_get_gl_drawable (GTK_WIDGET (gobj()));
-              if (gdk_gl_drawable_is_double_buffered (gldrawable)) gdk_gl_drawable_swap_buffers (gldrawable); 
-              else glFlush (); 
+              if (gdk_gl_drawable_is_double_buffered (gldrawable)) 
+                gdk_gl_drawable_swap_buffers (gldrawable);
+	      else glFlush (); 
             }
         };
 

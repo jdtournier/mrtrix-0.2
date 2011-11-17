@@ -250,8 +250,6 @@ namespace MR {
     Window::~Window() { }
 
 
-
-
     void Window::manage (RefPtr<MR::Image::Object> obj)
     {
       using namespace Gtk::Menu_Helpers;

@@ -90,6 +90,22 @@
 #define BUSY_INTERVAL 0.1
 #define GUI_SPACING 5
 
+#ifdef __APPLE__
+# define CTRL_CMD_MASK GDK_MOD2_MASK
+#define MODIFIERS ( \
+        GDK_SHIFT_MASK | \
+        GDK_CONTROL_MASK | \
+        GDK_MOD2_MASK | \
+        GDK_BUTTON1_MASK | \
+        GDK_BUTTON2_MASK | \
+        GDK_BUTTON3_MASK | \
+        GDK_BUTTON4_MASK | \
+        GDK_BUTTON5_MASK | \
+        GDK_SUPER_MASK | \
+        GDK_HYPER_MASK | \
+        GDK_META_MASK )
+#else
+# define CTRL_CMD_MASK GDK_CONTROL_MASK
 #define MODIFIERS ( \
         GDK_SHIFT_MASK | \
         GDK_CONTROL_MASK | \
@@ -101,11 +117,6 @@
         GDK_SUPER_MASK | \
         GDK_HYPER_MASK | \
         GDK_META_MASK )
-
-#ifdef __APPLE__
-# define CTRL_CMD_MASK GDK_META_MASK
-#else
-# define CTRL_CMD_MASK GDK_CONTROL_MASK
 #endif
 
 #define TMPFILE_ROOT "mrtrix-"

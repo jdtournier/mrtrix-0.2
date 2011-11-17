@@ -41,6 +41,8 @@
 #include "mrview/window.h"
 #include "mrview/sidebar/orientation_plot.h"
 
+
+
 namespace MR {
   namespace Viewer {
     namespace SideBar {
@@ -59,6 +61,7 @@ namespace MR {
         use_lighting ("use lighting"),
         hide_neg_lobes ("hide negative lobes"),
         show_overlay ("overlay"),
+        progressive_overlay ("progressive overlay"),
         lmax_adjustment (8, 2, 16, 2, 2),
         lod_adjustment (5, 2, 7, 1, 1),
         lmax (lmax_adjustment),
@@ -88,6 +91,7 @@ namespace MR {
         settings.pack_start (hide_neg_lobes, Gtk::PACK_SHRINK);
         settings.pack_start (lmax_lod_table, Gtk::PACK_SHRINK);
         settings.pack_start (show_overlay, Gtk::PACK_SHRINK);
+        settings.pack_start (progressive_overlay, Gtk::PACK_SHRINK);
 
         lmax_lod_table.attach (lmax_label, 0, 1, 0, 1, Gtk::SHRINK | Gtk::FILL);
         lmax_lod_table.attach (lmax, 1, 2, 0, 1, Gtk::SHRINK | Gtk::FILL);
@@ -112,6 +116,7 @@ namespace MR {
         use_lighting.signal_toggled().connect (sigc::mem_fun (*this, &OrientationPlot::on_use_lighting));
         hide_neg_lobes.signal_toggled().connect (sigc::mem_fun (*this, &OrientationPlot::on_hide_negative_lobes));
         show_overlay.signal_toggled().connect (sigc::mem_fun (*this, &OrientationPlot::on_show_overlay));
+        progressive_overlay.signal_toggled().connect (sigc::mem_fun (*this, &OrientationPlot::on_show_overlay));
 
         lmax.signal_value_changed().connect (sigc::mem_fun (*this, &OrientationPlot::on_lmax));
         lod.signal_value_changed().connect (sigc::mem_fun (*this, &OrientationPlot::on_lod));
@@ -125,6 +130,11 @@ namespace MR {
         use_lighting.set_active (true);
         hide_neg_lobes.set_active (true);
         show_overlay.set_active (false);
+#ifndef __APPLE__
+        progressive_overlay.set_active (true);
+#else
+        progressive_overlay.set_active (false);
+#endif
         lod.set_value (5);
 
         String string;
@@ -168,7 +178,7 @@ namespace MR {
       { 
         Slice::Current S (Window::Main->pane());
         if (align_with_viewer.get_active()) set_projection ();
-        on_show_overlay();
+        draw_overlay();
         if (focus == S.focus) return;
         focus = S.focus;
         set_values();
@@ -183,14 +193,18 @@ namespace MR {
       void OrientationPlot::on_lod () { render.set_LOD (int (lod.get_value())); refresh_overlay(); }
       void OrientationPlot::on_lmax () { render.set_lmax (int (lmax.get_value())); refresh_overlay(); }
 
+      void OrientationPlot::on_show_overlay () { refresh_overlay(); }
 
-      void OrientationPlot::on_show_overlay () 
-      {  
+
+
+      void OrientationPlot::draw_overlay ()
+      {
         overlay_pane = &Window::Main->pane();
         const Slice::Current S (*overlay_pane);
 
         if (!image_object || !show_overlay.get_active() || S.orientation || !S.image) {
-          idle_connection.disconnect();
+          if (progressive_overlay.get_active())
+            idle_connection.disconnect();
           return;
         }
 
@@ -216,7 +230,11 @@ namespace MR {
         overlay_pos[1] = overlay_bounds[0][1];
 
         overlay_render.precompute (int(lmax.get_value()), int(lod.get_value()), get_toplevel()->get_window());
-        idle_connection = Glib::signal_idle().connect (sigc::mem_fun (*this, &OrientationPlot::on_idle));
+
+        if (progressive_overlay.get_active()) 
+          idle_connection = Glib::signal_idle().connect (sigc::mem_fun (*this, &OrientationPlot::on_idle));
+        else 
+          while (on_idle());
       }
 
 
@@ -240,10 +258,15 @@ namespace MR {
         get_values (values, spos);
 
         if (values.size()) {
-          overlay_pane->gl_start();
+
+          if (progressive_overlay.get_active())
+            overlay_pane->gl_start();
+
           glPushAttrib (GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
 
-          glDrawBuffer (GL_FRONT);
+          if (progressive_overlay.get_active())
+            glDrawBuffer (GL_FRONT);
+
           glDepthMask (GL_TRUE);
           glEnable (GL_DEPTH_TEST);
           glDisable (GL_BLEND);
@@ -266,8 +289,10 @@ namespace MR {
 
           glPopAttrib ();
           glPopMatrix();
-          glFlush();
-          overlay_pane->gl_end();
+          if (progressive_overlay.get_active()) {
+            glFlush();
+            overlay_pane->gl_end();
+          }
         }
 
         overlay_pos[0] += overlay_bounds[1][0] > overlay_bounds[0][0] ? 1 : -1;

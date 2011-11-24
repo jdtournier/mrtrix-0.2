@@ -114,7 +114,7 @@ EXECUTE {
   if (mask.dim(0) != dwi.dim(0) || mask.dim(1) != dwi.dim(1) || mask.dim(2) != dwi.dim(2)) 
     throw Exception ("dimensions of brain mask and dwi images do not match");
 
-  info ("generating WM mask from DW image \"" + dwi.name() + "\n");
+  info ("generating WM mask from DW image \"" + dwi.name() + "\"\n");
 
   float m_s_b0 = 0.0;
   float m_std_b0 = 0.0;

@@ -75,6 +75,8 @@ namespace MR {
 
           void   refresh_overlay () { Window::Main->update (this); }
           void   draw_overlay ();
+          void   disable_interactions ();
+          void   enable_interactions ();
 
           void   set_values ();
           void   get_values (std::vector<float>& values, const Point& position);

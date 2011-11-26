@@ -62,8 +62,8 @@ namespace MR {
         hide_neg_lobes ("hide negative lobes"),
         show_overlay ("overlay"),
         progressive_overlay ("progressive overlay"),
-        lmax_adjustment (8, 2, 16, 2, 2),
-        lod_adjustment (5, 2, 7, 1, 1),
+        lmax_adjustment (8, 2, 16, 2, 0),
+        lod_adjustment (5, 2, 7, 1, 0),
         lmax (lmax_adjustment),
         lod (lod_adjustment),
         azimuth (GSL_NAN),
@@ -178,7 +178,7 @@ namespace MR {
       { 
         Slice::Current S (Window::Main->pane());
         if (align_with_viewer.get_active()) set_projection ();
-        draw_overlay();
+        if (show_overlay.get_active()) draw_overlay();
         if (focus == S.focus) return;
         focus = S.focus;
         set_values();
@@ -197,16 +197,32 @@ namespace MR {
 
 
 
+      void OrientationPlot::disable_interactions ()
+      {
+        lod.set_sensitive (false);
+        lmax.set_sensitive (false);
+      }
+
+      void OrientationPlot::enable_interactions ()
+      {
+        lod.set_sensitive (true);
+        lmax.set_sensitive (true);
+      }
+
+
+
       void OrientationPlot::draw_overlay ()
       {
         overlay_pane = &Window::Main->pane();
         const Slice::Current S (*overlay_pane);
 
-        if (!image_object || !show_overlay.get_active() || S.orientation || !S.image) {
+        if (!image_object || S.orientation || !S.image) {
           if (progressive_overlay.get_active())
             idle_connection.disconnect();
+          enable_interactions();
           return;
         }
+        disable_interactions();
 
         MR::Image::Interp& interp (*S.image->interp);
         int ix, iy;
@@ -241,9 +257,11 @@ namespace MR {
 
       bool OrientationPlot::on_idle ()
       {
-        if (!image_object) return (false);
+        enable_interactions();
+        if (!image_object) return false;
+        if (!show_overlay.get_active()) return false;
         const Slice::Current S (*overlay_pane);
-        if (!S.image) return (false);
+        if (!S.image) return false;
 
         int ix, iy;
         Slice::get_fixed_axes (S.projection, ix, iy);
@@ -300,9 +318,11 @@ namespace MR {
           overlay_pos[0] = overlay_bounds[0][0];
           overlay_pos[1] += overlay_bounds[1][1] > overlay_bounds[0][1] ? 1 : -1;
           if ((overlay_pos[1] - overlay_bounds[0][1]) * (overlay_pos[1] - overlay_bounds[1][1]) > 0) 
-            return (false);
+            return false;
         }
-        return (true);
+
+        disable_interactions();
+        return true;
       }
 
 

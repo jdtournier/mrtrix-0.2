@@ -76,6 +76,8 @@ EXECUTE {
     num++;
   }
 
+  file.close();
+  writer.close();
   ProgressBar::done();
 }
 

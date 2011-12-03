@@ -264,7 +264,7 @@ namespace MR {
         Slice::Current S (pane);
         if (!S.image) return (false);
 
-        if (!(event->state) & MODIFIERS) {
+        if (!(event->state & MODIFIERS)) {
           if (event->keyval == GDK_Up) {
             move_slice (S, 1.0);
             return (true);

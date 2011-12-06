@@ -274,8 +274,16 @@ namespace MR {
 
         std::vector<float> values;
         get_values (values, spos);
+        float abssum = 0.0;
+        for (guint n = 0; n < values.size(); ++n) {
+          if (!gsl_finite (values[n])) {
+            abssum = 0.0;
+            break;
+          }
+          abssum += fabs (values[n]);
+        }
 
-        if (values.size()) {
+        if (abssum > 0.0) {
 
           if (progressive_overlay.get_active())
             overlay_pane->gl_start();

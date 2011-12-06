@@ -263,71 +263,73 @@ namespace MR {
         const Slice::Current S (*overlay_pane);
         if (!S.image) return false;
 
-        int ix, iy;
-        Slice::get_fixed_axes (S.projection, ix, iy);
-        Point pos;
-        pos[S.projection] = overlay_slice;
-        pos[ix] = overlay_pos[0];
-        pos[iy] = overlay_pos[1];
-
-        Point spos (S.image->interp->P2R (pos));
-
-        std::vector<float> values;
-        get_values (values, spos);
         float abssum = 0.0;
-        for (guint n = 0; n < values.size(); ++n) {
-          if (!gsl_finite (values[n])) {
-            abssum = 0.0;
-            break;
+        do {
+          int ix, iy;
+          Slice::get_fixed_axes (S.projection, ix, iy);
+          Point pos;
+          pos[S.projection] = overlay_slice;
+          pos[ix] = overlay_pos[0];
+          pos[iy] = overlay_pos[1];
+
+          Point spos (S.image->interp->P2R (pos));
+
+          std::vector<float> values;
+          get_values (values, spos);
+          for (guint n = 0; n < values.size(); ++n) {
+            if (!gsl_finite (values[n])) {
+              abssum = 0.0;
+              break;
+            }
+            abssum += fabs (values[n]);
           }
-          abssum += fabs (values[n]);
-        }
 
-        if (abssum > 0.0) {
+          if (abssum > 0.0) {
 
-          if (progressive_overlay.get_active())
-            overlay_pane->gl_start();
+            if (progressive_overlay.get_active())
+              overlay_pane->gl_start();
 
-          glPushAttrib (GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+            glPushAttrib (GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
 
-          if (progressive_overlay.get_active())
-            glDrawBuffer (GL_FRONT);
+            if (progressive_overlay.get_active())
+              glDrawBuffer (GL_FRONT);
 
-          glDepthMask (GL_TRUE);
-          glEnable (GL_DEPTH_TEST);
-          glDisable (GL_BLEND);
+            glDepthMask (GL_TRUE);
+            glEnable (GL_DEPTH_TEST);
+            glDisable (GL_BLEND);
 
-          glPushMatrix();
-          glLoadIdentity();
-          render.do_reset_lighting();
-          glPopMatrix();
-          glPushMatrix();
-          overlay_render.calculate (values, int (lmax.get_value()), render.get_hide_neg_lobes());
+            glPushMatrix();
+            glLoadIdentity();
+            render.do_reset_lighting();
+            glPopMatrix();
+            glPushMatrix();
+            overlay_render.calculate (values, int (lmax.get_value()), render.get_hide_neg_lobes());
 
-          if (render.get_use_lighting()) glEnable (GL_LIGHTING);
-          GLfloat v[] = { 0.9, 0.9, 0.9, 1.0 }; 
-          glMaterialfv (GL_BACK, GL_AMBIENT_AND_DIFFUSE, v);
+            if (render.get_use_lighting()) glEnable (GL_LIGHTING);
+            GLfloat v[] = { 0.9, 0.9, 0.9, 1.0 }; 
+            glMaterialfv (GL_BACK, GL_AMBIENT_AND_DIFFUSE, v);
 
-          glTranslatef (spos[0], spos[1], spos[2]);
-          glScalef (render.get_scale(), render.get_scale(), render.get_scale()); 
+            glTranslatef (spos[0], spos[1], spos[2]);
+            glScalef (render.get_scale(), render.get_scale(), render.get_scale()); 
 
-          overlay_render.draw (render.get_use_lighting(), render.get_color_by_dir() ? NULL : render.color);
+            overlay_render.draw (render.get_use_lighting(), render.get_color_by_dir() ? NULL : render.color);
 
-          glPopAttrib ();
-          glPopMatrix();
-          if (progressive_overlay.get_active()) {
-            glFlush();
-            overlay_pane->gl_end();
+            glPopAttrib ();
+            glPopMatrix();
+            if (progressive_overlay.get_active()) {
+              glFlush();
+              overlay_pane->gl_end();
+            }
           }
-        }
 
-        overlay_pos[0] += overlay_bounds[1][0] > overlay_bounds[0][0] ? 1 : -1;
-        if ((overlay_pos[0] - overlay_bounds[0][0]) * (overlay_pos[0] - overlay_bounds[1][0]) > 0) {
-          overlay_pos[0] = overlay_bounds[0][0];
-          overlay_pos[1] += overlay_bounds[1][1] > overlay_bounds[0][1] ? 1 : -1;
-          if ((overlay_pos[1] - overlay_bounds[0][1]) * (overlay_pos[1] - overlay_bounds[1][1]) > 0) 
-            return false;
-        }
+          overlay_pos[0] += overlay_bounds[1][0] > overlay_bounds[0][0] ? 1 : -1;
+          if ((overlay_pos[0] - overlay_bounds[0][0]) * (overlay_pos[0] - overlay_bounds[1][0]) > 0) {
+            overlay_pos[0] = overlay_bounds[0][0];
+            overlay_pos[1] += overlay_bounds[1][1] > overlay_bounds[0][1] ? 1 : -1;
+            if ((overlay_pos[1] - overlay_bounds[0][1]) * (overlay_pos[1] - overlay_bounds[1][1]) > 0) 
+              return false;
+          }
+        } while (abssum == 0.0);
 
         disable_interactions();
         return true;

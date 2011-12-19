@@ -77,6 +77,8 @@ OPTIONS = {
 
   Option ("fraction", "output fibre fraction", "produce an image of the fraction of fibres through each voxel (as a proportion of the total number in the file), rather than the count."),
 
+  Option ("lstdi", "length-scaled TDI", "scale the contribution of each track to the density image by the inverse of the streamline length"),
+
   Option ("datatype", "data type", "specify output image data type.")
     .append (Argument ("spec", "specifier", "the data type specifier.").type_choice (data_type_choices)),
 
@@ -176,7 +178,8 @@ class VoxelDir : public Voxel
 };
 
 
-
+class SetVoxel    : public std::set<Voxel>    { public: size_t length; };
+class SetVoxelDir : public std::set<VoxelDir> { public: size_t length; };
 
 
 
@@ -241,7 +244,7 @@ template <class T> class TrackMapper
       resample_matrix (interp_matrix),
       R (resample_matrix, 3) { }
 
-    void map (std::vector<Point>& tck, std::set<T>& output)
+    void map (std::vector<Point>& tck, T& output)
     {
       Math::Matrix data;
       if (R.valid()) {
@@ -287,22 +290,23 @@ template <class T> class TrackMapper
       out.swap (tck);
     }
 
-    void voxelise (const std::vector<Point>& tck, std::set<T>& voxels) const;
+    void voxelise (const std::vector<Point>& tck, T& voxels) const;
 
 };
 
 
-template<> void TrackMapper<Voxel>::voxelise (const std::vector<Point>& tck, std::set<Voxel>& voxels) const
+template<> void TrackMapper<SetVoxel>::voxelise (const std::vector<Point>& tck, SetVoxel& voxels) const
 {
   for (std::vector<Point>::const_iterator i = tck.begin(); i != tck.end(); ++i) {
     Voxel vox (interp.R2P (*i));
     if (vox.test_bounds (H)) 
       voxels.insert (vox);
   }
+  voxels.length = tck.size() - 1;
 }
 
 
-template<> void TrackMapper<VoxelDir>::voxelise (const std::vector<Point>& tck, std::set<VoxelDir>& voxels) const
+template<> void TrackMapper<SetVoxelDir>::voxelise (const std::vector<Point>& tck, SetVoxelDir& voxels) const
 {
   std::vector<Point>::const_iterator prev = tck.begin();
   const std::vector<Point>::const_iterator last = tck.end() - 1;
@@ -320,6 +324,7 @@ template<> void TrackMapper<VoxelDir>::voxelise (const std::vector<Point>& tck, 
     vox.set_dir ((*last - *prev).normalise());
     voxels.insert (vox);
   }
+  voxels.length = tck.size() - 1;
 }
 
 
@@ -332,23 +337,24 @@ template <class T> class MapWriterBase
 {
 
   public:
-    MapWriterBase (Image::Position& p, const float fraction_scaling_factor) :
+    MapWriterBase (Image::Position& p, const float fraction_scaling_factor, const bool length_scaled) :
       pos (p),
       H (p.image.header()),
-      scale (fraction_scaling_factor)
-    {
-      buffer_size = H.dim(0) * H.dim(1) * H.dim(2);
-    }
+      scale (fraction_scaling_factor),
+      lstdi (length_scaled),
+      buffer_size (H.dim(0) * H.dim(1) * H.dim(2)) { }
 
-    virtual void write (const std::set<T>& voxels) = 0;
+    virtual void write (const T& voxels) = 0;
 
    protected:
     Image::Position& pos;
     const Image::Header& H;
-    float scale;
+    const float scale;
+    const bool lstdi;
     size_t buffer_size;
 
-    size_t voxel_to_index(const T& vox)
+    template <class V>
+    size_t voxel_to_index(const V& vox)
     {
       return (vox.x + (vox.y * H.dim(0)) + (vox.z * H.dim(0) * H.dim(1)));
     }
@@ -356,20 +362,20 @@ template <class T> class MapWriterBase
 };
 
 
-class MapWriter : public MapWriterBase<Voxel> 
+class MapWriter : public MapWriterBase<SetVoxel>
 {
 
   public:
-    MapWriter (Image::Position& p, const float fraction_scaling_factor) :
-      MapWriterBase<Voxel> (p, fraction_scaling_factor),
-      buffer (new size_t[buffer_size])
+    MapWriter (Image::Position& p, const float fraction_scaling_factor, const bool length_scaled) :
+      MapWriterBase<SetVoxel> (p, fraction_scaling_factor, length_scaled),
+      buffer (new float[buffer_size])
     {
-      memset(buffer, 0, buffer_size * sizeof(size_t));
+      memset(buffer, 0, buffer_size * sizeof(float));
     }
 
     ~MapWriter ()
     {
-      ProgressBar::init(H.dim(2), "writing image... ");
+      ProgressBar::init (H.dim(2), "writing image... ");
       size_t index = 0;
       for (pos.set(2,0); pos[2] < H.dim(2); pos.inc(2)) {
         for (pos.set(1,0); pos[1] < H.dim(1); pos.inc(1)) {
@@ -382,24 +388,24 @@ class MapWriter : public MapWriterBase<Voxel>
       delete[] buffer;
     }
 
-    void write (const std::set<Voxel>& voxels)
+    void write (const SetVoxel& voxels)
     {
-      for (std::set<Voxel>::const_iterator i = voxels.begin(); i != voxels.end(); ++i)
-        buffer[voxel_to_index(*i)] += 1;
+      for (SetVoxel::const_iterator i = voxels.begin(); i != voxels.end(); ++i)
+        buffer[voxel_to_index(*i)] += lstdi ? (1.0 / float(voxels.length)) : 1.0;
     }
 
   private:
-    size_t* buffer;
+    float* buffer;
 
 };
 
 
-class MapWriterColour : public MapWriterBase<VoxelDir>
+class MapWriterColour : public MapWriterBase<SetVoxelDir>
 {
 
   public:
-    MapWriterColour(Image::Position& p, const float fraction_scaling_factor) :
-      MapWriterBase<VoxelDir> (p, fraction_scaling_factor),
+    MapWriterColour (Image::Position& p, const float fraction_scaling_factor, const bool length_scaled) :
+      MapWriterBase<SetVoxelDir> (p, fraction_scaling_factor, length_scaled),
       buffer (new Point[buffer_size])
     {
       for (size_t i = 0; i != buffer_size; ++i)
@@ -424,16 +430,16 @@ class MapWriterColour : public MapWriterBase<VoxelDir>
       delete[] buffer;
     }
 
-    void write (const std::set<VoxelDir>& voxels)
+    void write (const SetVoxelDir& voxels)
     {
-      std::set<VoxelDir>::const_iterator i = voxels.begin();
+      SetVoxelDir::const_iterator i = voxels.begin();
       while (i != voxels.end()) {
         const std::set<VoxelDir>::const_iterator this_voxel = i;
-        Point this_voxel_dir(0.0, 0.0, 0.0);
+        Point this_voxel_dir (0.0, 0.0, 0.0);
         do {
           this_voxel_dir += i->dir;
         } while ((++i) != voxels.end() && *i == *this_voxel);
-        buffer[voxel_to_index(*this_voxel)] += this_voxel_dir.normalise();
+        buffer[voxel_to_index(*this_voxel)] += this_voxel_dir.normalise() * (lstdi ? (1.0 / float(voxels.length)) : 1.0);
       }
     }
 
@@ -585,6 +591,7 @@ EXECUTE {
 
   const bool colour         = get_options (2).size();
   const bool fibre_fraction = get_options (3).size();
+  const bool lstdi          = get_options (4).size();
 
   std::vector<float> voxel_size;
   std::vector<OptBase> opt = get_options(1);
@@ -614,11 +621,11 @@ EXECUTE {
     file.open (argument[0].get_string(), properties);
   }
 
-  opt = get_options (4);
+  opt = get_options (5);
   if (opt.size())
     header.data_type.parse (data_type_choices[opt[0][0].get_int()]);
   else
-    header.data_type = (fibre_fraction || colour) ? DataType::Float32 : DataType::UInt32;
+    header.data_type = (fibre_fraction || colour || lstdi) ? DataType::Float32 : DataType::UInt32;
 
   for (DWI::Tractography::Properties::const_iterator i = properties.begin(); i != properties.end(); ++i)
     header.comments.push_back (i->first + ": " + i->second);
@@ -632,7 +639,7 @@ EXECUTE {
   info ("intensity scaling factor set to " + str(scaling_factor));
 
   size_t resample_factor;
-  opt = get_options (5);
+  opt = get_options (6);
   if (opt.size()) {
     resample_factor = opt[0][0].get_int();
     info ("track interpolation factor manually set to " + str(resample_factor));
@@ -661,13 +668,13 @@ EXECUTE {
     header.axes.desc[3] = "direction";
     header.comments.push_back (std::string ("coloured track density map"));
 
-    Image::Position       pos    (*argument[1].get_image (header));
-    TrackMapper<VoxelDir> mapper (pos, interp_matrix);
-    MapWriterColour       writer (pos, scaling_factor);
+    Image::Position          pos    (*argument[1].get_image (header));
+    TrackMapper<SetVoxelDir> mapper (pos, interp_matrix);
+    MapWriterColour          writer (pos, scaling_factor, lstdi);
 
     ProgressBar::init (num_tracks, "mapping tracks to colour image... ");
     while (file.next (tck)) {
-      std::set<VoxelDir> mapped_voxels;
+      SetVoxelDir mapped_voxels;
       mapper.map (tck, mapped_voxels);
       writer.write (mapped_voxels);
       ProgressBar::inc();
@@ -680,13 +687,13 @@ EXECUTE {
     header.axes.set_ndim(3);
     header.comments.push_back (std::string (("track ") + str(fibre_fraction ? "fraction" : "count") + " map"));
 
-    Image::Position    pos    (*argument[1].get_image(header));
-    TrackMapper<Voxel> mapper (pos, interp_matrix);
-    MapWriter          writer (pos, scaling_factor);
+    Image::Position       pos    (*argument[1].get_image(header));
+    TrackMapper<SetVoxel> mapper (pos, interp_matrix);
+    MapWriter             writer (pos, scaling_factor, lstdi);
 
     ProgressBar::init (num_tracks, "mapping tracks to image... ");
     while (file.next (tck)) {
-      std::set<Voxel> mapped_voxels;
+      SetVoxel mapped_voxels;
       mapper.map (tck, mapped_voxels);
       writer.write (mapped_voxels);
       ProgressBar::inc();

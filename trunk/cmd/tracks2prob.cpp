@@ -18,12 +18,19 @@
     You should have received a copy of the GNU General Public License
     along with MRtrix.  If not, see <http://www.gnu.org/licenses/>.
 
+    14-07-2010 Robert E. Smith <r.smith@brain.org.au>
+    * major overhaul of tracks2prob (converted from mrtrix development branch)
+
     04-08-2010 Robert E. Smith <r.smith@brain.org.au>
     * reverted to previous interpretation of voxel values as the number
       of tracks detected as entering each voxel, without normalisation
 
-    24-08-2010 Robert Smith <r.smith@brain.org.au>
+    24-08-2010 Robert E. Smith <r.smith@brain.org.au>
     * fix bug in handling of multiple contributions to a single voxel from a single track
+
+    19-12-2011 Robert E. Smith <r.smith@brain.org.au>
+    * added capabilty to generate length-scaled TDI
+
 
 */
 

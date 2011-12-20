@@ -238,6 +238,7 @@ namespace MR {
           if (selection.size()) {
             MR::Image::Header header (*Window::Main->image->image);
             header.data_type = DataType::Bit;
+            header.axes.set_ndim (3);
             RefPtr<MR::Image::Object> obj (new MR::Image::Object);
             try {
               obj->create (selection[0], header); 

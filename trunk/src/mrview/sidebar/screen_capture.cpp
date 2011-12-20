@@ -222,13 +222,14 @@ namespace MR {
         dialog.set_selection (destination_prefix_label.get_text());
         if (dialog.run() == Gtk::RESPONSE_OK) {
           std::vector<String> selection = dialog.get_selection();
-          if (selection.size()) {
-            prefix = selection[0] + "-";
+          if (selection.size())
             destination_prefix_label.set_text (Glib::path_get_basename (selection[0]));
-            destination_folder_label.set_text (Glib::path_get_basename (dialog.get_cwd()));
-            destination_folder_label.set_tooltip_text (dialog.get_cwd());
-            destination_number.set_value (0);
-          }
+
+          destination_folder_label.set_text (Glib::path_get_basename (dialog.get_cwd()));
+          destination_folder_label.set_tooltip_text (dialog.get_cwd());
+
+          destination_number.set_value (0);
+          prefix = Glib::build_filename (dialog.get_cwd(), destination_prefix_label.get_text() + "-");
         }
       }
 

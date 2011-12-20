@@ -58,12 +58,14 @@ DESCRIPTION = {
 };
 
 ARGUMENTS = {
-  Argument ("coefs", "SH coefficients", "a text file containing the even spherical harmonics coefficients to display.").type_file (),
+  Argument ("coefs", "SH coefficients", 
+      "a text file containing the even spherical harmonics coefficients to display.").type_file (),
   Argument::End
 };
 
 OPTIONS = { 
-  Option ("response", "display response function", "assume SH coefficients file only contains even, m=0 terms. Used to display the response function as produced by estimate_response"),
+  Option ("response", "display response function", 
+      "assume SH coefficients file only contains even, m=0 terms. Used to display the response function as produced by estimate_response"),
 
   Option::End 
 };
@@ -75,7 +77,7 @@ OPTIONS = {
 class Window : public Gtk::Window 
 {
   public:
-    Window (const String& title, const Math::Matrix& coefs) : name (title), current (0), values (coefs)
+    Window (const String& title, Math::Matrix& coefs, bool is_response) : name (title), current (0), values (coefs)
     {
       using namespace Gtk::Menu_Helpers;
 
@@ -124,6 +126,22 @@ class Window : public Gtk::Window
       show_all();
       realize();
 
+      int lmax = DWI::SH::LforN (values.columns());
+      if (values.columns() != guint (DWI::SH::NforL (lmax))) {
+        is_response = true;
+        error ("unexpected number of SH coefficients - assuming response function");
+      }
+
+      if (is_response) {
+        lmax = 2*(values.columns()-1);
+        Math::Matrix R (values);
+        values.allocate (R.rows(), DWI::SH::NforL (lmax));
+        values.zero();
+        for (guint n = 0; n < R.rows(); n++) 
+          for (guint i = 0; i < R.columns(); i++) 
+            values(n, DWI::SH::index(2*i,0)) = R(n,i);
+      }
+
       std::vector<float> val (values.columns());
       for (guint n = 0; n < values.columns(); n++)
         val[n] = values(0,n);
@@ -136,7 +154,8 @@ class Window : public Gtk::Window
       dynamic_cast<Gtk::CheckMenuItem&> (settings_menu.items()[3]).set_active(); 
       dynamic_cast<Gtk::CheckMenuItem&> (settings_menu.items()[4]).set_active(); 
 
-      dynamic_cast<Gtk::RadioMenuItem&> (lmax_menu.items()[DWI::SH::LforN(values.columns())/2-1]).set_active(); 
+
+      dynamic_cast<Gtk::RadioMenuItem&> (lmax_menu.items()[lmax/2-1]).set_active(); 
       dynamic_cast<Gtk::RadioMenuItem&> (lod_menu.items()[2]).set_active(); 
     }
 
@@ -149,7 +168,7 @@ class Window : public Gtk::Window
 
       String name;
       int current;
-      const Math::Matrix& values;
+      Math::Matrix& values;
 
       void   on_quit() { hide(); }
       void   on_use_lighting () { render.set_use_lighting (dynamic_cast<Gtk::CheckMenuItem&> (settings_menu.items()[0]).get_active()); }
@@ -207,18 +226,10 @@ class MyApp : public MR::App {
         values = tmp;
       }
 
-      std::vector<OptBase> opt = get_options (0); // response
-      if (opt.size()) {
-        Math::Matrix R (values);
-        values.allocate (R.rows(), DWI::SH::NforL (2*(R.columns()-1)));
-        values.zero();
-        for (guint n = 0; n < R.rows(); n++) 
-          for (guint i = 0; i < R.columns(); i++) 
-            values(n, DWI::SH::index(2*i,0)) = R(n,i);
-      }
+      bool is_response = get_options(0).size(); // response
 
 
-      Window window (Glib::path_get_basename (argument[0].get_string()), values);
+      Window window (Glib::path_get_basename (argument[0].get_string()), values, is_response);
       Gtk::Main::run (window);
     }
 

@@ -110,7 +110,7 @@ OPTIONS = {
 
   Option ("exclude", "exclusion ROI", 
       "specify an exclusion region of interest, in the same format as the seed "
-      "region. Only tracks that enter any such exclusion ROI will be discarded.", false, true)
+      "region. All tracks that enter any such exclusion ROI will be discarded.", false, true)
     .append (Argument ("spec", "ROI specification",
           "specifies the parameters necessary to define the ROI.").type_string()),
 

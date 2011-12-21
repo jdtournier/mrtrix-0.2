@@ -45,13 +45,31 @@ namespace MR {
         popup_menu.accelerate (*this);
 
         Gtk::RadioMenuItem::Group colourmap_group;
-        colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Gray", sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 0)));
-        colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Hot", sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 1)));
-        colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Cool", sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 2)));
-        colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_Jet", sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 3)));
+        colourmap_menu.items().push_back (
+            RadioMenuElem (colourmap_group, "_Gray", 
+              sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 0)));
+
+        colourmap_menu.items().push_back (
+            RadioMenuElem (colourmap_group, "_Hot",
+              sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 1)));
+      
+        colourmap_menu.items().push_back (
+            RadioMenuElem (colourmap_group, "_Cool",
+              sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 2)));
+       
+        colourmap_menu.items().push_back (
+            RadioMenuElem (colourmap_group, "_Jet", 
+              sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), 3)));
+
         colourmap_menu.items().push_back (SeparatorElem());
-        colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "_RGB", sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), COLOURMAP_RGB)));
-        colourmap_menu.items().push_back (RadioMenuElem (colourmap_group, "Comple_x", sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), COLOURMAP_COMPLEX)));
+
+        colourmap_menu.items().push_back (
+            RadioMenuElem (colourmap_group, "_RGB",
+              sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), COLOURMAP_RGB)));
+
+        colourmap_menu.items().push_back (
+            RadioMenuElem (colourmap_group, "Comple_x", 
+              sigc::bind<int> (sigc::mem_fun (*this, &OverlayList::on_colourmap), COLOURMAP_COMPLEX)));
 
         model = Gtk::ListStore::create (columns);
         set_model (model);
@@ -182,6 +200,16 @@ namespace MR {
 
           popup_menu.items()[2].set_sensitive (is_row);
           popup_menu.items()[4].set_sensitive (is_row);
+
+          Gtk::TreeModel::iterator iter = get_selection()->get_selected();
+          if (iter) {
+            const Gtk::TreeModel::Row row = *iter;
+            int entry = row[columns.colourmap] < COLOURMAP_RGB ? 
+              row[columns.colourmap] : 
+              (row[columns.colourmap]-COLOURMAP_RGB+COLOURMAP_MAX_SCALAR_INDEX+1);
+            dynamic_cast<Gtk::CheckMenuItem&> (colourmap_menu.items()[entry]).set_active();
+          }
+
           popup_menu.popup (event->button, event->time);
           return (true);
         }

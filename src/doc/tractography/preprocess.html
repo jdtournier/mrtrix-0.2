@@ -201,14 +201,15 @@ For convenience, a table of the number of parameters required for various maximu
 The CSD computation itself can now be performed:
 </p>
 <pre>
-&gt; <b><a href='../commands/csdeconv.html'>csdeconv</a> dwi.mif response.txt -lmax 10 -mask mask.mif CSD10.mif</b>
+&gt; <b><a href='../commands/csdeconv.html'>csdeconv</a> dwi.mif response.txt -lmax 8 -mask mask.mif CSD8.mif</b>
 <a href='../commands/csdeconv.html'>csdeconv</a>: performing constrained spherical deconvolution... 100%
 </pre>
 <p>
-Here, the maximum harmonic order lmax has been set to 10, which should be suitable for the DWI data set used in this example.
-You may need to alter this value for different acquisition parameters.
-Also, the brain mask has been used here to prevent unnecessary computations in non-brain voxels;
-this can speed up the computation time significantly.
+Here, the maximum harmonic order lmax has been set to 8, which should be 
+suitable for most DWI data sets.  You may need to alter this value for 
+different acquisition parameters.  Also, the brain mask has been used here to 
+prevent unnecessary computations in non-brain voxels; this can speed up the 
+computation time significantly.
 </p>
 <p>
 On multi-core systems, the computation time can also be reduced significantly using parallel processing.
@@ -224,32 +225,6 @@ sidebar tool within <a href='../general/mrview.html'>MRview</a>.
 
 
 <p class=sep><a href="#top">top</a></p>
-<h2><a name='wm'>White matter mask</a></h2>
-<p>
-A mask of the white matter may prove useful for certain applications, such as whole-brain tracking.
-However, it is difficult to generate such a mask reliably. 
-MRtrix includes a rudimentary application to generate a reasonable, <b>but by no means perfect</b>, white matter mask from the DWI data.
-We do <b>not</b> recommend the use of such a white matter mask for track termination in rigorous tractography studies,
-although it does provide a useful seed region for whole-brain tractography.
-It can be generated as follows:
-</p>
-<pre>
-&gt; <b><a href='../commands/gen_WM_mask.html'>gen_WM_mask</a> dwi.mif mask.mif wm.mif</b>
-<a href='../commands/gen_WM_mask.html'>gen_WM_mask</a>: calibrating... 100%
-<a href='../commands/gen_WM_mask.html'>gen_WM_mask</a>: generating WM mask from DW images... 100%
-</pre>
-<p>
-<strong>Note:</strong> use the <kbd>-grad</kbd> option to supply your own DW scheme if none is to be found in the DWI data set headers.
-</p>
-<p>
-This generates a 'probability' map of each voxel being white matter. 
-To generate a white matter mask suitable for tracking, use a thresholded version of this map:
-</p>
-<pre>
-&gt; <b><a href='../commands/threshold.html'>threshold</a> wm.mif wm_t.mif -abs 0.4</b>
-<a href='../commands/threshold.html'>threshold</a>: thresholding at intensity 0.4... 100%
-</pre>
-
 <table class=nav>
   <tr>
     <td><a href="dwi.html"><img src="../left.png"></a></td>

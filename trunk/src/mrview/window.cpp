@@ -565,6 +565,8 @@ namespace MR {
         set_title (image->image->name());
         dynamic_cast<Gtk::CheckMenuItem&> (view_menu.items()[1]).set_active (S.interpolate);
         dynamic_cast<Gtk::CheckMenuItem&> (view_menu.items()[2]).set_active (!S.orientation);
+        int entry = S.colourmap < COLOURMAP_RGB ? S.colourmap : (S.colourmap-COLOURMAP_RGB+COLOURMAP_MAX_SCALAR_INDEX+1);
+        dynamic_cast<Gtk::CheckMenuItem&> (colourmap_menu.items()[entry]).set_active();
       }
       else set_title ("MRView");
       update();

@@ -251,7 +251,7 @@ is to be used as input for the next command. The image that is to be fed to or f
 where the image would normally be specified as an argument.
 </p>
 <p>
-For this work properly, it is important to know which arguments each program will interpret as <em>input</em> images,
+For this to work properly, it is important to know which arguments each program will interpret as <em>input</em> images,
 and which as <em>output</em> images. For example, this command will fail:
 </p>
 <pre>
@@ -264,13 +264,17 @@ while it waits for <kbd><a href='../commands/dwi2tensor.html'>dwi2tensor</a></kb
 </p>
 <h3>Advanced</h3>
 <p>
-The procedure used in MRtrix to feed data sets down a pipeline is somewhat different from the more traditional use of pipes.
-Given the large amounts of data typically contained in a data set, the 'standard' practice of feeding the data through the pipe
-would be prohibitively inefficient. MRtrix applications access the data via <em>memory-mapping</em> (when this is possible), 
-and do not need to explicitly copy the data into their own memory space. When using pipes, MRtrix applications will simply generate 
-a temporary file and feed its <em>filename</em> through to the next stage once their processing is done. 
-The next program in the pipeline will then simply read this filename and access the corresponding file. 
-The latter program is then responsible for deleting the temporary file once its processing is done.
+The procedure used in MRtrix to feed data sets down a pipeline is somewhat
+different from the more traditional use of pipes.  Given the large amounts of
+data typically contained in a data set, the 'standard' practice of feeding the
+entire data set through the pipe would be prohibitively inefficient. MRtrix
+applications access the data via <em>memory-mapping</em> (when this is
+possible), and do not need to explicitly copy the data into their own
+memory space. When using pipes, MRtrix applications will simply generate a
+temporary file and feed its <em>filename</em> through to the next stage once
+their processing is done.  The next program in the pipeline will then simply
+read this filename and access the corresponding file.  The latter program is
+then responsible for deleting the temporary file once its processing is done.
 </p>
 <p>
 This implies that any errors during processing may result in undeleted temporary files.

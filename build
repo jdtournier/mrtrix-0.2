@@ -823,6 +823,15 @@ def delete (folder, files):
 #                            START OF PROGRAM
 ###########################################################################
 
+try: num_processors = os.sysconf('SC_NPROCESSORS_ONLN')
+except:
+  try: num_processors = int(os.environ['NUMBER_OF_PROCESSORS'])
+  except: num_processors = 1
+  
+if platform.system().lower() == 'windows':
+  configfile = 'C:\\mrtrix.conf'
+else:
+  configfile = '/etc/mrtrix.conf'
 
 # uninstall:
 
@@ -859,12 +868,21 @@ if 'uninstall' in targets:
   for key in sorted_link_list.keys():
     print '  from folder "' + key + '": ' + ' '.join(sorted_link_list[key])
 
+  if os.path.exists (configfile):
+    print 'WARNING: about to delete configuration file: ' + configfile
+
+
   ans = raw_input ('proceed? y|[N]: ')
   if len(ans) and 'yes'.startswith (ans.lower()):
     for folder in sorted_file_list.keys():
       delete (folder, sorted_file_list[folder])
     for folder in sorted_link_list.keys():
       delete (folder, sorted_link_list[folder])
+    if os.path.exists (configfile):
+      try:
+        os.remove (configfile)
+      except OSError as ( errno, strerror ):
+        print 'error deleting file "' + configfile + '": ' + strerror
     exit (0)
 
   print 'aborted'
@@ -894,6 +912,14 @@ if installto is not None:
     apply_recursive (create_link, dest_bin, link_bin)
     apply_recursive (create_link, os.path.join (dest_lib, libname), os.path.join (link_lib, libname))
     print 'ok'
+
+  if not os.path.exists (configfile):
+    print 'creating default system-wide configuration file (setting up multi-threading with ' + str(num_processors) + ' threads)...',
+    with open(configfile, 'wb') as fd:
+      fd.write ('NumberOfThreads: ' + str(num_processors) + '\n');
+    print 'ok'
+  else:
+    print 'configuration file already exists - leaving as-is'
 
   exit(0)
 
@@ -957,11 +983,6 @@ if dependencies:
 
 
 
-try: num_processors = os.sysconf('SC_NPROCESSORS_ONLN')
-except:
-  try: num_processors = int(os.environ['NUMBER_OF_PROCESSORS'])
-  except: num_processors = 1
-  
 if verbose:
   print '' 
   print 'launching ' + str(num_processors) + ' threads'

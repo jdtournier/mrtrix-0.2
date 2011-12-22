@@ -20,11 +20,16 @@
 
 <p>
 The main difficulty in installing MRtrix on MacOS X is to install the 
-dependencies. There are two reported ways to do this, one using <a 
-href="http://mxcl.github.com/homebrew/">Homebrew</a>, and the other <a 
+dependencies. There are three reported ways to do this, <a href=http://www.macports.org/>MacPorts</a>, <a 
+href="http://mxcl.github.com/homebrew/">Homebrew</a>, and <a 
 href="http://www.finkproject.org/">
-Fink</a>. Both of these approaches are described below, along with instructions 
-common to both.
+Fink</a>. At this point, it seems MacPorts is the simplest and quickest method,
+as it only requires a minimal amount of local compilation - most of the
+required packages are simply downloaded ready-compiled. 
+</p>
+<p>
+These approaches are described below, along with instructions common to all of
+them.
 </p>
 
 <h2><a name='dependencies'>Installing dependencies</a></h2>
@@ -32,10 +37,26 @@ common to both.
 <p>
 The first step is to install Xcode and X11. These can both be found on the OS X 
 install DVD. The MRtrix-specific dependencies can then be installed using one 
-of the following two approaches:
+of the following three approaches:
 </p>
 
-<h3>Using Homebrew</h3>
+<h3>MacPorts (recommended)</h3>
+<p>
+Thanks to Craig Stark for providing these instructions.
+</p>
+
+<dl>
+<dt>Install MacPorts</dt>
+<dd>follow instructions on <a 
+href="http://www.macports.org/install.php">
+http://www.macports.org/install.php</a>.</dd>
+<dt>Get and build the dependencies</dt>
+<dd><pre>
+$ port install glib2 glibmm libpng gtk2 gtkmm gtkglext gsl
+</pre></dd>
+</dl>
+
+<h3>Homebrew</h3>
 <p>
 Thanks to Jon Clayden for providing these instructions.
 </p>
@@ -51,7 +72,7 @@ $ brew install python glib gtk+ glibmm gtkmm gtkglext gsl
 </pre></dd>
 </dl>
 
-<h3>Using Fink</h3>
+<h3>Fink</h3>
 <p>
 Thanks to Michael Zeineh for providing these instructions.
 </p>
@@ -62,7 +83,7 @@ Thanks to Michael Zeineh for providing these instructions.
 http://www.finkproject.org/download/</a></dd>
 <dt>Install the dependencies</dt>
 <dd><pre>
-fink install python glib gtk+ glibmm2.4 gtkmm2.4 gtkglext1 gsl
+$ fink install python glib gtk+ glibmm2.4 gtkmm2.4 gtkglext1 gsl
 </pre>
 If this fails, try to repeat this last step until it works.
 </dd>

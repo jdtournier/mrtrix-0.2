@@ -41,22 +41,25 @@ distributions, all dependencies are available via the Synaptic Package Manager.
 <p>
 On Ubuntu systems (and most likely Debian too), the following instructions 
 should work with no modifications:
-<p>
-The following step installs the dependencies required for MRtrix. You should 
-only need to perform this step the first time you install MRtrix:
+<h3>First-time installations: installing dependencies</h3>
+The first time you install MRtrix, you will need to also install a number of
+required packages. The following step installs these dependencies on Ubuntu
+systems - for other distributions, you'll need to use the equivalent commands
+as appropriate (see below).  You will only need to perform this step the first
+time you install MRtrix:
 <pre>
 $ sudo apt-get install g++ python libglib2.0-dev libgtk2.0-dev libglibmm-2.4-dev libgtkmm-2.4-dev libgtkglext1-dev libgsl0-dev libgl1-mesa-dev libglu1-mesa-dev
 </pre>
-<p>
-The following steps will need to be performed for every install or update of 
-MRtrix:
+<h3>Installing MRtrix</h3>
+Once the dependencies have been installed, the following steps will need to be
+performed for every install or update of MRtrix:
 <pre>
 $ tar xfj mrtrix-0.2.X.tar.bz2
 $ cd mrtrix-0.2.X
 $ ./build
 $ sudo ./build install
 </pre>
-
+<p>
 On other distributions, different steps may be required to install the required 
 dependencies, and/or to install the compiled executables. These steps are 
 outlined in detail below.
@@ -158,9 +161,17 @@ target (as root if the destination is not user-writable):
 <pre>
 # <b>./build install</b>
 </pre>
-By default, this will install the required files to the folder 
-<kbd>/opt/mrtrix</kbd>. If the files need to be installed to a different 
-folder, the prefix can be specified as an additional parameter:
+By default, this will copy the executables and dynamic library to the folder 
+<kbd>/opt/mrtrix</kbd>. To ensure these are in the system path, it will also
+create symbolic links to them in the folders <kbd>/usr/bin</kbd> (for the
+executables) and <kbd>/usr/lib</kbd> (for the dynamic library). Finally , it
+will also create a default system-wide configuration file in
+<kbd>/etc/mrtrix.conf</kbd>, to enable multi-threading on all cores as detected
+by the build script.
+</p>
+<p>
+If the files need to be installed to a different folder,
+a different prefix can be specified as an additional parameter:
 <pre>
 # <b>./build install=/usr/local</b>
 </pre>
@@ -231,7 +242,10 @@ default values will be used instead.
   <a href='../tractography/tracking.html'>tractography</a> programs are both ready 
   for multi-threading, and will therefore take substantially less time if multi-threading is enabled.
   This is done by adding the following line to your <a href='../appendix/config.html'>configuration file</a>:
-  <pre>NumberOfThreads: 4</pre> with the number set appropriately for your system.</dd>
+  <pre>NumberOfThreads: 4</pre> with the number set appropriately for your
+  system. Note that a default configuration file with this parameter already
+  set to the appropriate value should already exist if the software
+  was installed using the <kbd>./build install</kbd> command (see above).</dd>
 
   <dt>Left-right convention for Analyse images</dt>
   <dd>There is some ambiguity in the Analyse format as to whether images are stored in left to right order

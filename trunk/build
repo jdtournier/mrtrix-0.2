@@ -166,9 +166,12 @@ try:
   if process.wait() != 0: raise 0
   for line in process.stdout:
     if line.startswith ('Revision:'):
-      revision = '#define SVN_REVISION ' + str(line.split()[1]) + '\n'
+      svn_rev_number = line.split()[1]
+      revision = '#define SVN_REVISION ' + str(svn_rev_number) + '\n'
       if revision != open(svn_revision_file).read():
-        open (svn_revision_file, 'w').write (revision)
+        with open(svn_revision_file, 'wb') as fd:
+          fd.write ('#define SVN_REVISION ' + str(svn_rev_number) + '\n')
+      print 'SVN revision: ' + str(svn_rev_number)
       break
 except:
   pass

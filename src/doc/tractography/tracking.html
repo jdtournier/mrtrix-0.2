@@ -124,6 +124,22 @@ as both the seed and mask regions:
 <img src='whole_brain.png'>
 
 
+<p class=sep><a href="#top">top</a></p>
+<h2><a name='tdi'>Track Density Imaging</a></h2>
+<p>
+The results of whole-brain tracking can be used to generate high-resolution track-density images (<a href='../appendix/refs.html#calamante'>Calamante et al. 2010</a>):
+<pre>
+&gt; <b><a href='../commands/tracks2prob.html'>tracks2prob</a> whole_brain.tck -vox 0.5 tdi.mif</b>
+tracks2prob: creating new template image...   - ok
+tracks2prob: mapping tracks to image...  100%
+tracks2prob: writing image...  100%
+</pre>
+<p>
+Note that to obtain good quality TDI maps, a very large number of tracks need
+to be generated (of the order of 1 million or more). See <a
+href='../appendix/refs.html#calamante'>Calamante et al. 2010</a> for details.
+</p>
+<img src=tdi.png>
 
 <table class=nav>
   <tr>

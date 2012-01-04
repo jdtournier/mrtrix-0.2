@@ -29,6 +29,7 @@
   <li><a href='#temp'>What are these 'mrtrix-azdj28.mif' files that keep appearing in my folder?</a></li>
   <li><a href='#analyse'>Why am I getting strange alignment issues with my Analyse format data?</a></li>
   <li><a href='#FSLencoding'>Can I use the same gradient direction tables with MRtrix as I use with FSL?</a></li>
+  <li><a href='#normalise_tracks'>How do I spatially normalise my tracks into template space?</a></li>
 </ul>
 
 <p class=sep><a href="#top">top</a></p>
@@ -116,7 +117,7 @@ In particular, you will usually not get any such messages when performing non-su
 <h3><a name='coreg'>I want to coregister my anatomical images with the DWI/tracks</a></h3>
 <p>
 MRtrix now includes support for the <a href='general/formats.html#NIfTI'>NIfTI</a> image format, allowing straightforward interaction with 
-<a href='http://www.fil.ion.ucl.ac.uk/spm/'>SPM5</a> and <a href='http://www.fmrib.ox.ac.uk/fsl/'>FSL</a> (amongst others). 
+<a href='http://www.fil.ion.ucl.ac.uk/spm/'>SPM</a> and <a href='http://www.fmrib.ox.ac.uk/fsl/'>FSL</a> (amongst others). 
 Both of these packages provide robust functionality for coregistration. 
 Some simple instructions for coregistration using these packages are given below.
 <p>
@@ -141,9 +142,9 @@ The FA map appears to provide adequate contrast for coregistration with the anat
 <p>
 The subsequent steps depend on the software package to be used.
 </p>
-<h4>SPM5</h4>
+<h4>SPM</h4>
 <p>
-The procedure with <a href='http://www.fil.ion.ucl.ac.uk/spm/'>SPM5</a> is straightforward: 
+The procedure with <a href='http://www.fil.ion.ucl.ac.uk/spm/'>SPM</a> is straightforward: 
 set the FA map as the reference image, the anatomical as the source image, 
 and coregister (estimate only) with the normalised mutual information cost function. 
 Once the processing is done, the <kbd>anat_coreg.nii</kbd> image will have been re-oriented 
@@ -151,7 +152,7 @@ to match that of the FA map (only the header's orientation field will have been 
 The <kbd>anat_coreg.nii</kbd> can then be loaded into <a href='general/mrview.html'>MRview</a> instead of the original <kbd>anat.mif</kbd>.
 <p>
 <ul>
-  <li>open SPM5, and click on 'coregister' in the <em>spatial pre-processing</em> box</li>
+  <li>open SPM, and click on 'coregister' in the <em>spatial pre-processing</em> box</li>
   <li>select <em>New "Coreg: Estimate"</em></li>
   <li>double-click on <em>+Coreg: Estimate &lt;- X</em> to expand the parameter list</li>
   <li>click on <em>Reference Image &lt;- X</em> to highlight it</li>
@@ -175,7 +176,7 @@ The procedure to use with <a href='http://www.fmrib.ox.ac.uk/fsl/'>FSL</a> is sl
 The <a href='http://www.fmrib.ox.ac.uk/fsl/flirt/'>FLIRT</a> command does not produce good results
 if the FA map is specified as the reference. The steps required are therefore to coregister the
 anatomical images to the FA map, producing a 4&times;4 affine transform matrix.
-As with <a href='http://www.fil.ion.ucl.ac.uk/spm/'>SPM5</a>, the normalised mutual information cost function produces the best results.
+As with <a href='http://www.fil.ion.ucl.ac.uk/spm/'>SPM</a>, the normalised mutual information cost function produces the best results.
 The inverse of this transform can then be applied to the anatomical images 
 using the <a href='commands/mrtransform.html'>mrtransform</a> command included as part of MRtrix.
 <pre>
@@ -196,7 +197,7 @@ where each voxel contains the number of tracks that pass through that voxel.
 For example:
 </p>
 <pre>
-&gt; <b><a href='commands/tracks2prob.html'>tracks2prob</a> tracks.tck anat.mif track_image.mif</b>
+&gt; <b><a href='commands/tracks2prob.html'>tracks2prob</a> tracks.tck -template anat.mif track_image.mif</b>
 tracks2prob: generating track count image...  - ok
 </pre>
 <p>
@@ -229,11 +230,11 @@ format that does support storing of the transform (e.g. MRtrix or NIfTI), and
 the results subsequently converted to Analyse format. 
 </p>
 <p>
- Another issue with the Analyse image format is the lack of a clear
-convention for left-right ordering. In particular, certain versions of SPM used
-the convention that the data were stored left to right, which is the opposite
-of the official Analyse application. In other versions of SPM, the convention
-to use for this ordering can be set by editing a configuration file. An image
+Another issue with the Analyse image format is the lack of a clear convention
+for left-right ordering. In particular, certain versions of SPM used the
+convention that the data were stored left to right, which is the opposite of
+the official Analyse application. In other versions of SPM, the convention to
+use for this ordering can be set by editing a configuration file. An image
 generated using one convention will be flipped if read assuming the opposite
 convention.  Consequently, it is impossible to guarantee that images stored in
 Analyse format are correctly oriented.
@@ -286,6 +287,52 @@ specifies the rotation component of the transform. If this part is the identity
 can be used with MRtrix.
 
 
+<p class=sep><a href="#top">top</a></p>
+
+<h3><a name='normalise_tracks'>How do I spatially normalise my tracks into template space?</a></h3>
+<p>
+You may want to warp tracks generated in each subject's native space into a
+common template space, using warps estimated using other applications (e.g. <a
+href="http://www.fil.ion.ucl.ac.uk/spm/">SPM</a> or <a
+href="http://picsl.upenn.edu/ANTS/">ANTS</a>). 
+Since normalisation packages store the warp information in their own format, it
+is not sensible for MRtrix to attempt to support reading the warp information
+directly. Instead, the idea is to generate a 'no-warp' image in template space,
+apply the relevant normalisation command to warp it into native space, and use
+the final warped image to warp the tracks into template space.  This is
+achieved as follows:
+</p>
+<p>
+First, a 'no-warp' image is created in template space, with each voxel containing its own real-space coordinates in template space:
+<pre>
+&gt; <b><a href=commands/gen_unit_warp.html>gen_unit_warp</a> template_image.nii nowarp-[].nii</b>
+</pre>
+<p>
+Note the use of the square brackets to instruct the application to produce a
+set of image volumes, rather than a single 4D image (see <a
+href='general/cmdline.html#sequences'>here</a> for details). Also, the image
+format is specified as NIfTI, since this format is supported by most
+normalisation packages.
+</p>
+<p>
+The set of images produced is then warped into each subject's native space,
+using the appropriate warp field and the package originally used to estimate
+it. Details on performing this step are dependent on the exact package used,
+and will not be discussed further here. The most important consideration is to
+ensure that the target image in subject space (i.e. the image whose dimensions,
+voxel size, etc. will be used as a template when creating the warped images)
+covers the entire extent of all the tracks to be warped.
+</p>
+<p>
+Once the 'no-warp' field images have been warped into subject space, each voxel
+contains the coordinates of its equivalent location in template space. It is
+then trivial to warp the tracks into template space.  Assuming the warped
+images have been stored under the filename
+<kbd>warp-0.nii</kbd>, <kbd>warp-1.nii</kbd>, <kbd>warp-2.nii</kbd>, this is
+achieved as follows: 
+<pre>
+ &gt; <b><a href=commands/normalise_tracks.html>normalise_tracks</a> my_tracks.tck warp-[].nii my_warped_tracks.tck</b> 
+</pre>
 
 <table class=nav>
   <tr>

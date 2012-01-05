@@ -28,6 +28,7 @@
 #include <gtkmm/menubar.h>
 #include <gtkmm/statusbar.h>
 #include <gtkmm/paned.h>
+#include <gtkmm/eventbox.h>
 
 #include "ptr.h"
 #include "args.h"
@@ -88,6 +89,7 @@ namespace MR {
         Gtk::Menu            file_menu, view_menu, image_menu, help_menu, colourmap_menu;
         Gtk::HPaned          paned;
         Gtk::Statusbar       statusbar;
+        Gtk::EventBox        eventbox;
         DisplayArea          display_area;
         SideBar::Main        sidebar;
 
@@ -118,6 +120,9 @@ namespace MR {
 
         void                 on_help_about ();
         void                 on_help_OpenGL_info ();
+
+        void on_drag_and_drop (const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time);
+
 
         void                 manage (RefPtr<MR::Image::Object> obj);
     };

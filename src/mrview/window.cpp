@@ -218,9 +218,15 @@ namespace MR {
             sigc::mem_fun(*this, &Window::on_help_about)));
 
 
+      eventbox.add (statusbar);
+      eventbox.drag_source_set (std::vector<Gtk::TargetEntry>());
+      eventbox.drag_source_add_text_targets();
+      eventbox.signal_drag_data_get().connect (sigc::mem_fun (*this, &Window::on_drag_and_drop));
+      eventbox.set_tooltip_text ("Position of focus in real and voxel coordinates.\nUse drag & drop to copy onto the command-line");
+
       main_box.pack_start (menubar, Gtk::PACK_SHRINK);
       main_box.pack_start (paned);
-      main_box.pack_start (statusbar, Gtk::PACK_SHRINK);
+      main_box.pack_start (eventbox, Gtk::PACK_SHRINK);
 
       paned.pack1 (display_area, true, false);
       paned.pack2 (sidebar, false, false);
@@ -655,6 +661,14 @@ namespace MR {
 
 
 
+    void Window::on_drag_and_drop (const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time)
+    {
+      const Slice::Current S (pane());
+      if (!S.image) return;
+      if (!S.focus) return;
+      String text (printf ("%.2f,%.2f,%.2f", S.focus[0], S.focus[1], S.focus[2]));
+      selection_data.set (selection_data.get_target(), 8, (const guint8*) text.c_str(), text.size());
+    }
 
 
 

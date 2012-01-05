@@ -51,6 +51,7 @@ table.centered td { border-bottom: 1px solid black; padding-left: 2em; padding-r
 table.args { border-collapse: collapse; } 
 table.args th { padding-left: 2em; padding-right: 2em; }
 table.args td { vertical-align: top; padding-left: 2em; padding-right: 2em; padding-top: 10pt; padding-bottom: 10pt; }
+table.args td[nowrap] { white-space: nowrap; }
 
 table.opts { border-collapse: collapse; } 
 table.opts td { vertical-align: top; padding-left: 1em; padding-right: 1em; padding-top: 5pt; padding-bottom: 5pt; }

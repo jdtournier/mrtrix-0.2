@@ -19,12 +19,48 @@
 
 <h2><a name="basicusage">Basic usage</a></h2>
 <p>
-Commands are generally issued by typing the <em>command name</em>, followed by a series of <em>arguments</em> and <em>options</em> separated by white spaces. 
-MRtrix applications will typically require at least one <em>argument</em> (usually an image specifier), 
-and may need to be tuned in some way using command line options (described <a href='#options'>here</a>).
+Commands are generally issued by typing the <em>command name</em>, followed by
+a series of <em>arguments</em> and <em>options</em> separated by white spaces.
+MRtrix applications will typically require at least one <em>argument</em>
+(usually an image specifier), and may need to be tuned in some way using
+command line options (described <a href='#options'>here</a>). The various
+arguments and options accepted by a particular command are described in the
+<a href='../commands/index.html'>list of MRtrix commands</a>, and on each command's built-in help page, which
+can be viewed by running the command with the <kbd>-help</kbd> option. For
+example:
 </p>
+<pre>
+&gt; <b><a href='../commands/mrinfo.html'>mrinfo</a> -help</b>
+<a href='../commands/mrinfo.html'>mrinfo</a>: part of the MRtrix package
+
+PURPOSE:  display header information
+
+SYNTAX:   mrinfo [ options ] image [ image ... ]
+
+            image       the input image.
+
+OPTIONS:
+
+  -grad file    write DW gradient scheme to file
+                "file": the DW gradient scheme file.
+
+  -dicom        print all DICOM entries.
+
+  -csa          print all CSA entries (Siemens DICOM only.
+
+  -info         display information messages.
+
+  -quiet        do not display information messages or progress status.
+
+  -debug        display debugging messages.
+
+  -help         display this information page and exit.
+
+  -version      display version information and exit.
+</pre>
+
 <p>
-Consider the <kbd><a href='../commands/mrconvert.html'>mrconvert</a></kbd> command:
+To understand command-line arguments and options, consider the <kbd><a href='../commands/mrconvert.html'>mrconvert</a></kbd> command:
 </p>
 <pre>
 &gt; <b><a href='../commands/mrconvert.html'>mrconvert</a> image.img -vox 1,1,2.5 out.mif</b>

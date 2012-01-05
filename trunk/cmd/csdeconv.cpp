@@ -639,6 +639,7 @@ EXECUTE {
 
   DWI::SH::CSDeconv::Common sdeconv_common (response, filter, DW_dirs, HR_dirs, lmax);
   sdeconv_common.lambda = lambda;
+  sdeconv_common.threshold = threshold;
 
   Image::Object& SH_obj (*argument[2].get_image (header));
   SH_obj.map();

@@ -621,7 +621,7 @@ def gen_command_html_help ():
 
     fid.write ('<h2>Options</h2>\n<table class=args>\n')
     for O in opt:
-      fid.write ('<tr><td><b>-' + O[0] + '</b>')
+      fid.write ('<tr><td nowrap><b>-' + O[0] + '</b>')
       for A in O[5:]: fid.write ('&nbsp;<i>' + A[0] + '</i>')
       fid.write ('</td>\n<td>' + O[4])
       if len(O) > 5:

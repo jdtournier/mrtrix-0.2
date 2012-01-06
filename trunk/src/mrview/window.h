@@ -63,6 +63,7 @@ namespace MR {
         std::vector< RefPtr<Image> >   images;
         RefPtr<Image>        image;
         int                  manage (Image& ima);
+        void                 load (std::vector<RefPtr<MR::Image::Object> >& image_list);
 
         void                 update () { display_area.update(); }
         void                 update (const SideBar::Base* sidebar) { display_area.update (sidebar); }
@@ -121,7 +122,8 @@ namespace MR {
         void                 on_help_about ();
         void                 on_help_OpenGL_info ();
 
-        void on_drag_and_drop (const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time);
+        void                 on_drag (const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time);
+        void                 on_drop (const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time);
 
 
         void                 manage (RefPtr<MR::Image::Object> obj);

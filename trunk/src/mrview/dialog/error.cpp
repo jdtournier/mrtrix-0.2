@@ -70,7 +70,18 @@ namespace MR {
       get_vbox()->pack_start (hbox, Gtk::PACK_SHRINK);
       get_vbox()->pack_start (more);
 
-      show_all_children();
+      show_all();
+
+      if (Window::list_toplevels().size()) {
+        int x, y, w, h;
+        if (*Window::list_toplevels().begin()) {
+          (*Window::list_toplevels().begin())->get_position (x, y);
+          (*Window::list_toplevels().begin())->get_size (w, h);
+          x = x + (w - get_width())/2;
+          y = y + (h - get_height())/2;
+          move (x,y);
+        }
+      }
     }
 
     bool ErrorDialog::display_errors ()

@@ -175,10 +175,14 @@ try:
       if revision != open(svn_revision_file).read():
         with open(svn_revision_file, 'wb') as fd:
           fd.write ('#define SVN_REVISION ' + str(svn_rev_number) + '\n')
-      print 'SVN revision: ' + str(svn_rev_number)
+      if verbose:
+        print 'SVN revision: ' + str(svn_rev_number)
       break
 except:
   pass
+
+
+
 
 def SVN_last_changed (filename):
   try:

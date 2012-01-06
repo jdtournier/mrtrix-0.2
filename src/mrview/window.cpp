@@ -221,12 +221,17 @@ namespace MR {
       eventbox.add (statusbar);
       eventbox.drag_source_set (std::vector<Gtk::TargetEntry>());
       eventbox.drag_source_add_text_targets();
-      eventbox.signal_drag_data_get().connect (sigc::mem_fun (*this, &Window::on_drag_and_drop));
+      eventbox.signal_drag_data_get().connect (sigc::mem_fun (*this, &Window::on_drag));
       eventbox.set_tooltip_text ("Position of focus in real and voxel coordinates.\nUse drag & drop to copy onto the command-line");
 
       main_box.pack_start (menubar, Gtk::PACK_SHRINK);
       main_box.pack_start (paned);
       main_box.pack_start (eventbox, Gtk::PACK_SHRINK);
+
+      std::list<Gtk::TargetEntry> list;
+      list.push_back (Gtk::TargetEntry("text/uri-list"));
+      drag_dest_set (list, Gtk::DEST_DEFAULT_MOTION | Gtk::DEST_DEFAULT_DROP, Gdk::ACTION_COPY | Gdk::ACTION_MOVE);
+      signal_drag_data_received().connect (sigc::mem_fun (*this, &Window::on_drop));
 
       paned.pack1 (display_area, true, false);
       paned.pack2 (sidebar, false, false);
@@ -237,8 +242,6 @@ namespace MR {
       signal_key_press_event().connect (sigc::mem_fun(display_area, &DisplayArea::on_key_press), false);
 
       realize();
-      for (guint n = 0; n < argument.size(); n++) manage (argument[n].get_image());
-
       error = Viewer::ErrorDialog::error;
       info = Viewer::ErrorDialog::info;
 
@@ -246,7 +249,11 @@ namespace MR {
       ProgressBar::display_func = ProgressDialog::display;
       ProgressBar::done_func = ProgressDialog::done;
 
-      if (images.size()) on_image_selected (images[0]);
+      std::vector<RefPtr<MR::Image::Object> > image_list;
+      for (guint n = 0; n < argument.size(); n++) 
+        image_list.push_back (argument[n].get_image());
+      load (image_list);
+
       on_view_reset();
     }
 
@@ -278,6 +285,21 @@ namespace MR {
       file_menu.items()[1].set_sensitive (true);
       file_menu.items()[2].set_sensitive (true);
       file_menu.items()[4].set_sensitive (true);
+    }
+
+
+
+
+
+    void Window::load (std::vector<RefPtr<MR::Image::Object> >& image_list)
+    {
+      if (image_list.empty()) 
+        return;
+      int index = images.size();
+      for (guint n = 0; n < image_list.size(); n++) 
+        manage (image_list[n]);
+      dynamic_cast<Gtk::RadioMenuItem&> (image_menu.items()[3+index]).set_active (true);
+      on_image_selected (images[index]);
     }
 
 
@@ -325,13 +347,7 @@ namespace MR {
 
       if (dialog.run() == Gtk::RESPONSE_OK) {
         std::vector<RefPtr<MR::Image::Object> > selection = dialog.get_images();
-        if (selection.size()) {
-          int first = images.size();
-          for (guint n = 0; n < selection.size(); n++) 
-            manage (selection[n]);
-          dynamic_cast<Gtk::RadioMenuItem&> (image_menu.items()[3+first]).set_active (true);
-          on_image_selected (images[first]);
-        }
+        load (selection);
       }
     }
 
@@ -661,13 +677,44 @@ namespace MR {
 
 
 
-    void Window::on_drag_and_drop (const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time)
+    void Window::on_drag (const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time)
     {
       const Slice::Current S (pane());
       if (!S.image) return;
       if (!S.focus) return;
       String text (printf ("%.2f,%.2f,%.2f", S.focus[0], S.focus[1], S.focus[2]));
       selection_data.set (selection_data.get_target(), 8, (const guint8*) text.c_str(), text.size());
+    }
+
+
+
+
+    void Window::on_drop (const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time)
+    {
+      if (selection_data.get_length() && selection_data.get_format() == 8) {
+        std::vector<Glib::ustring> file_list (selection_data.get_uris());
+
+        if (file_list.size()) {
+          std::vector<RefPtr<MR::Image::Object> > image_list;
+
+          for (guint n = 0; n < file_list.size(); ++n) {
+            String path = Glib::filename_from_uri (file_list[n]);
+            try {
+              RefPtr<MR::Image::Object> obj (new MR::Image::Object);
+              obj->open (path);
+              image_list.push_back (obj);
+            }
+            catch (...) {
+              error ("error opening file \"" + path + "\"");
+            }
+          }
+
+          load (image_list);
+          context->drag_finish (true, false, time);
+          return;
+        }
+      }
+      context->drag_finish (false, false, time);
     }
 
 

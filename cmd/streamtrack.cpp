@@ -154,7 +154,8 @@ OPTIONS = {
           "the maximum number of tracks.").type_integer (0, G_MAXINT, 1)),
 
   Option ("length", "track length", 
-      "set the maximum length of any track.")
+      "set the maximum length of any track, measured from the seed point. With bidirectional "
+      "tracking, the total length of the track can therefore be twice this value")
     .append (Argument ("value", "track distance",
           "the maximum length to use in mm (default is 200 mm).").type_float (1e-2, 1e6, 200.0)),
 

@@ -353,7 +353,7 @@ namespace MR {
         }
 
         unit_init_dir.invalidate();
-        info ("failed to find SH peak!");
+        debug ("failed to find SH peak!");
         return (GSL_NAN);
       }
 

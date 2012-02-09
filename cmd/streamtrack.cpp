@@ -173,10 +173,10 @@ OPTIONS = {
       "set the minimum FA or FOD amplitude for initiating tracks "
       "(default is twice the normal cutoff).")
     .append (Argument ("value", "value",
-          "the initial cutoff to use.").type_float (0, 1e6, 0.1)),
+          "the initial cutoff to use.").type_float (0, 1e6, 0.2)),
 
   Option ("stop", "stop when included", 
-      "stop track as soon as it enters any of the include regions."),
+      "stop track as soon as it has entered all of the include regions."),
 
   Option ("nomaskinterp", "no interpolation of mask regions",
       "do NOT perform tri-linear interpolation of mask images."),

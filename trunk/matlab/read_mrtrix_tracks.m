@@ -3,7 +3,9 @@ function tracks = read_mrtrix_tracks (filename)
 % function: tracks = read_mrtrix_tracks (filename)
 %
 % returns a structure containing the header information and data for the MRtrix 
-% format image 'filename' (i.e. files with the extension '.mif' or '.mih').
+% format track file 'filename' (i.e. files with the extension '.tck'). 
+% The track data will be stored as a cell array in the 'data' field of the
+% return variable.
 
 image.comments = {};
 

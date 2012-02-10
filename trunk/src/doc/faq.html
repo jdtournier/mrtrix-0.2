@@ -29,6 +29,7 @@
   <li><a href='#temp'>What are these 'mrtrix-azdj28.mif' files that keep appearing in my folder?</a></li>
   <li><a href='#analyse'>Why am I getting strange alignment issues with my Analyse format data?</a></li>
   <li><a href='#FSLencoding'>Can I use the same gradient direction tables with MRtrix as I use with FSL?</a></li>
+  <li><a href='#NIFTI_and_FSL'>Why do are my MRtrix-generated NIfTI images displayed in a different orientation to my original images in FSLview?</a></li>
   <li><a href='#normalise_tracks'>How do I spatially normalise my tracks into template space?</a></li>
 </ul>
 
@@ -286,6 +287,36 @@ specifies the rotation component of the transform. If this part is the identity
 (as it is above), then the acquisition is pure axial, and FSL gradient tables
 can be used with MRtrix.
 
+<p class=sep><a href="#top">top</a></p>
+
+<h3><a name='NIFTI_and_FSL'>Why do are my MRtrix-generated NIfTI images displayed in a different orientation to my original images in FSLview?</a></h3>
+<p>
+When accessing any image, MRtrix will always ensure that the image axes
+correspond as closely as possible with the <a
+href="general/overview.html#axes">MRtrix convention</a>. To do this, it will
+often be necessary to modify the transformation matrix and the associated data
+layout. When writing out NIfTI format images, MRtrix always uses this new
+transformation matrix, and writes out the data in a near-axial orientation. For
+example, images acquired in the sagittal plane and converted to NIfTI using <a
+href="http://lcni.uoregon.edu/~jolinda/MRIConvert/">mriconvert</a> are
+typically written out as a stack of sagittal slices, with the transformation
+matrix containing the appropriate rotation. When converted using MRtrix, the
+voxels for the same image will be written out as a stack of axial slices, along
+with the corresponding (but different) transformation matrix. FSLview always
+displays images assuming they are stored as a stack of axial slices, but will
+label the axes according to the transformation matrix. This causes problems
+when displaying images processed with MRtrix alongside otherwise equivalent
+images, since their data layouts are now different. Note that these will be
+displayed correctly in MRView, and interpreted correctly in any MRtrix
+application.
+</p>
+<p>
+The simplest way to get around this is to also convert your original NIfTI
+images using <a href="commands/mrconvert.html">mrconvert</a>, and write them
+out as NIfTI images again. While it may seem odd to convert NIfTI images to
+NIfTI, simply running them through <a
+href="commands/mrconvert.html">mrconvert</a> will modify the images to match.
+</p>
 
 <p class=sep><a href="#top">top</a></p>
 

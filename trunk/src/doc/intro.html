@@ -47,7 +47,14 @@ Fibre-tracking was performed using the MRtrix package
 <a href=http://www.brain.org.au/software/>http://www.brain.org.au/software/</a>)
 (<a href='appendix/refs.html#tournier3'>Tournier <i>et al.</i> 2012</a>)
 </blockquote>
-
+<p>
+Other relevant references include:
+<ul>
+<li><a href='appendix/refs.html#tournier1'>Tournier <i>et al.</i> 2004</a> for the general concept of spherical deconvolution.</li>
+<li><a href='appendix/refs.html#tournier2'>Tournier <i>et al.</i> 2007</a> for the particular implementation of <em>constrained</em>
+spherical deconvolution (as included in MRtrix and performed using <a href="commands/csdeconv.html">csdeconv</a>).</li>
+<li><a href='appendix/refs.html#calamante'>Calamante <i>et al.</i> 2010</a> for track density imaging (TDI).</li>
+</ul>
 
 <p class=sep><a href="#top">top</a></p>
 <h2><a name='warranty'>Warranty</a></h2>
@@ -98,9 +105,9 @@ the <a href="http://www.gnu.org/software/gsl/">GNU Scientific Library</a>,
 </p>
 <table class=args>
   <tr><th>Platform</th><th>Notes</th></tr>
-  <tr><td>Linux (x86)</td><td>should install on any recent distribution.<br>Tested under Ubuntu 7.10 (Gutsy) and 8.04 (Hardy), 32 &amp; 64 bit versions.</td></tr>
-  <tr><td>Windows XP</td><td>known to compile and run (using <a href="http://www.mingw.org/">MinGW</a>).<br>Pre-compiled binaries have now been released.</td></tr>
-  <tr><td>MacOS X</td><td>no support at this time.</td></tr>
+  <tr><td><a href="install/unix.html">Linux (x86)</a></td><td>should install on any recent distribution.<br>Tested under Ubuntu 7.10 (Gutsy) through to 10.10 (Maverick), 32 &amp; 64 bit versions.</td></tr>
+  <tr><td><a href="install/windows.html">Windows XP and above</a></td><td>known to compile and run (using <a href="http://www.mingw.org/">MinGW</a>).<br>Pre-compiled binaries have now been released.</td></tr>
+  <tr><td><a href="install/macosx.html">MacOS X</a></td><td>known to compile and run (using dependencies provided by <a href=http://www.macports.org/>MacPorts</a>, <a href="http://mxcl.github.com/homebrew/">Homebrew</a>, or <a href="http://www.finkproject.org/">Fink</a>).</td></tr>
 </table>
 
 
@@ -133,7 +140,7 @@ you may want to omit some of the steps shown, or you may need to perform additio
 <p>
 This manual assumes a GNU/Unix environment. There may be minor differences in the input or output on other systems,
 and you may need to edit the commands to suit your working environment. 
-For example, in Microsoft Windows, you will need to use the backslash <kbd>'\'</kbd> as the directory separator.
+For example, in Microsoft Windows, you may need to use the backslash <kbd>'\'</kbd> as the directory separator.
 </p>
 
 <table class=nav>

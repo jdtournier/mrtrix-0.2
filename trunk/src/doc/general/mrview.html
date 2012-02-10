@@ -24,11 +24,19 @@
   <tr><td>brightness/contrast</td><td>right mouse button + move mouse</td></tr>
   <tr><td>set projection</td><td>A - axial<br>S - sagittal<br>C - coronal</td></tr>
   <tr><td>scroll</td><td>up/down arrows or mouse wheel</td></tr>
-  <tr><td>zoom</td><td>Ctrl + mouse wheel</td></tr>
+  <tr><td>zoom</td><td>Home/End <em>or</em> Ctrl + mouse wheel</td></tr>
   <tr><td>pan</td><td>middle mouse button (mouse wheel) + move mouse</td></tr>
   <tr><td>change image volume</td><td>left/right arrows</td></tr>
   <tr><td>cycle through images</td><td>Ctrl + PgUp/PgDown</td></tr>
+  <tr><td>copy position of focus</td><td>Drag &amp; drop from statusbar onto destination window</td></tr>
 </table>
+
+<p>
+Most of these and other actions are available via the relevant menu entries. In
+addition, most of these have associated keyboard shortcuts, which are displayed
+alongside their entry in the menus for quick reference. Users are encouraged to
+explore the menus and familiarise themselves with these shortcuts.
+</p>
 
 <p class=sep><a href="#top">top</a></p>
 <h2><a name='display'>Displaying images</a></h2>
@@ -134,6 +142,19 @@ If no transform is available, a default transform will be assumed.
 Images loaded or converted from <a href='formats.html#DICOM'>DICOM</a> format should contain the correct transform
 relative to the scanner axes; these data sets should then be displayed in the same stereotactic space.
 </p>
+
+
+<p class=sep><a href="#top">top</a></p>
+<h2><a name='dragdrop'>Copying the position of the focus into other applications</a></h2>
+<p>
+When experimenting with tractography, it is often required to input the
+coordinates of the desired ROI on the command-line. For convenience, this can
+be done easily using drag &amp; drop, by dragging from the statusbar (at the
+bottom of the main MRView window) and dropping directly onto the command-line
+(or any other suitable destination). This will insert the current position of
+the focus in real/scanner coordinates as text into the destination window.
+</p>
+
 
 <p class=sep><a href="#top">top</a></p>
 <h2><a name='sidebar'>Additional tools: the sidebar</a></h2>

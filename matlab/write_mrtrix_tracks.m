@@ -40,4 +40,5 @@ for i = 1:prod(size(tracks.data))
   fwrite (f, [ nan nan nan ], 'float32');
 end
 
+fwrite (f, [ inf inf inf ], 'float32');
 fclose (f);

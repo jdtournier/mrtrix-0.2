@@ -20,6 +20,7 @@
 
 */
 
+#include <zlib.h>
 #include <glibmm/stringutils.h>
 
 #include "file/nifti1.h"
@@ -27,9 +28,6 @@
 #include "get_set.h"
 #include "image/format/list.h"
 #include "math/quaternion.h"
-#include <zlib.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 
 namespace MR {

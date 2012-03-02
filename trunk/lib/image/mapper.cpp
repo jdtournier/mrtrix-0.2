@@ -23,6 +23,8 @@
     * use template get<T>() & put<T>() methods from lib/get_set.h
 */
 
+#include <zlib.h>
+
 #include "image/mapper.h"
 #include "app.h"
 #include "get_set.h"
@@ -44,6 +46,28 @@ namespace MR {
 
     }
 
+
+
+
+
+
+    Mapper::~Mapper () 
+    { 
+      if (mem && list.size()) 
+        throw Exception ("Mapper destroyed before committing data to file!"); 
+
+      for (guint n = 0; n < list.size(); ++n) {
+        if (list[n].gzfilename.size()) {
+          if (!list[n].fmap.is_read_only()) 
+            gzip (list[n].fmap.name(), list[n].gzfilename);
+          debug ("deleting temporary file \"" + list[n].fmap.name() + "\"...");
+          unlink (list[n].fmap.name().c_str());
+        }
+      }
+
+      if (output_name.size()) 
+        std::cout << output_name << "\n";
+    }
 
 
 
@@ -124,10 +148,8 @@ namespace MR {
 
         info ("writing back data for image \"" + H.name + "\"...");
         for (guint n = 0; n < list.size(); n++) {
-          bool err = false;
-          try { list[n].fmap.map (); }
-          catch (...) { err = true; error ("error writing data to file \"" + list[n].fmap.name() + "\""); }
-          if (!err) {
+          try { 
+            list[n].fmap.map (); 
             if (optimised) {
               const float32* data = (const float32*) mem + n*segsize;
               for (gsize i = 0; i < segsize; i++) 
@@ -135,6 +157,9 @@ namespace MR {
             } 
             else memcpy (list[n].start(), mem + n*segsize, segsize);
             list[n].fmap.unmap();
+          }
+          catch (...) {
+            error ("error writing data to file \"" + list[n].fmap.name() + "\""); 
           }
         }
       }
@@ -174,6 +199,71 @@ namespace MR {
 
 
 
+    void Mapper::gzip (const String& original, const String& gzfile)
+    {
+      FILE* infile = fopen (original.c_str(), "rb");
+      if (!infile) 
+        throw Exception ("error opening temporary file \"" + original + "\": " + strerror(errno));
+
+      info ("writing compressed data to \"" +  gzfile + "\"...");
+
+      gzFile outfile = gzopen (gzfile.c_str(), "wb6");
+      if (!outfile) {
+        fclose (infile);
+        throw Exception ("error opening GZIP file \"" + gzfile + "\" for writing");
+      }
+
+      char buf[BUFSIZ];
+      int numBytesRead;
+      while ((numBytesRead = fread(buf, 1, BUFSIZ, infile)) > 0) {
+        int numBytesWritten = gzwrite (outfile, buf, numBytesRead);
+        if (numBytesWritten == 0) {
+          fclose (infile);
+          gzclose (outfile);
+          throw Exception ("error writing to GZIP file \"" + gzfile + "\"");
+        }
+      }
+      fclose (infile);
+      gzclose (outfile);
+    }	
+
+
+
+    String Mapper::gunzip (const String& gzfile, const char* suffix)
+    {
+      info ("uncompressing file \""  + gzfile +  "\"...");
+
+      String uncompressed;
+      {
+        File::MMap fmap ("", 1024, suffix);
+        uncompressed = fmap.name();
+      }
+
+      debug ("gunzip file \"" + gzfile +  " to \""  +  uncompressed + "\"...");
+
+      gzFile infile = gzopen (gzfile.c_str(), "rb");
+      if (!infile) {
+        unlink (uncompressed.c_str());
+        throw Exception ("error opening GZIP file \"" + gzfile + "\": " + strerror (errno));
+      }
+
+      FILE* outfile = fopen (uncompressed.c_str(), "wb");
+      char buf[BUFSIZ];
+      int numBytesRead;
+      while ((numBytesRead = gzread (infile, buf, BUFSIZ)) > 0) {
+        int numBytesWritten = fwrite (buf, 1, numBytesRead, outfile);
+        if (numBytesWritten == 0) {
+          fclose (outfile);
+          gzclose (infile);
+          throw Exception ("error uncompressing file \"" + gzfile + "\"");
+        }
+      }
+
+      fclose (outfile);
+      gzclose (infile);
+
+      return uncompressed;
+    }
 
 
 
@@ -189,49 +279,49 @@ namespace MR {
       else if (dmap.mem) stream << "in memory at " << (void*) dmap.mem << "\n";
       stream << "files:\n";
       for (guint i = 0; i < dmap.list.size(); i++) {
-        stream << "    " << dmap.list[i].fmap.name() << ", offset " << dmap.list[i].offset << " (";
-        if (dmap.list[i].fmap.is_mapped()) stream << "mapped at " << dmap.list[i].fmap.address();
-        else stream << "unmapped";
-        stream << ( dmap.list[i].fmap.is_read_only() ? ", read-only)\n" : ", read-write)\n" );
-      }
-      return (stream);
+      stream << "    " << dmap.list[i].fmap.name() << ", offset " << dmap.list[i].offset << " (";
+      if (dmap.list[i].fmap.is_mapped()) stream << "mapped at " << dmap.list[i].fmap.address();
+      else stream << "unmapped";
+      stream << ( dmap.list[i].fmap.is_read_only() ? ", read-only)\n" : ", read-write)\n" );
     }
-
-
-
-    float32 Mapper::getBit       (const void* data, gsize i)  { return (get<bool>      (data, i)); }
-    float32 Mapper::getInt8      (const void* data, gsize i)  { return (get<gint8>     (data, i)); }
-    float32 Mapper::getUInt8     (const void* data, gsize i)  { return (get<guint8>    (data, i)); }
-    float32 Mapper::getInt16LE   (const void* data, gsize i)  { return (getLE<gint16>  (data, i)); }
-    float32 Mapper::getUInt16LE  (const void* data, gsize i)  { return (getLE<guint16> (data, i)); }
-    float32 Mapper::getInt16BE   (const void* data, gsize i)  { return (getBE<gint16>  (data, i)); }
-    float32 Mapper::getUInt16BE  (const void* data, gsize i)  { return (getBE<guint16> (data, i)); }
-    float32 Mapper::getInt32LE   (const void* data, gsize i)  { return (getLE<gint32>  (data, i)); }
-    float32 Mapper::getUInt32LE  (const void* data, gsize i)  { return (getLE<guint32> (data, i)); }
-    float32 Mapper::getInt32BE   (const void* data, gsize i)  { return (getBE<gint32>  (data, i)); }
-    float32 Mapper::getUInt32BE  (const void* data, gsize i)  { return (getBE<guint32> (data, i)); }
-    float32 Mapper::getFloat32LE (const void* data, gsize i)  { return (getLE<float32> (data, i)); }
-    float32 Mapper::getFloat32BE (const void* data, gsize i)  { return (getBE<float32> (data, i)); }
-    float32 Mapper::getFloat64LE (const void* data, gsize i)  { return (getLE<float64> (data, i)); }
-    float32 Mapper::getFloat64BE (const void* data, gsize i)  { return (getBE<float64> (data, i)); }
-
-    void Mapper::putBit       (float32 val, void* data, gsize i) { put<bool>      (bool(val), data, i); }
-    void Mapper::putInt8      (float32 val, void* data, gsize i) { put<gint8>     (gint8(val), data, i); }
-    void Mapper::putUInt8     (float32 val, void* data, gsize i) { put<guint8>    (guint8(val), data, i); }
-    void Mapper::putInt16LE   (float32 val, void* data, gsize i) { putLE<gint16>  (gint16(val), data, i); }
-    void Mapper::putUInt16LE  (float32 val, void* data, gsize i) { putLE<guint16> (guint16(val), data, i); }
-    void Mapper::putInt16BE   (float32 val, void* data, gsize i) { putBE<gint16>  (gint16(val), data, i); }
-    void Mapper::putUInt16BE  (float32 val, void* data, gsize i) { putBE<guint16> (guint16(val), data, i); }
-    void Mapper::putInt32LE   (float32 val, void* data, gsize i) { putLE<gint32>  (gint32(val), data, i); }
-    void Mapper::putUInt32LE  (float32 val, void* data, gsize i) { putLE<guint32> (guint32(val), data, i); }
-    void Mapper::putInt32BE   (float32 val, void* data, gsize i) { putBE<gint32>  (gint32(val), data, i); }
-    void Mapper::putUInt32BE  (float32 val, void* data, gsize i) { putBE<guint32> (guint32(val), data, i); }
-    void Mapper::putFloat32LE (float32 val, void* data, gsize i) { putLE<float32> (float32(val), data, i); }
-    void Mapper::putFloat32BE (float32 val, void* data, gsize i) { putBE<float32> (float32(val), data, i); }
-    void Mapper::putFloat64LE (float32 val, void* data, gsize i) { putLE<float64> (float64(val), data, i); }
-    void Mapper::putFloat64BE (float32 val, void* data, gsize i) { putBE<float64> (float64(val), data, i); }
-
+    return (stream);
   }
+
+
+
+  float32 Mapper::getBit       (const void* data, gsize i)  { return (get<bool>      (data, i)); }
+  float32 Mapper::getInt8      (const void* data, gsize i)  { return (get<gint8>     (data, i)); }
+  float32 Mapper::getUInt8     (const void* data, gsize i)  { return (get<guint8>    (data, i)); }
+  float32 Mapper::getInt16LE   (const void* data, gsize i)  { return (getLE<gint16>  (data, i)); }
+  float32 Mapper::getUInt16LE  (const void* data, gsize i)  { return (getLE<guint16> (data, i)); }
+  float32 Mapper::getInt16BE   (const void* data, gsize i)  { return (getBE<gint16>  (data, i)); }
+  float32 Mapper::getUInt16BE  (const void* data, gsize i)  { return (getBE<guint16> (data, i)); }
+  float32 Mapper::getInt32LE   (const void* data, gsize i)  { return (getLE<gint32>  (data, i)); }
+  float32 Mapper::getUInt32LE  (const void* data, gsize i)  { return (getLE<guint32> (data, i)); }
+  float32 Mapper::getInt32BE   (const void* data, gsize i)  { return (getBE<gint32>  (data, i)); }
+  float32 Mapper::getUInt32BE  (const void* data, gsize i)  { return (getBE<guint32> (data, i)); }
+  float32 Mapper::getFloat32LE (const void* data, gsize i)  { return (getLE<float32> (data, i)); }
+  float32 Mapper::getFloat32BE (const void* data, gsize i)  { return (getBE<float32> (data, i)); }
+  float32 Mapper::getFloat64LE (const void* data, gsize i)  { return (getLE<float64> (data, i)); }
+  float32 Mapper::getFloat64BE (const void* data, gsize i)  { return (getBE<float64> (data, i)); }
+
+  void Mapper::putBit       (float32 val, void* data, gsize i) { put<bool>      (bool(val), data, i); }
+  void Mapper::putInt8      (float32 val, void* data, gsize i) { put<gint8>     (gint8(val), data, i); }
+  void Mapper::putUInt8     (float32 val, void* data, gsize i) { put<guint8>    (guint8(val), data, i); }
+  void Mapper::putInt16LE   (float32 val, void* data, gsize i) { putLE<gint16>  (gint16(val), data, i); }
+  void Mapper::putUInt16LE  (float32 val, void* data, gsize i) { putLE<guint16> (guint16(val), data, i); }
+  void Mapper::putInt16BE   (float32 val, void* data, gsize i) { putBE<gint16>  (gint16(val), data, i); }
+  void Mapper::putUInt16BE  (float32 val, void* data, gsize i) { putBE<guint16> (guint16(val), data, i); }
+  void Mapper::putInt32LE   (float32 val, void* data, gsize i) { putLE<gint32>  (gint32(val), data, i); }
+  void Mapper::putUInt32LE  (float32 val, void* data, gsize i) { putLE<guint32> (guint32(val), data, i); }
+  void Mapper::putInt32BE   (float32 val, void* data, gsize i) { putBE<gint32>  (gint32(val), data, i); }
+  void Mapper::putUInt32BE  (float32 val, void* data, gsize i) { putBE<guint32> (guint32(val), data, i); }
+  void Mapper::putFloat32LE (float32 val, void* data, gsize i) { putLE<float32> (float32(val), data, i); }
+  void Mapper::putFloat32BE (float32 val, void* data, gsize i) { putBE<float32> (float32(val), data, i); }
+  void Mapper::putFloat64LE (float32 val, void* data, gsize i) { putLE<float64> (float64(val), data, i); }
+  void Mapper::putFloat64BE (float32 val, void* data, gsize i) { putBE<float64> (float64(val), data, i); }
+
+}
 }
 
 

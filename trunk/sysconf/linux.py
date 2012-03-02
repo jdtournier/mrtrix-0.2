@@ -8,7 +8,7 @@ lib_suffix = '.so'
 cpp = [ 'g++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
 cpp_flags = [ '-Wall', '-march=native', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1' ]
 
-ld = [ 'g++', '$flags$', '$path$', '$obj$', '$mrtrix$', '$gsl$', '$gtk$', '-o', '$bin$' ]
+ld = [ 'g++', '$flags$', '$path$', '$obj$', '$mrtrix$', '$gsl$', '$gtk$', '$lz$', '-o', '$bin$' ]
 ld_flags = []
 ld_flags_lib_prefix = '-l'
 
@@ -36,6 +36,7 @@ ld_flags_gl = []
 pkgconfig = [ 'pkg-config' ]
 pkgconfig_env = None
 
+ld_flags_zlib = [ '-lz' ]
 
 default_installto = '/opt/mrtrix'
 default_linkto = '/usr'

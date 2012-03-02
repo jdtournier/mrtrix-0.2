@@ -28,6 +28,7 @@
 #include "image/mapper.h"
 #include "image/format/base.h"
 #include "math/complex_number.h"
+#include <glibmm/stringutils.h>
 
 namespace MR {
   namespace Dialog { class File; }
@@ -45,11 +46,7 @@ namespace MR {
     class Object {
       public:
         Object () : start (0) { memset (stride, 0, MRTRIX_MAX_NDIMS*sizeof(gssize)); }
-        ~Object ()
-        { 
-          info ("closing image \"" + H.name + "\"...");
-          M.unmap (H); 
-        }
+        ~Object () { info ("closing image \"" + H.name + "\"..."); M.unmap (H); }
 
         const Header&        header () const         { return (H); }
 
@@ -78,7 +75,10 @@ namespace MR {
 
         void                 set_temporary (bool yesno = true) {
           M.temporary = yesno; 
-          if (M.temporary) { for (guint n = 0; n < M.list.size(); n++) M.list[n].fmap.mark_for_deletion(); }
+          if (M.temporary) {
+            for (guint n = 0; n < M.list.size(); n++) 
+            M.list[n].fmap.mark_for_deletion(); 
+          }
         }
 
         bool                 read_only () const   { return (H.read_only); }
@@ -113,7 +113,7 @@ namespace MR {
 
       protected:
         static const Format::Base* handlers[];
-
+		
         Header               H;
         Mapper               M;
         gsize                start;

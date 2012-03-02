@@ -36,6 +36,10 @@
 #include "image/object.h"
 #include "image/format/list.h"
 #include "image/name_parser.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
 
 namespace MR {
   namespace Image {
@@ -66,6 +70,7 @@ namespace MR {
         if (!*handler) throw Exception ("unknown format for image \"" + header.name + "\"");
 
         String old_name (H.name);
+
         H = header;
         if (header.name == (*item)->name()) H.name = old_name;
 

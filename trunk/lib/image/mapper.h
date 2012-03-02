@@ -41,6 +41,8 @@ namespace MR {
         void                   reset ();
         void                   add (const String& filename, gsize offset = 0, gsize desired_size_if_inexistant = 0);
         void                   add (const File::MMap& fmap, gsize offset = 0);
+        void                   add_gz (const String& filename, const String& gz_filename, gsize offset = 0, gsize desired_size_if_inexistant = 0);
+        void                   add_gz (const File::MMap& fmap, const String& gz_filename, gsize offset = 0);
         void                   add (guint8* memory_buffer);
 
 
@@ -52,6 +54,11 @@ namespace MR {
         void                   set_temporary (bool temp);
         String                 output_name;
 
+
+
+        static void gzip (const String& original, const String& gzfile);
+        static String gunzip (const String& gzfile, const char* suffix);
+
       protected:
         Mapper ();
         ~Mapper ();
@@ -61,6 +68,7 @@ namespace MR {
             File::MMap fmap;
             gsize    offset;
             guint8*    start () const;
+            String gzfilename;
             friend std::ostream& operator<< (std::ostream& stream, const Entry& m)
             {
               stream << "Mapper::Entry: offset = " << m.offset << ", " << m.fmap;
@@ -158,16 +166,6 @@ namespace MR {
 
 
 
-    inline Mapper::~Mapper () 
-    { 
-      if (mem && list.size()) throw Exception ("Mapper destroyed before committing data to file!"); 
-      if (output_name.size()) std::cout << output_name << "\n";
-    }
-
-
-
-
-
     inline void Mapper::reset ()
     {
       list.clear();
@@ -177,8 +175,8 @@ namespace MR {
       optimised = temporary = false;
       files_new = true;
       output_name.clear();
-      if (mem) delete [] mem;
-      if (segment) delete [] segment;
+      delete [] mem;
+      delete [] segment;
       mem = NULL;
       segment = NULL;
     }
@@ -191,10 +189,14 @@ namespace MR {
     {
       Entry entry;
       entry.fmap.init (filename, desired_size_if_inexistant, "tmp"); 
-      if (entry.fmap.is_read_only()) files_new = false;
+      if (entry.fmap.is_read_only()) 
+        files_new = false;
       entry.offset = offset;
       list.push_back (entry);
     }
+
+
+
 
 
 
@@ -206,13 +208,28 @@ namespace MR {
       assert (!fmap.is_mapped());
       Entry entry;
       entry.fmap = fmap;
-      if (entry.fmap.is_read_only()) files_new = false;
+      if (entry.fmap.is_read_only()) 
+        files_new = false;
       entry.offset = offset;
       list.push_back (entry);
     }
 
 
 
+
+    inline void Mapper::add_gz (const String& filename, const String& gz_filename, gsize offset, gsize desired_size_if_inexistant)
+    {
+      add (filename, offset, desired_size_if_inexistant);
+      list.back().gzfilename = gz_filename;
+    }
+
+
+
+    inline void Mapper::add_gz (const File::MMap& fmap, const String& gz_filename, gsize offset)
+    {
+      add (fmap, offset);
+      list.back().gzfilename = gz_filename;
+    }
 
 
 

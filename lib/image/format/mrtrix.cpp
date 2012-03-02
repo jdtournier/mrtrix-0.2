@@ -25,6 +25,7 @@
 */
 
 #include <unistd.h>
+#include <zlib.h>
 #include <fcntl.h>
 #include <glib/gstdio.h>
 #include <glibmm/stringutils.h>
@@ -35,12 +36,6 @@
 #include "file/key_value.h"
 #include "image/format/list.h"
 #include "image/name_parser.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-#include <zlib.h>
 
 namespace MR {
   namespace Image {

@@ -36,6 +36,12 @@
 #include "image/format/list.h"
 #include "image/name_parser.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <zlib.h>
+
 namespace MR {
   namespace Image {
     namespace Format {
@@ -54,9 +60,16 @@ namespace MR {
 
       bool MRtrix::read (Mapper& dmap, Header& H) const
       { 
-        if (!Glib::str_has_suffix (H.name, ".mih") && !Glib::str_has_suffix (H.name, ".mif")) return (false);
+        if (!Glib::str_has_suffix (H.name, ".mih") && !Glib::str_has_suffix (H.name, ".mif") && !Glib::str_has_suffix (H.name, ".mif.gz")) return (false);
 
-        File::KeyValue kv (H.name, "mrtrix image");
+        File::KeyValue kv;
+        String gzfilename;
+	if (Glib::str_has_suffix (H.name, ".gz")) {
+          gzfilename = H.name;
+          kv.open (Mapper::gunzip (H.name, "mif"), "mrtrix image");
+        }
+        else 
+          kv.open (H.name, "mrtrix image");
 
         H.format = FormatMRtrix;
 
@@ -155,15 +168,17 @@ namespace MR {
 
         if (fname == ".") {
           if (offset == 0) throw Exception ("invalid offset specified for embedded generic image \"" + H.name + "\""); 
-          fname = H.name;
+          dmap.add_gz (kv.name(), gzfilename, offset);
         }
-        else fname = Glib::build_filename (Glib::path_get_dirname (H.name), fname);
+        else {
+          fname = Glib::build_filename (Glib::path_get_dirname (H.name), fname);
 
-        ParsedNameList list;
-        std::vector<int> num = list.parse_scan_check (fname);
+          ParsedNameList list;
+          std::vector<int> num = list.parse_scan_check (fname);
 
-        for (guint n = 0; n < list.size(); n++) 
-          dmap.add (list[n]->name(), offset);
+          for (guint n = 0; n < list.size(); n++) 
+            dmap.add (list[n]->name(), offset);
+        }
 
         return (true);
       }
@@ -174,7 +189,7 @@ namespace MR {
 
       bool MRtrix::check (Header& H, int num_axes) const
       {
-        if (H.name.size() && !Glib::str_has_suffix (H.name, ".mih") && !Glib::str_has_suffix (H.name, ".mif")) return (false);
+        if (H.name.size() && !Glib::str_has_suffix (H.name, ".mih") && !Glib::str_has_suffix (H.name, ".mif") && !Glib::str_has_suffix (H.name, ".mif.gz")) return (false);
 
         H.format = FormatMRtrix;
 
@@ -193,7 +208,14 @@ namespace MR {
         if (!is_temporary (H.name) && Glib::file_test (H.name, Glib::FILE_TEST_IS_REGULAR)) 
           throw Exception ("cannot create generic image file \"" + H.name + "\": file exists");
 
-        std::ofstream out (H.name.c_str(), std::ios::out | std::ios::binary);
+        String gzfilename, filename (H.name);
+        if (Glib::str_has_suffix (H.name, ".gz")) {
+          gzfilename = H.name;
+          File::MMap fmap ("", 1024, "mif");
+          filename = fmap.name();
+        }
+
+        std::ofstream out (filename.c_str(), std::ios::out | std::ios::binary);
         if (!out) throw Exception ("error creating file \"" + H.name + "\":" + Glib::strerror(errno));
 
         out << "mrtrix image\n";
@@ -232,7 +254,7 @@ namespace MR {
             out << "\ndw_scheme: " << H.DW_scheme (i,0) << "," << H.DW_scheme (i,1) << "," << H.DW_scheme (i,2) << "," << H.DW_scheme (i,3);
         }
 
-        bool single_file = Glib::str_has_suffix (H.name, ".mif");
+        bool single_file = !Glib::str_has_suffix (H.name, ".mih");
 
         size_t offset = 0;
         out << "\nfile: ";
@@ -246,12 +268,12 @@ namespace MR {
         out.close();
 
         if (single_file) {
-          int fd = g_open (H.name.c_str(), O_RDWR, 0755);
-          if (fd < 0) throw Exception ("error opening file \"" + H.name + "\" for resizing: " + Glib::strerror(errno));
+          int fd = g_open (filename.c_str(), O_RDWR, 0755);
+          if (fd < 0) throw Exception ("error opening file \"" + filename + "\" for resizing: " + Glib::strerror(errno));
           int status = ftruncate (fd, offset + H.memory_footprint());
           close (fd);
-          if (status) throw Exception ("cannot resize file \"" + H.name + "\": " + Glib::strerror(errno));
-          dmap.add (H.name, offset);
+          if (status) throw Exception ("cannot resize file \"" + filename + "\": " + Glib::strerror(errno));
+          dmap.add_gz (filename, gzfilename, offset);
         }
         else dmap.add (H.name.substr (0, H.name.size()-4) + ".dat", 0, H.memory_footprint());
       }

@@ -273,6 +273,7 @@ class Entry:
       '$mrtrix$': ld_flags_lib,
       '$gsl$': ld_flags_gsl,
       '$gtk$': gtk,
+      '$lz$': ld_flags_zlib,
       '$bin$': [ self.name ] })
 
     try:

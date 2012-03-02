@@ -41,8 +41,10 @@ namespace MR {
     const gchar* Format::known_extensions[] = {
       ".mih",
       ".mif",
+      ".mif.gz",
       ".img",
       ".nii",
+      ".nii.gz",
       ".bfloat",
       ".bshort",
       ".mri",

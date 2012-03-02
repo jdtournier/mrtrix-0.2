@@ -27,6 +27,10 @@
 #include "get_set.h"
 #include "image/format/list.h"
 #include "math/quaternion.h"
+#include <zlib.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 
 namespace MR {
   namespace Image {
@@ -35,19 +39,22 @@ namespace MR {
 
       const gchar* FormatNIfTI = "NIfTI-1.1";
 
-
-
-
-
-
-
       bool NIfTI::read (Mapper& dmap, Header& H) const
       {
-        if (!Glib::str_has_suffix (H.name, ".nii")) return (false);
+        if (!(Glib::str_has_suffix (H.name, ".nii") || Glib::str_has_suffix (H.name, ".nii.gz"))) 
+          return (false);
 
-        H.format = FormatNIfTI;
-        File::MMap fmap (H.name);
+        File::MMap fmap;
+        String gzfilename;
+        if (Glib::str_has_suffix (H.name, ".gz")) {
+          gzfilename = H.name;
+          fmap.init (Mapper::gunzip (H.name, "nii"));
+        }
+        else 
+          fmap.init (H.name);
+
         fmap.map();
+        H.format = FormatNIfTI;
 
         const nifti_1_header* NH = (const nifti_1_header*) fmap.address();
 
@@ -174,7 +181,7 @@ namespace MR {
           M(0,1) /= H.axes.vox[1];
           M(1,1) /= H.axes.vox[1];
           M(2,1) /= H.axes.vox[1];
-          
+
           M(0,2) /= H.axes.vox[2];
           M(1,2) /= H.axes.vox[2];
           M(2,2) /= H.axes.vox[2];
@@ -197,15 +204,15 @@ namespace MR {
           M(1,0) = transform[3];
           M(1,1) = transform[4];
           M(1,2) = transform[5];
-          
+
           M(2,0) = transform[6];
           M(2,1) = transform[7];
           M(2,2) = transform[8];
-          
+
           M(0,3) = get<float32> (&NH->qoffset_x, is_BE);
           M(1,3) = get<float32> (&NH->qoffset_y, is_BE);
           M(2,3) = get<float32> (&NH->qoffset_z, is_BE);
-          
+
           M(3,0) = M(3,1) = M(3,2) = 0.0;
           M(3,3) = 1.0;
 
@@ -233,7 +240,7 @@ namespace MR {
         }
 
         fmap.unmap();
-        dmap.add (fmap, data_offset);
+        dmap.add_gz (fmap, gzfilename, data_offset);
 
         return (true);
       }
@@ -244,7 +251,7 @@ namespace MR {
 
       bool NIfTI::check (Header& H, int num_axes) const
       {
-        if (!Glib::str_has_suffix (H.name, ".nii")) return (false);
+        if (!(Glib::str_has_suffix (H.name, ".nii") || Glib::str_has_suffix (H.name, ".nii.gz"))) return (false);
         if (num_axes < 3) throw Exception ("cannot create NIfTI-1.1 image with less than 3 dimensions");
         if (num_axes > 8) throw Exception ("cannot create NIfTI-1.1 image with more than 8 dimensions");
 
@@ -280,7 +287,15 @@ namespace MR {
 
         guint msize = H.memory_footprint (H.ndim());
 
-        File::MMap fmap (H.name, 352 + msize);
+        File::MMap fmap;
+        String gzfilename;
+        if (Glib::str_has_suffix (H.name, ".gz")) {
+          gzfilename = H.name;
+          fmap.init (String(), 352 + msize, "gz");
+        }
+        else 
+          fmap.init (H.name, 352 + msize);
+
         fmap.map();
 
         nifti_1_header* NH = (nifti_1_header*) fmap.address();
@@ -398,7 +413,7 @@ namespace MR {
         strncpy ((gchar*) &NH->magic, "n+1\0", 4);
         fmap.unmap();
 
-        dmap.add (fmap, 352);
+        dmap.add_gz (fmap, gzfilename, 352);
       }
 
     }

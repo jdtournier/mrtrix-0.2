@@ -24,6 +24,9 @@
 */
 
 #include <zlib.h>
+#include <fcntl.h>
+
+#include <glib/gstdio.h>
 
 #include "image/mapper.h"
 #include "app.h"
@@ -207,9 +210,16 @@ namespace MR {
 
       info ("writing compressed data to \"" +  gzfile + "\"...");
 
-      gzFile outfile = gzopen (gzfile.c_str(), "wb6");
+      int fid = g_open (gzfile.c_str(), O_CREAT | O_RDWR | O_EXCL, 0755);
+      if (fid < 0) {
+        fclose (infile);
+        throw Exception ("error creating file \"" + gzfile + "\": " + Glib::strerror(errno));
+      }
+
+      gzFile outfile = gzdopen (fid, "wb6");
       if (!outfile) {
         fclose (infile);
+        close (fid);
         throw Exception ("error opening GZIP file \"" + gzfile + "\" for writing");
       }
 

@@ -289,7 +289,7 @@ namespace MR {
         String gzfilename;
         if (Glib::str_has_suffix (H.name, ".gz")) {
           gzfilename = H.name;
-          fmap.init (String(), 352 + msize, "gz");
+          fmap.init (String(), 352 + msize, "nii");
         }
         else 
           fmap.init (H.name, 352 + msize);

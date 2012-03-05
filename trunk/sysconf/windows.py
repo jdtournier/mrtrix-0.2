@@ -9,7 +9,7 @@ cpp = [ 'g++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
 cpp_flags = [ '-Wall', '-march=i686', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-mno-cygwin', '-mms-bitfields' ]
 windres = [ 'windres' ]
 
-ld = [ 'g++', '--no-undefined', '--enable-runtime-pseudo-reloc', '$flags$', '$obj$', '$path$', '$gsl$', '$gtk$', '$mrtrix$', '-o', '$bin$' ]
+ld = [ 'g++', '--no-undefined', '--enable-runtime-pseudo-reloc', '$flags$', '$obj$', '$path$', '$gsl$', '$gtk$', '$lz$', '$mrtrix$', '-o', '$bin$' ]
 ld_flags = [ '-mno-cygwin' ]
 ld_flags_lib_prefix = '-l'
 
@@ -34,5 +34,6 @@ ld_flags_gl = [ '-lopengl32', '-lglu32' ]
 pkgconfig = [ 'pkg-config' ]
 pkgconfig_env = None
 
+ld_flags_zlib = [ '-lz' ]
 
 

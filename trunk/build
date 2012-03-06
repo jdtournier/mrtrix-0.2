@@ -312,7 +312,7 @@ class Entry:
           self.deps.add (os.path.join (root, file[:-len(cpp_suffix)] + obj_suffix))
 
     self.cmd = fillin (ld_lib, { '$flags$': ld_lib_flags,
-      '$obj$': [ item for item in self.deps ] + pkg (pkgconfig_glib, 'libs') + ld_flags_gsl,
+      '$obj$': [ item for item in self.deps ] + pkg (pkgconfig_glib, 'libs') + ld_flags_gsl + ld_flags_zlib,
       '$lib$': [ self.name ] })
 
     try:

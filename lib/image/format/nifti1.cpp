@@ -314,6 +314,11 @@ namespace MR {
         for (gint i = 0; i < H.ndim(); i++) 
           put<gint16> (H.dim(i), &NH->dim[i+1], is_BE);
 
+        // pad out the other dimensions with 1, fix for fslview
+        for (gint i = H.ndim() + 1; i < 8; i++) 
+          put<gint16> (1, &NH->dim[i], is_BE);
+
+
         // data type:
         gint16 dt = 0;
         switch (H.data_type()) {

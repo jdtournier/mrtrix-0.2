@@ -62,8 +62,7 @@
 #include <cstdlib>
 #include <cmath>
 
-#include <glib/gtypes.h>
-#include <glib/gutils.h>
+#include <glib.h>
 #include <glibmm/timer.h>
 #include <glibmm/miscutils.h>
 

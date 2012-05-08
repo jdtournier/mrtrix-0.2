@@ -86,6 +86,8 @@ OPTIONS = {
 
   Option ("fraction", "output fibre fraction", "produce an image of the fraction of fibres through each voxel (as a proportion of the total number in the file), rather than the count."),
 
+  Option ("totalcount", "fraction by total count", "when using the -fraction option, compute fractions as proportion of total_count header entry rather than number of tracks in the file. This total_count corresponds to the total number of streamlines actually generated rather than those that were eventually selected."),
+
   Option ("lstdi", "length-scaled TDI", "scale the contribution of each track to the density image by the inverse of the streamline length"),
 
   Option ("datatype", "data type", "specify output image data type.")
@@ -634,12 +636,14 @@ EXECUTE {
   DWI::Tractography::Reader file;
   file.open (argument[0].get_string(), properties);
 
-  const size_t num_tracks = properties["count"]    .empty() ? 0   : to<size_t> (properties["count"]);
-  const float  step_size  = properties["step_size"].empty() ? 0.0 : to<float>  (properties["step_size"]);
+  const size_t num_tracks       = properties["count"]      .empty() ? 0   : to<size_t> (properties["count"]);
+  const size_t total_num_tracks = properties["total_count"].empty() ? 0   : to<size_t> (properties["total_count"]);
+  const float  step_size        = properties["step_size"]  .empty() ? 0.0 : to<float>  (properties["step_size"]);
 
-  const bool colour         = get_options (2).size();
-  const bool fibre_fraction = get_options (3).size();
-  const bool lstdi          = get_options (4).size();
+  const bool colour                  = get_options (2).size();
+  const bool fibre_fraction          = get_options (3).size();
+  const bool fraction_by_total_count = get_options (4).size();
+  const bool lstdi                   = get_options (5).size();
 
   std::vector<float> voxel_size;
   std::vector<OptBase> opt = get_options(1);
@@ -669,7 +673,7 @@ EXECUTE {
     file.open (argument[0].get_string(), properties);
   }
 
-  opt = get_options (5);
+  opt = get_options (6);
   if (opt.size())
     header.data_type.parse (data_type_choices[opt[0][0].get_int()]);
   else
@@ -682,12 +686,21 @@ EXECUTE {
   for (std::vector<std::string>::const_iterator i = properties.comments.begin(); i != properties.comments.end(); ++i)
     header.comments.push_back ("comment: " + *i);
 
-  float scaling_factor = fibre_fraction ? 1.0 / float(num_tracks) : 1.0;
+  float scaling_factor = 1.0;
+  if (fibre_fraction) {
+    if (fraction_by_total_count) {
+      if (!total_num_tracks)
+        throw Exception ("required entry 'total_count' not found in header - aborting");
+      scaling_factor /= total_num_tracks;
+    }
+    else 
+      scaling_factor /= num_tracks;
+  }
   header.comments.push_back("scaling_factor: " + str(scaling_factor));
   info ("intensity scaling factor set to " + str(scaling_factor));
 
   size_t resample_factor;
-  opt = get_options (6);
+  opt = get_options (7);
   if (opt.size()) {
     resample_factor = opt[0][0].get_int();
     info ("track interpolation factor manually set to " + str(resample_factor));
@@ -749,6 +762,7 @@ EXECUTE {
         writer.write (mapped_voxels);
         ProgressBar::inc();
       }
+      ProgressBar::done();
 
     } else {
 
@@ -761,10 +775,10 @@ EXECUTE {
         writer.write (mapped_voxels);
         ProgressBar::inc();
       }
+      ProgressBar::done();
 
     }
 
-    ProgressBar::done();
 
   }
 

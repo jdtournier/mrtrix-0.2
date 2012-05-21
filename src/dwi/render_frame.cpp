@@ -88,6 +88,10 @@ namespace MR {
     {
       values_changed = true;
       values = new_values;
+      l0_term = NAN;
+      if (values.size()) 
+        l0_term = values[0];
+      set_normalise (normalise);
       refresh();
     }
 
@@ -157,9 +161,7 @@ namespace MR {
         glMaterialfv (GL_BACK, GL_AMBIENT_AND_DIFFUSE, v);
 
 
-        float s (scale);
-        if (normalise) s /= values[0];
-        glScalef (s, s, s); 
+        glScalef (scale, scale, scale); 
 
         renderer.draw (use_lighting, color_by_dir ? NULL : color);
 

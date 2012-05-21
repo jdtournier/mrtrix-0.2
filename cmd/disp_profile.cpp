@@ -127,7 +127,7 @@ class Window : public Gtk::Window
       realize();
 
       int lmax = DWI::SH::LforN (values.columns());
-      if (values.columns() != guint (DWI::SH::NforL (lmax))) {
+      if (!is_response && values.columns() != guint (DWI::SH::NforL (lmax))) {
         is_response = true;
         error ("unexpected number of SH coefficients - assuming response function");
       }

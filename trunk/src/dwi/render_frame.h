@@ -55,7 +55,16 @@ namespace MR {
         void set_hide_neg_lobes (bool yesno = true)    { hide_neg_lobes = yesno; values_changed = true; refresh(); }
         void set_color_by_dir (bool yesno = true)      { color_by_dir = yesno; refresh(); }
         void set_use_lighting (bool yesno = true)      { use_lighting = yesno; refresh(); }
-        void set_normalise (bool yesno = true)         { normalise = yesno; refresh(); }
+        void set_normalise (bool yesno = true) { 
+          normalise = yesno; 
+          if (!values.size()) return;
+          if (!finite (values[0])) return;
+          float factor = ( normalise ? 1.0 : l0_term ) / values[0];
+          for (guint n = 0; n < values.size(); ++n)
+            values[n] *= factor;
+          values_changed = true;
+          refresh(); 
+        }
         void set_LOD (int num)                         { if (lod == num) return; lod = num; lmax_or_lod_changed = true; refresh(); } 
         void set_lmax (int num)                        { if (lmax == num) return; lmax = num; lmax_or_lod_changed = true; refresh(); } 
 
@@ -70,7 +79,7 @@ namespace MR {
 
 
       protected:
-        float view_angle, distance, elevation, azimuth, line_width, scale;
+        float view_angle, distance, elevation, azimuth, line_width, scale, l0_term;
         int   lod, lmax;
         bool  show_axes, hide_neg_lobes, color_by_dir, use_lighting, lmax_or_lod_changed, values_changed, normalise;
         double old_x, old_y;

@@ -143,7 +143,8 @@ namespace MR {
         }
         else num[i] = to<gint> (spec.substr (start, end-start));
 
-        if (spec[end] == ':') { i++; if (i > 2) throw (0); }
+        char c = end < spec.size() ? spec[end] : '\0';
+        if (c == ':') { i++; if (i > 2) throw (0); }
         else {
           if (i) {
             gint inc, last;

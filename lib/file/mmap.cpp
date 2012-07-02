@@ -94,7 +94,13 @@ namespace MR {
       catch (...) {
         close (fd);
         addr = NULL;
-        throw Exception ("memory-mapping failed for file \"" + filename + "\": " + Glib::strerror(errno));
+        throw Exception ("memory-mapping failed for file \"" + filename + "\": " + Glib::strerror(
+#ifdef G_OS_WIN32
+              GetLastError()
+#else
+              errno
+#endif
+              ));
       }
     }
 
@@ -113,7 +119,13 @@ namespace MR {
 #else 
         if (munmap (addr, msize))
 #endif
-          error ("error unmapping file \"" + filename + "\": " + Glib::strerror(errno));
+          error ("error unmapping file \"" + filename + "\": " + Glib::strerror(
+#ifdef G_OS_WIN32
+              GetLastError()
+#else
+              errno
+#endif
+              ));
 
       close (fd);
       fd = -1;

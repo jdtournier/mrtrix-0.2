@@ -30,6 +30,10 @@
 #include "mrview/image.h"
 #include "mrview/scaling.h"
 
+// required on Windows:
+#ifdef RGB
+# undef RGB
+#endif
 
 namespace MR {
   namespace Viewer {

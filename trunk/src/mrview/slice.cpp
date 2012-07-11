@@ -24,10 +24,10 @@
 
 */
 
-#include "mrview/slice.h"
 #include "mrview/pane.h"
 #include "mrview/window.h"
 #include "mrview/colourmap.h"
+#include "mrview/slice.h"
 
 namespace MR {
   namespace Viewer {

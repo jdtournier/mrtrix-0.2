@@ -79,39 +79,38 @@ if isstruct (image) && isfield (image, 'comments')
 end
 
 if isstruct (image) && isfield (image, 'transform')
-  fprintf (fid, '\ntransform: %d', image.transform(1,1))
-  fprintf (fid, ',%d', image.transform(1,2:4))
-  fprintf (fid, '\ntransform: %d', image.transform(2,1))
-  fprintf (fid, ',%d', image.transform(2,2:4))
-  fprintf (fid, '\ntransform: %d', image.transform(3,1))
-  fprintf (fid, ',%d', image.transform(3,2:4))
+  fprintf (fid, '\ntransform: %d', image.transform(1,1));
+  fprintf (fid, ',%d', image.transform(1,2:4));
+  fprintf (fid, '\ntransform: %d', image.transform(2,1));
+  fprintf (fid, ',%d', image.transform(2,2:4));
+  fprintf (fid, '\ntransform: %d', image.transform(3,1));
+  fprintf (fid, ',%d', image.transform(3,2:4));
 end
 
 if isstruct (image) && isfield (image, 'DW_scheme')
   for i=1:size(image.DW_scheme,1)
-    fprintf (fid, '\nDW_scheme: %d', image.DW_scheme(i,1))
-    fprintf (fid, ',%d', image.DW_scheme(i,2:4))
+    fprintf (fid, '\nDW_scheme: %d', image.DW_scheme(i,1));
+    fprintf (fid, ',%d', image.DW_scheme(i,2:4));
   end
 end
 
 if filename(end-3:end) == '.mif'
   datafile = filename;
-  dataoffset = ftell (fid) + 16;
-  fprintf (fid, '\nfile: . %d\nEND\n', dataoffset);
+  dataoffset = ftell (fid) + 24;
+  fprintf (fid, '\nfile: . %d\nEND\n                         ', dataoffset);
 elseif filename(end-3:end) == '.mih'
   datafile = [ filename(end-3:end) '.dat' ];
   dataoffset = 0;
   fprintf (fid, '\nfile: %s %d\nEND\n', datafile, dataoffset);
 else 
-  disp ('unknown file suffix - aborting')
+  disp ('unknown file suffix - aborting');
   return
 end
 
 fclose(fid);
 
-fid = fopen (datafile, 'a', byteorder);
+fid = fopen (datafile, 'r+', byteorder);
 fseek (fid, dataoffset, -1);
-ftell (fid);
 
 if isstruct(image)
   fwrite (fid, image.data, precision);

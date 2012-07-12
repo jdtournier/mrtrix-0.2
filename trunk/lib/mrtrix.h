@@ -123,7 +123,7 @@
 
 
 #ifdef G_OS_WIN32
-typedef struct __stati64 struct_stat64;
+typedef struct _stati64 struct_stat64;
 # define STAT64 _stati64
 #else
 # ifdef __APPLE__

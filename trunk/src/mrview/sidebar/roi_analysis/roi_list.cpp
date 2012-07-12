@@ -114,9 +114,9 @@ namespace MR {
             if (transforms_differ) {
               const GLdouble* M (pane.get_modelview());
               float matrix[] = { 
-                M[0], M[1], M[2],
-                M[4], M[5], M[6],
-                M[8], M[9], M[10]
+                float(M[0]), float(M[1]), float(M[2]),
+                float(M[4]), float(M[5]), float(M[6]),
+                float(M[8]), float(M[9]), float(M[10])
               };
               S.orientation.from_matrix (matrix);
               S.projection = 2;
@@ -193,7 +193,11 @@ namespace MR {
           Gtk::TreeModel::iterator iter = get_selection()->get_selected();
           RefPtr<ROI> roi = (*iter)[columns.roi];
           Gdk::Color colour (dialog.get_colorsel()->get_current_color());
-          GLubyte C[] = { colour.get_red() >> 8, colour.get_green() >> 8, colour.get_blue() >> 8 };
+          GLubyte C[] = { 
+            GLubyte (colour.get_red() >> 8),
+            GLubyte (colour.get_green() >> 8),
+            GLubyte (colour.get_blue() >> 8)
+          };
           roi->colour = C[0] << 24 | C[1] << 16 | C[2] << 8 | 255;
           Glib::RefPtr<Gdk::Pixbuf> pix = (*iter)[columns.pix];
           pix->fill (roi->colour);

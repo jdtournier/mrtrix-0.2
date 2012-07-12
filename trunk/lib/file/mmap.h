@@ -51,7 +51,7 @@ namespace MR {
         void              mark_for_deletion ()           { if (base) base->delete_after = true; }
 
         bool              is_ready () const                  { return (base ? base->msize : false); }
-        bool              is_mapped () const                 { return (base ? base->addr : false); }
+        bool              is_mapped () const                 { return (base ? ( base->addr != NULL ) : false); }
         bool              is_read_only () const              { return (base ? base->read_only : true); }
         bool              is_marked_for_deletion () const    { return (base ? base->delete_after : false); }
 

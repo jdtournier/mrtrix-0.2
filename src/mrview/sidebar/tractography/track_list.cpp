@@ -398,7 +398,11 @@ namespace MR {
         Gtk::ColorSelectionDialog dialog ("Choose colour for ROI");
         if (dialog.run() == Gtk::RESPONSE_OK) {
           Gdk::Color colour (dialog.get_colorsel()->get_current_color());
-          GLubyte C[] = { colour.get_red() >> 8, colour.get_green() >> 8, colour.get_blue() >> 8 };
+          GLubyte C[] = { 
+            GLubyte(colour.get_red() >> 8),
+            GLubyte(colour.get_green() >> 8), 
+            GLubyte(colour.get_blue() >> 8)
+          };
           std::list<Gtk::TreeModel::Path> paths = get_selection()->get_selected_rows();
           for (std::list<Gtk::TreeModel::Path>::iterator i = paths.begin(); i != paths.end(); ++i) {
             Gtk::TreeModel::iterator iter = model->get_iter (*i);

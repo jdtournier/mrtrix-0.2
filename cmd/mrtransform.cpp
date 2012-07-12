@@ -165,9 +165,9 @@ EXECUTE {
     M.multiply (Mi, header.P2R());
 
     float R[] = { 
-      M(0,0), M(0,1), M(0,2), M(0,3), 
-      M(1,0), M(1,1), M(1,2), M(1,3), 
-      M(2,0), M(2,1), M(2,2), M(2,3)
+      float(M(0,0)), float(M(0,1)), float(M(0,2)), float(M(0,3)), 
+      float(M(1,0)), float(M(1,1)), float(M(1,2)), float(M(1,3)), 
+      float(M(2,0)), float(M(2,1)), float(M(2,2)), float(M(2,3))
     };
 
     in_obj.optimise();

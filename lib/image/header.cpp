@@ -197,8 +197,8 @@ namespace MR {
           axes.set_ndim (3);
         
         bool forward[] = { axes.forward [permutation[0]], axes.forward [permutation[1]], axes.forward [permutation[2]] };
-        guint newdim[] = { dim [permutation[0]], dim [permutation[1]], dim [permutation[2]] };
-        guint axis[] = { axes.axis [permutation[0]], axes.axis [permutation[1]], axes.axis [permutation[2]] };
+        int newdim[] = { dim [permutation[0]], dim [permutation[1]], dim [permutation[2]] };
+        int axis[] = { axes.axis [permutation[0]], axes.axis [permutation[1]], axes.axis [permutation[2]] };
         float newvox[] = { vox [permutation[0]], vox [permutation[1]], vox [permutation[2]] };
         String desc[] = { axes.desc [permutation[0]], axes.desc [permutation[1]], axes.desc [permutation[2]] };
         String units[] = { axes.units [permutation[0]], axes.units [permutation[1]], axes.units [permutation[2]] };

@@ -132,9 +132,9 @@ namespace MR {
             else {
               const GLdouble* M (pane.get_modelview());
               float matrix[] = { 
-                M[0], M[1], M[2],
-                M[4], M[5], M[6],
-                M[8], M[9], M[10]
+                float(M[0]), float(M[1]), float(M[2]),
+                float(M[4]), float(M[5]), float(M[6]),
+                float(M[8]), float(M[9]), float(M[10])
               };
               S.orientation.from_matrix (matrix);
               S.projection = 2;
@@ -284,7 +284,6 @@ namespace MR {
 
       void Overlay::OverlayList::selected_row_callback (const Gtk::TreeModel::iterator& iter)
       {
-        Gtk::TreeModel::Row row = *iter;
         parent.set_scaling ((*iter)[columns.min], (*iter)[columns.max]);
       }
 

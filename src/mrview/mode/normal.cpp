@@ -192,7 +192,6 @@ namespace MR {
 
             if ((event->state & MODIFIERS) == ( GDK_BUTTON1_MASK | CTRL_CMD_MASK )) {
               v.set (M[2], M[6], M[10]);
-              Point pos = pane.model_to_screen (pane.focus);
               float dx = event->x - 0.5*pane.width();
               float dy = event->y - 0.5*pane.height();
               angle = -atan2 (dy, dx);

@@ -510,9 +510,9 @@ namespace MR {
       else { 
         const Math::Matrix &M (S.image->image->I2R());
         float matrix[] = { 
-          -M(0,0), M(0,1), -M(0,2),
-          -M(1,0), M(1,1), -M(1,2),
-          -M(2,0), M(2,1), -M(2,2)
+          float(-M(0,0)), float(M(0,1)), float(-M(0,2)),
+          float(-M(1,0)), float(M(1,1)), float(-M(1,2)),
+          float(-M(2,0)), float(M(2,1)), float(-M(2,2))
         };
         S.orientation.from_matrix (matrix);
       }
@@ -547,9 +547,9 @@ namespace MR {
       if (S.orientation) { 
         const Math::Matrix &M (S.image->image->I2R());
         float matrix[] = { 
-          -M(0,0), M(0,1), -M(0,2),
-          -M(1,0), M(1,1), -M(1,2),
-          -M(2,0), M(2,1), -M(2,2)
+          float(-M(0,0)), float(M(0,1)), float(-M(0,2)),
+          float(-M(1,0)), float(M(1,1)), float(-M(1,2)),
+          float(-M(2,0)), float(M(2,1)), float(-M(2,2))
         };
         S.orientation.from_matrix (matrix);
       }

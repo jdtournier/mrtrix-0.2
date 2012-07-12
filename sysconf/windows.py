@@ -6,15 +6,16 @@ lib_prefix = ''
 lib_suffix = '.dll'
 
 cpp = [ 'g++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
-cpp_flags = [ '-Wall', '-march=i686', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-mno-cygwin', '-mms-bitfields' ]
+cpp_flags = [ '-Wall', '-march=i686', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1' ]
+
 windres = [ 'windres' ]
 
-ld = [ 'g++', '--no-undefined', '--enable-runtime-pseudo-reloc', '$flags$', '$obj$', '$path$', '$gsl$', '$gtk$', '$lz$', '$mrtrix$', '-o', '$bin$' ]
-ld_flags = [ '-mno-cygwin' ]
+ld = [ 'g++', '$flags$', '$path$', '$obj$', '$mrtrix$', '$gsl$', '$gtk$', '$lz$', '-o', '$bin$' ]
+ld_flags = []
 ld_flags_lib_prefix = '-l'
 
-ld_lib = [ 'g++', '--no-undefined', '--enable-runtime-pseudo-reloc', '-shared', '$flags$', '$obj$', '-o', '$lib$' ]
-ld_lib_flags = [ '-mno-cygwin' ]
+ld_lib = [ 'g++', '-shared', '$flags$', '$obj$', '-o', '$lib$' ]
+ld_lib_flags = []
 
 cpp_flags_debug = cpp_flags + [ '-g' ]
 ld_flags_debug = ld_flags + [ '-g' ]
@@ -28,9 +29,9 @@ cpp_flags += [ '-O2' ]
 
 cpp_flags_release = cpp_flags + [ '-DNDEBUG' ]
 
-cpp_flags_gsl = [ '-IC:\dev\include', '-DGSL_DLL' ]
+cpp_flags_gsl = [ '-IC:/MinGW/msys/1.0/local/include', '-DGSL_DLL' ] 
 ld_flags_gsl = [ '-lgsl', '-lgslcblas' ]
-ld_flags_gl = [ '-lopengl32', '-lglu32' ]
+ld_flags_gl = [ '-lglu32', '-mwindows' ]
 pkgconfig = [ 'pkg-config' ]
 pkgconfig_env = None
 

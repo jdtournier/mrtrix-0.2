@@ -227,7 +227,11 @@ namespace MR {
       do {
         for (int n = 0; n < 6; n++) 
           base->filename[TMPFILE_ROOT_LEN+n] = random_char();
-      } while ((fid = g_open (base->filename.c_str(), O_CREAT | O_RDWR | O_EXCL, 0755)) < 0);
+          fid = g_open (base->filename.c_str(), O_CREAT | O_RDWR | O_EXCL, 0755);
+      } while (fid < 0 && errno == EEXIST);
+
+      if (fid < 0) 
+        throw Exception ("error creating temporary file in current working directory: " + Glib::strerror(errno));
 
 
       int status = ftruncate (fid, desired_size_if_inexistant);

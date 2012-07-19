@@ -72,7 +72,7 @@ namespace MR {
       if (msize == 0) throw Exception ("attempt to map file \"" + filename + "\" using invalid mmap!");
       if (addr) return;
 
-      if ((fd = g_open (filename.c_str(), (read_only ? O_RDONLY : O_RDWR), 0755)) < 0) 
+      if ((fd = g_open (filename.c_str(), (read_only ? O_RDONLY : O_RDWR), 0644)) < 0) 
         throw Exception ("error opening file \"" + filename + "\": " + Glib::strerror(errno));
 
       try {
@@ -147,7 +147,7 @@ namespace MR {
       if (read_only) throw Exception ("attempting to resize read-only file \"" + filename + "\"");
       unmap();
 
-      if ((fd = g_open (filename.c_str(), O_RDWR, 0755)) < 0) 
+      if ((fd = g_open (filename.c_str(), O_RDWR, 0644)) < 0) 
         throw Exception ("error opening file \"" + filename + "\" for resizing: " + Glib::strerror(errno));
 
       int status = ftruncate (fd, new_size);
@@ -185,7 +185,7 @@ namespace MR {
             if (desired_size_if_inexistant == 0) 
               throw Exception ("cannot access file \"" + base->filename + "\": " + Glib::strerror(errno));
 
-            int fid = g_open (base->filename.c_str(), O_CREAT | O_RDWR | O_EXCL, 0755);
+            int fid = g_open (base->filename.c_str(), O_CREAT | O_RDWR | O_EXCL, 0644);
             if (fid < 0) throw Exception ("error creating file \"" + base->filename + "\": " + Glib::strerror(errno));
 
             int status = ftruncate (fid, desired_size_if_inexistant);
@@ -227,7 +227,7 @@ namespace MR {
       do {
         for (int n = 0; n < 6; n++) 
           base->filename[TMPFILE_ROOT_LEN+n] = random_char();
-          fid = g_open (base->filename.c_str(), O_CREAT | O_RDWR | O_EXCL, 0755);
+          fid = g_open (base->filename.c_str(), O_CREAT | O_RDWR | O_EXCL, 0644);
       } while (fid < 0 && errno == EEXIST);
 
       if (fid < 0) 

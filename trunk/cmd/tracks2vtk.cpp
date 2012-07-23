@@ -73,7 +73,9 @@ Point scanner_to_voxel_space (const Image::Object& H, const Point& pos)
 }
 
 
-SET_VERSION_DEFAULT;
+SET_VERSION (MRTRIX_MAJOR_VERSION, MRTRIX_MINOR_VERSION, MRTRIX_MICRO_VERSION); 
+SET_COPYRIGHT ("Copyright 2008 Brain Research Institute, Melbourne, Australia"); 
+SET_AUTHOR ("Philip Broser (philip.broser@me.com)");
 
 DESCRIPTION = {
   "convert a track file to a vtk format, cave: coordinates are in XYZ coordinates not reference",

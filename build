@@ -211,7 +211,7 @@ cflags_gtk = pkg (pkgconfig_gtk, 'cflags')
 cflags_gtkgl = pkg (pkgconfig_gtk, 'cflags', [ pkgconfig_gl ])
 libs_glib = pkg (pkgconfig_glib, 'libs')
 libs_gtk = pkg (pkgconfig_gtk, 'libs')
-libs_gtkgl = pkg (pkgconfig_gtk, 'libs', [ pkgconfig_gl ])
+libs_gtkgl = pkg (pkgconfig_gtk, 'libs', [ pkgconfig_gl ]) + ld_flags_gl
 
 if verbose:
   print 'Settings:'
@@ -388,7 +388,8 @@ def execute (message, cmd):
 
   try: 
     process = subprocess.Popen (cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if process.wait() != 0:
+    ( stdoutdata, stderrdata ) = process.communicate()
+    if process.returncode != 0:
       print ''
       print 'ERROR:', message
       print ''
@@ -396,24 +397,24 @@ def execute (message, cmd):
       print ''
       print 'failed with output:'
       print ''
-      print process.stderr.read()
+      print stderrdata
       sys.stdout.flush()
       return 1
-    out = process.stdout.read()
-    if len(out):
+    if len(stdoutdata):
       print 'STDOUT:', message
-      print out
+      print stdoutdata
       sys.stdout.flush()
-    out = process.stderr.read()
-    if len(out):
+    if len(stderrdata):
       print 'STDERR:', message
-      print out
+      print stderrdata
       sys.stdout.flush()
 
   except OSError:
     print cmd[0] + ': command not found'
     sys.stdout.flush()
     return 1
+  except Exception as inst:
+    print 'unexpected exception: ' + str(inst)
 
 
 
@@ -504,6 +505,7 @@ def build_next (id):
   
       target = todo[current]
       if execute ('[' + target.action + '] ' + target.name, target.cmd):
+        print 'STOP'
         stop = 2
         return
 

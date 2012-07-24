@@ -37,4 +37,6 @@ pkgconfig_env = None
 
 ld_flags_zlib = [ '-lz' ]
 
+default_installto = ''
+default_linkto = ''
 

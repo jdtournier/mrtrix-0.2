@@ -31,7 +31,7 @@ cpp_flags_release = cpp_flags + [ '-DNDEBUG' ]
 
 cpp_flags_gsl = [ '-IC:/MinGW/msys/1.0/local/include', '-DGSL_DLL' ] 
 ld_flags_gsl = [ '-lgsl', '-lgslcblas' ]
-ld_flags_gl = [ '-lglu32', '-mwindows' ]
+ld_flags_gl = [ '-lglu32' ]
 pkgconfig = [ 'pkg-config' ]
 pkgconfig_env = None
 

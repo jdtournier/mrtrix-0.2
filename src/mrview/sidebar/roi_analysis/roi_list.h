@@ -43,8 +43,8 @@ namespace MR {
           virtual ~DP_ROIList();
 
           void draw (int transparency);
-          bool on_button_press (GdkEventButton* event);
-          bool on_motion (GdkEventMotion* event) { if (editing) { process (event->x, event->y); return (true); } return (false); };
+          bool on_button_press (GdkEventButton* event, float brush);
+          bool on_motion (GdkEventMotion* event, float brush) { if (editing) { process (event->x, event->y, brush); return (true); } return (false); };
           bool on_button_release (GdkEventButton* event) { if (editing) { editing = false; return (true); } return (false); }
 
         protected:
@@ -82,7 +82,7 @@ namespace MR {
           void on_clear ();
           void on_tick (const String& path);
 
-          void process (gdouble x, gdouble y);
+          void process (gdouble x, gdouble y, float brush);
           Point position (gdouble x, gdouble y);
 
           void load (RefPtr<MR::Image::Object> image);

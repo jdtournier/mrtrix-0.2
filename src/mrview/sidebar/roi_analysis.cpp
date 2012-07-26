@@ -32,7 +32,9 @@ namespace MR {
         show_ROIs ("show ROIs"),
         roi_frame ("ROIs"), 
         transparency_frame ("opacity"), 
+        brush_size_frame ("brush size"), 
         transparency (0.0, 256, 1.0),
+        brush_size (1.0, 20.0, 1.0),
         roi_list (*this)
       { 
         show_ROIs.set_active (true);
@@ -41,6 +43,9 @@ namespace MR {
         transparency.set_value (255.0);
         transparency.set_update_policy (Gtk::UPDATE_DELAYED);
 
+        brush_size.set_draw_value (true);
+        brush_size.set_value (1.0);
+
         roi_scrolled_window.add (roi_list);
         roi_scrolled_window.set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
         roi_scrolled_window.set_shadow_type (Gtk::SHADOW_IN);
@@ -48,10 +53,12 @@ namespace MR {
         roi_frame.add (roi_scrolled_window);
 
         transparency_frame.add (transparency);
+        brush_size_frame.add (brush_size);
 
         pack_start (show_ROIs, Gtk::PACK_SHRINK);
         pack_start (roi_frame);
         pack_start (transparency_frame, Gtk::PACK_SHRINK);
+        pack_start (brush_size_frame, Gtk::PACK_SHRINK);
         show_all();
 
         Window::Main->pane().activate (this);
@@ -70,8 +77,8 @@ namespace MR {
       void ROIAnalysis::draw () { if (show_ROIs.get_active()) roi_list.draw ((int) transparency.get_value()); }
       void ROIAnalysis::on_change () { Window::Main->update (this); }
 
-      bool ROIAnalysis::on_button_press (GdkEventButton* event) { return (roi_list.on_button_press (event)); }
-      bool ROIAnalysis::on_motion (GdkEventMotion* event) { return (roi_list.on_motion (event)); }
+      bool ROIAnalysis::on_button_press (GdkEventButton* event) { return (roi_list.on_button_press (event, brush_size.get_value())); }
+      bool ROIAnalysis::on_motion (GdkEventMotion* event) { return (roi_list.on_motion (event, brush_size.get_value())); }
       bool ROIAnalysis::on_button_release (GdkEventButton* event) { return (roi_list.on_button_release (event)); }
 
 

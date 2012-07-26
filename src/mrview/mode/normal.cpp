@@ -203,7 +203,7 @@ namespace MR {
               v = x.cross (z);
               angle = ROTATION_INC * v.norm();
             }
-            else return (true);
+            else return (false);
 
             v.normalise();
             if (angle > M_PI_2) angle = M_PI_2;

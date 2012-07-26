@@ -559,12 +559,18 @@ def gen_command_html_help ():
     print '[DOC] ' + binaries[n]
     sys.stdout.flush()
      
-    process = subprocess.Popen ([ binaries[n], '__print_full_usage__' ], stdout=subprocess.PIPE)
-    if process.wait() != 0:
+    env = dict(os.environ)
+    if platform.system().lower() == 'windows':
+      env['PATH'] = lib_dir + ';' + env['PATH']
+    else:
+      env['PATH'] = lib_dir + ':' + env['PATH']
+    process = subprocess.Popen ([os.path.join(bin_dir,binaries[n]), '__print_full_usage__' ], stdout=subprocess.PIPE, env=env) 
+    a = process.communicate()
+    if process.returncode != 0:
       print 'ERROR: unable to execute', binaries[n], ' - aborting'
       sys.stdout.flush()
       return 1
-    H = process.stdout.read()
+    H = a[0]
     H = H.splitlines()
 
     fid = open (os.path.join (doc_dir, 'commands', binaries[n] + '.html'), 'wb')

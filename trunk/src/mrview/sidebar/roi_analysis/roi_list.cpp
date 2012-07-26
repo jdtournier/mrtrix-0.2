@@ -289,7 +289,7 @@ namespace MR {
 
       void DP_ROIList::on_tick (const String& path) { Window::Main->update (&parent); }
       
-      bool DP_ROIList::on_button_press (GdkEventButton* event) 
+      bool DP_ROIList::on_button_press (GdkEventButton* event, float brush) 
       {
         Gtk::TreeModel::iterator iter = get_selection()->get_selected();
         if (!iter) return (false);
@@ -304,7 +304,7 @@ namespace MR {
         set = state == GDK_SHIFT_MASK;
         editing = true;
 
-        process (event->x, event->y);
+        process (event->x, event->y, brush);
         return (true);
       }
 
@@ -314,17 +314,26 @@ namespace MR {
 
 
 
-      void DP_ROIList::process (gdouble x, gdouble y)
+      void DP_ROIList::process (gdouble x, gdouble y, float brush)
       {
         RefPtr<ROI> roi = row[columns.roi];
         Point pos (roi->mask->interp->R2P (position (x, y)));
         MR::Image::Position ima (*roi->mask->image);
-        ima.set (0, round (pos[0]));
-        ima.set (1, round (pos[1]));
-        ima.set (2, round (pos[2]));
-        if (ima[0] < 0 || ima[0] >= ima.dim(0) || ima[1] < 0 || ima[1] >= ima.dim(1) || ima[2] < 0 || ima[2] >= ima.dim(2)) return;
+        int p[] = { round (pos[0]), round(pos[1]), round(pos[2]) };
+        int e = ceil(brush/2.0);
+        float dist = (brush*brush)/4.0;
+        for (ima.set (2, p[2]-e); ima[2] <= p[2]+e; ima.inc(2)) {
+          if (ima[2] < 0 || ima[2] >= ima.dim(2)) continue;
+          for (ima.set (1, p[1]-e); ima[1] <= p[1]+e; ima.inc(1)) {
+            if (ima[1] < 0 || ima[1] >= ima.dim(1)) continue;
+            for (ima.set (0, p[0]-e); ima[0] <= p[0]+e; ima.inc(0)) {
+              if (ima[0] < 0 || ima[0] >= ima.dim(0)) continue;
+              if ((ima[0]-p[0])*(ima[0]-p[0]) + (ima[1]-p[1])*(ima[1]-p[1]) + (ima[2]-p[2])*(ima[2]-p[2]) < dist)
+                ima.value (set ? 1.0 : 0.0);
+            }
+          }
+        }
 
-        ima.value (set ? 1.0 : 0.0);
         Window::Main->update (&parent);
       }
 

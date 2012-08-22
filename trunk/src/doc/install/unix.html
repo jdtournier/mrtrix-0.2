@@ -203,7 +203,7 @@ respectively, and then create symbolic links to these in the corresponding
 <p>
 In some cases, it may not be possible to install the executables (or symbolic 
 links to them) into a location that is in the default path. This can happen for 
-instance if installing into a user account. In these case, the location of the 
+instance if installing into a user account. In these cases, the location of the 
 executables needs to be added to the PATH environment variable, and the 
 location of the dynamic library needs to be added to the LD_LIBRARY_PATH 
 environment variable (alternatively, it may also be possible to add the latter 
@@ -211,7 +211,7 @@ to the dynamic loader's search path, although this is system-specific).
 <p>
 This can typically be done by adding a couple of lines to the relevant startup 
 script.  Unfortunately, each Unix variant may use a different procedure for 
-this. For single user accounrs, it should be sufficient to add these lines to 
+this. For single user accounts, it should be sufficient to add these lines to 
 the <kbd>~/.bashrc</kbd> file:
 <pre>
 PATH=/home/user/mrtrix/bin:$PATH

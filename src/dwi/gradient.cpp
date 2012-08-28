@@ -85,12 +85,13 @@ namespace MR {
       dirs.allocate (dwi.size(), 2);
       for (guint i = 0; i < dwi.size(); i++) {
         double norm = Point (grad(dwi[i],0), grad(dwi[i],1), grad(dwi[i],2)).norm();
-            /*sqrt (
-            grad(dwi[i],0) * grad(dwi[i],0) + 
-            grad(dwi[i],1) * grad(dwi[i],1) + 
-            grad(dwi[i],2) * grad(dwi[i],2) );*/
+
+        double z = grad(dwi[i],2)/norm;
+        if (z >= 1.0) z = 1.0;
+        else if (z <= -1.0) z = -1.0;
+
         dirs(i,0) = atan2 (grad(dwi[i],1), grad(dwi[i],0));
-        dirs(i,1) = acos (grad(dwi[i],2)/norm);
+        dirs(i,1) = acos (z);
       }
     }
 

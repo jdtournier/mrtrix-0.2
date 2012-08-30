@@ -125,7 +125,7 @@ namespace MR {
           }
           if (in.eof()) {
             in.close();
-            return (true);
+            return (false);
           }
 
           if (gsl_isnan (p[0])) return (true);

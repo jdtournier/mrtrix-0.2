@@ -101,8 +101,10 @@ inline bool next (Image::Position& ref, Image::Position& other, const std::vecto
   int axis = 0;
   do {
     ref.inc (axis);
-    other.set (axis, pos[axis][ref[axis]]);
-    if (ref[axis] < ref.dim(axis)) return (true);
+    if (ref[axis] < ref.dim(axis)) {
+      other.set (axis, pos[axis][ref[axis]]);
+      return (true);
+    }
     ref.set (axis, 0);
     other.set (axis, pos[axis][0]);
     axis++;

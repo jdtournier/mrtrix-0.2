@@ -40,7 +40,8 @@ namespace MR {
         dim[0] = dim[1] = dim[2] = 0;
         current_dim[0] = current_dim[1] = 1;
 
-        if (size() == 0) return (dim);
+        if (size() == 0) 
+          return dim;
 
         const Image* first[] = { (*this)[0].get(), (*this)[0].get() };
 

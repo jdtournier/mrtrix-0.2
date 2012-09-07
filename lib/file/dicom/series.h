@@ -52,8 +52,6 @@ namespace MR {
 
           void               read ();
           std::vector<int>   count () const;
-          void               print_fields (bool dcm, bool csa) const;
-
           bool               operator< (const Series& s) const;
 
           friend std::ostream& operator<< (std::ostream& stream, const Series& item);
@@ -102,12 +100,6 @@ namespace MR {
 
 
 
-
-      inline void Series::print_fields (bool dcm, bool csa) const 
-      {
-        for (guint i = 0; i < size(); i++) 
-          (*this)[i]->print_fields (dcm, csa);
-      }
 
 
     }

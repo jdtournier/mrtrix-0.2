@@ -58,11 +58,12 @@ namespace MR {
         size = 0;
         start = data = next = NULL;
         is_BE = previous_BO_was_BE = false;
-        end_seq.clear();
-        item_number.clear();
+        sequence.clear();
 
         fmap.init (filename);
-        if (fmap.size() < 256) throw Exception ("\"" + fmap.name() + "\" is too small to be a valid DICOM file", 3);
+
+        if (fmap.size() < 256) 
+          throw Exception ("\"" + fmap.name() + "\" is too small to be a valid DICOM file", 3);
         fmap.map();
 
         next = (guint8*) fmap.address();
@@ -181,27 +182,28 @@ namespace MR {
                 + " (" + str (group) + ", " + str (element) 
                 + ") in file \"" + fmap.name() + "\"", 3);
         }
-        else if (next+size > (guint8*) fmap.address() + fmap.size()) throw Exception ("file \"" + fmap.name() + "\" is too small to contain DICOM elements specified", 3);
-        else if (size%2) throw Exception ("odd length (" + str (size) + ") used for DICOM tag " + ( tag_name().size() ? tag_name().substr (2) : "" ) 
+        else if (next+size > (guint8*) fmap.address() + fmap.size()) 
+          throw Exception ("file \"" + fmap.name() + "\" is too small to contain DICOM elements specified", 3);
+        else if (size%2) 
+          throw Exception ("odd length (" + str (size) + ") used for DICOM tag " + ( tag_name().size() ? tag_name().substr (2) : "" ) 
               + " (" + str (group) + ", " + str (element) + ") in file \"" + fmap.name() + "", 3);
-        else if (VR != VR_SQ && ( group != GROUP_SEQUENCE || element != ELEMENT_SEQUENCE_ITEM ) ) next += size;
+        else if (VR != VR_SQ && ( group != GROUP_SEQUENCE || element != ELEMENT_SEQUENCE_ITEM ) ) 
+          next += size;
 
 
+
+        if (sequence.size()) 
+          if ((sequence.back().end && data > sequence.back().end) || 
+              (group == GROUP_SEQUENCE && element == ELEMENT_SEQUENCE_DELIMITATION_ITEM)) 
+            sequence.pop_back();
 
         if (VR == VR_SQ) {
-          if (size == LENGTH_UNDEFINED) end_seq.push_back (NULL); 
-          else end_seq.push_back (data + size);
-          item_number.push_back (0);
+          if (size == LENGTH_UNDEFINED) 
+            sequence.push_back (Sequence (group, element, NULL)); 
+          else 
+            sequence.push_back (Sequence (group, element, data + size));
         }
 
-        if (end_seq.size()) {
-          if ((end_seq.back() && data > end_seq.back()) || (group == GROUP_SEQUENCE && element == ELEMENT_SEQUENCE_DELIMITATION_ITEM)) {
-            end_seq.pop_back();
-            item_number.pop_back();
-          }
-        }
-
-        if (group == GROUP_SEQUENCE && element == ELEMENT_SEQUENCE_ITEM) item_number.back()++;
 
 
 
@@ -256,7 +258,7 @@ namespace MR {
         if (VR == VR_AE || VR == VR_AS || VR == VR_CS || VR == VR_DA ||
             VR == VR_DS || VR == VR_DT || VR == VR_IS || VR == VR_LO ||
             VR == VR_LT || VR == VR_PN || VR == VR_SH || VR == VR_ST ||
-            VR == VR_TM || VR == VR_UI || VR == VR_UT) return (STRING);
+            VR == VR_TM || VR == VR_UI || VR == VR_UT || VR == VR_AT) return (STRING);
         return (OTHER);
       }
 
@@ -324,6 +326,12 @@ namespace MR {
 
       std::vector<String> Element::get_string () const
       { 
+        if (VR == VR_AT) {
+          std::vector<String> strings;
+          strings.push_back (printf ("%02X %02X", get<guint16> (data, is_BE), get<guint16> (data+2, is_BE)));
+          return strings;
+        }
+
         std::vector<String> strings (split (String ((const gchar*) data, size), "\\", false)); 
         for (std::vector<String>::iterator i = strings.begin(); i != strings.end(); ++i) {
           *i = strip (*i);
@@ -347,7 +355,7 @@ namespace MR {
       void Element::print() const
       {
         String name = tag_name();
-        fprintf (stdout, "  [DCM] %*s : ", int(2*end_seq.size()), ( name.size() ? name.substr(2).c_str() : "unknown" ));
+        fprintf (stdout, "  [DCM] %*s : ", int(2*level()), ( name.size() ? name.substr(2).c_str() : "unknown" ));
         switch (type()) {
           case INT: print_vec (get_int()); break;
           case UINT: print_vec (get_int()); break;
@@ -374,11 +382,19 @@ namespace MR {
         const String& name (item.tag_name());
 
         stream << "[DCM] ";
-        for (guint i = 0; i < item.end_seq.size(); i++) stream << "  ";
+        guint indent = item.level() + ( item.VR == VR_SQ ? 0 : 1 );
+        for (guint i = 0; i < indent; i++) 
+          stream << "  ";
+        if (item.VR == VR_SQ) 
+          stream << "+ ";
+        else if (item.group == GROUP_SEQUENCE && item.element == ELEMENT_SEQUENCE_ITEM) 
+          stream << "- ";
+        else 
+          stream << "  ";
         stream << printf ("%02X %02X ", item.group, item.element)  
             + ((const gchar*) &item.VR)[1] + ((const gchar*) &item.VR)[0] + " " 
             + str ( item.size == LENGTH_UNDEFINED ? 0 : item.size ) + " " 
-            + str (item.offset (item.start)) + " " + ( name.size() ? name.substr (2) : "unknown" ) + " : ";
+            + str (item.offset (item.start)) + " " + ( name.size() ? name.substr (2) : "unknown" ) + " ";
 
 
         switch (item.type()) {
@@ -390,18 +406,12 @@ namespace MR {
             else stream << item.get_string(); 
             break;
           case SEQ:
-            stream << "(sequence)";
             break;
           default:
-            stream << "unknown data type";
+            if (item.group != GROUP_SEQUENCE || item.element != ELEMENT_SEQUENCE_ITEM)
+              stream << "unknown data type";
         }
         if (item.group%2) stream << " [ PRIVATE ]";
-
-        if (item.item_number.size()) {
-          stream << " [ ";
-          for (guint n = 0; n < item.item_number.size(); n++) stream << item.item_number[n] << " ";
-          stream << "] ";
-        }
 
         return (stream);
       }

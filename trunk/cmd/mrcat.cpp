@@ -112,6 +112,27 @@ EXECUTE {
       header.data_type = DataType::CFloat32;
   }
 
+  if (axis > 2) {
+    guint nrows = 0;
+    for (int n = 0; n < num_images; ++n) {
+      if (in[n]->header().DW_scheme.rows() == 0 || 
+          in[n]->header().DW_scheme.columns() != 4) {
+        nrows = 0;
+        break;
+      }
+      nrows += in[n]->header().DW_scheme.rows();
+    }
+
+    if (nrows) {
+      header.DW_scheme.allocate (nrows, 4);
+      int row = 0;
+      for (int n = 0; n < num_images; ++n) 
+        for (guint i = 0; i < in[n]->header().DW_scheme.rows(); ++i, ++row)
+          for (guint j = 0; j < 4; ++j) 
+            header.DW_scheme(row,j) = in[n]->header().DW_scheme(i,j);
+    }
+  }
+
   Image::Position out (*argument[num_images].get_image (header));
 
   ProgressBar::init (out.voxel_count(), "concatenating...");

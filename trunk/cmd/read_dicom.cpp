@@ -24,7 +24,7 @@
 #include <glibmm/stringutils.h>
 
 #include "app.h"
-#include "file/dicom/quick_scan.h"
+#include "file/dicom/image.h"
 
 using namespace std; 
 using namespace MR; 
@@ -51,8 +51,6 @@ OPTIONS = {
 
 
 EXECUTE {
-  File::Dicom::QuickScan reader;
-
   bool print_DICOM_fields = false;
   bool print_CSA_fields = false;
 
@@ -69,15 +67,37 @@ EXECUTE {
       
       String entry;
       while ((entry = dir->read_name()).size()) {
-        if (reader.read (Glib::build_filename (argument[n].get_string(), entry), print_DICOM_fields, print_CSA_fields))
-          error ("error reading file \"" + reader.filename + "\"");
-        else cout << reader << "\n";
+        String filename = Glib::build_filename (argument[n].get_string(), entry);
+        try {
+          File::Dicom::Image image;
+          image.filename = filename;
+          image.read (print_DICOM_fields, print_CSA_fields);
+          if (!print_DICOM_fields && !print_CSA_fields) 
+            cout << image << "\n";
+        }
+        catch (Exception) {
+          throw Exception ("error reading file \"" + filename + "\"");
+        }
       }
-    }
-    else if (reader.read (argument[n].get_string(), print_DICOM_fields, print_CSA_fields))
-      error ("error reading file \"" + reader.filename + "\"");
 
-    else if (!print_DICOM_fields) cout << reader << "\n";
+    }
+    else {
+
+      try {
+        File::Dicom::Image image;
+        image.filename = argument[n].get_string();
+        image.read (print_DICOM_fields, print_CSA_fields);
+        // if (!print_DICOM_fields && !print_CSA_fields) 
+          // cout << image << "\n";
+        std::sort (image.frames.begin(), image.frames.end());
+        cout << image << "\n";
+      }
+      catch (Exception) {
+        throw Exception (String("error reading file \"") + argument[n].get_string() + "\"");
+      }
+      
+    }
+
   }
 
 }

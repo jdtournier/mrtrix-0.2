@@ -44,12 +44,6 @@ namespace MR {
   namespace Image {
     namespace Format {
 
-      bool print_DICOM_fields = false;
-      bool print_CSA_fields = false;
-
-
-
-
 
 
       bool DICOM::read (Mapper& dmap, Header& H) const
@@ -65,11 +59,6 @@ namespace MR {
         if (series.empty()) throw Exception ("no DICOM series selected");
 
         dicom_to_mapper (dmap, H, series);
-
-        if (print_DICOM_fields || print_CSA_fields) {
-          for (guint s = 0; s < series.size(); s++) 
-            series[s]->print_fields (print_DICOM_fields, print_CSA_fields);
-        }
 
         return (true);
       }

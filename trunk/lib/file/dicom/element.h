@@ -46,6 +46,12 @@ namespace MR {
       } ElementType;
 
 
+      class Sequence {
+        public:
+          Sequence (guint16 group, guint16 element, guint8* end) : group (group), element (element), end (end) { }
+          guint16 group, element;
+          guint8* end;
+      };
 
 
 
@@ -64,15 +70,13 @@ namespace MR {
           bool                  is_BE;
           bool                  previous_BO_was_BE;
 
-          std::vector<guint8*>  end_seq;
 
         public:
 
           guint16               group, element, VR;
           guint32               size;
           guint8*               data;
-
-          std::vector<guint>    item_number;
+          std::vector<Sequence>  sequence;
 
           void                  set (const String& filename);
           bool                  read ();
@@ -88,6 +92,8 @@ namespace MR {
           std::vector<double>   get_float () const;
           std::vector<String>   get_string () const;
           guint                 offset (guint8* address) const;
+
+          guint                 level () const { return sequence.size(); }
 
           void                  print () const;
 

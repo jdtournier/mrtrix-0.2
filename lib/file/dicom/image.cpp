@@ -65,7 +65,9 @@ namespace MR {
         // is this tag top-level or per-frame:
         bool is_toplevel = (item.level() == 0);
         for (guint n = 0; n < item.level(); ++n) {
-          if (item.sequence[n].group == 0x5200U && item.sequence[n].element == 0x9230U) { // per-frame tag
+          if (item.sequence[n].group == 0x5200U && (
+                item.sequence[n].element == 0x9230U ||  // per-frame tag
+                item.sequence[n].element == 0x9229U)) { // shared across frames tag
             is_toplevel = true; 
             break;
           }
@@ -408,6 +410,10 @@ namespace MR {
         float slice_separation = frames[0]->slice_thickness;
         for (guint n = 0; n < nslices-1; ++n) {
           float current_slice_separation = frames[n+1]->distance - frames[n]->distance;
+          if (!gsl_finite (slice_separation)) {
+            slice_separation = current_slice_separation;
+            continue;
+          }
 
           if (!slicegap_warning_issued) {
             if (fabs (current_slice_separation - frames[n]->slice_thickness) > 1e-4) {

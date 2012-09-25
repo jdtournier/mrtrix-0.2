@@ -75,7 +75,7 @@ namespace MR {
         print (output_fields)
       {
         if (strncmp ("SV10", (const gchar*) start, 4)) 
-          throw Exception ("CSA data is not in SV10 format");
+          debug ("WARNING: CSA data is not in SV10 format");
 
         cnum = 0;
         num = getLE<guint32> (start+8);

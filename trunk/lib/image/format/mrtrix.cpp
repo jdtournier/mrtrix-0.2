@@ -86,7 +86,7 @@ namespace MR {
           else if (key == "labels") labels = split (kv.value(), "\\");
           else if (key == "transform") { std::vector<float> V (parse_floats (kv.value())); transform.insert (transform.end(), V.begin(), V.end()); }
           else if (key == "dw_scheme") { std::vector<float> V (parse_floats (kv.value())); dw_scheme.insert (dw_scheme.end(), V.begin(), V.end()); }
-          else error ("WARNING: invalid key \"" + kv.key() + " in generic image header \"" + H.name + "\" - ignored");
+          else debug ("unknown key \"" + kv.key() + " in generic image header \"" + H.name + "\" - ignored");
         }
 
         if (dim.empty()) throw Exception ("missing \"dim\" specification for generic image \"" + H.name + "\"");

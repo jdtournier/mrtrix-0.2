@@ -55,7 +55,8 @@ namespace MR {
           threshold (0.1),
           num_points (0),
           no_mask_interp (false), 
-          stop_when_included (false)
+          stop_when_included (false),
+          entered_inclusion (false)
         {
           if (props["step_size"].empty()) props["step_size"] = str (step_size); step_size = to<float> (props["step_size"]); 
           if (props["threshold"].empty()) props["threshold"] = str (threshold); else threshold = to<float> (props["threshold"]); 
@@ -140,7 +141,7 @@ set_loop:
         bool Base::next () 
         {
           if (excluded) return (false);
-          if (stop_when_included && track_included()) return (false);
+          if (stop_when_included && entered_inclusion) return (false);
           if (num_points >= num_max) return (false);
           if (next_point()) return (false);
           pos += step_size * dir; 
@@ -165,12 +166,12 @@ set_loop:
           for (std::vector<Sphere>::iterator i = spheres.include.begin(); i != spheres.include.end(); ++i) 
             if (!i->included)
               if (i->contains (pos)) 
-                i->included = true;
+                i->included = entered_inclusion = true;
 
           for (std::vector<Mask>::iterator i = masks.include.begin(); i != masks.include.end(); ++i) 
             if (!i->included) 
               if (i->contains (pos)) 
-                i->included = true;
+                i->included = entered_inclusion = true;
 
           return (true);
         }

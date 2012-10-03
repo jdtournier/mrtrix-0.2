@@ -61,7 +61,7 @@ namespace MR {
             Base (Image::Object& source_image, Properties& properties);
             virtual ~Base ();
 
-            bool          set (const Point& seed, const Point& seed_dir = Point::Invalid) { pos = seed; num_points = 0; return (init_direction (seed_dir)); }
+            bool          set (const Point& seed, const Point& seed_dir = Point::Invalid) { pos = seed; num_points = 0; entered_inclusion = false; return (init_direction (seed_dir)); }
             void          new_seed (const Point& seed_dir, const float init_dir_tolerance_dp);
             const Point&  position () const  { return (pos); }
             const Point&  direction () const { return (dir); }
@@ -181,7 +181,7 @@ namespace MR {
             Point pos, dir;
             int num_points, num_max;
 
-            bool excluded, no_mask_interp, stop_when_included;
+            bool excluded, no_mask_interp, stop_when_included, entered_inclusion;
 
 
             int get_source_data (const Point& p, float* values)

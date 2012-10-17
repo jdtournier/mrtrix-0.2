@@ -88,13 +88,15 @@ namespace MR {
 
             class Sphere {
               public:
-                Sphere (const Point& position, float radius) : p (position), r (radius), r2 (gsl_pow_2 (r)), volume (4.0*M_PI*gsl_pow_3 (r)/3.0), included (false) { }
+                Sphere (const Point& position, float radius) : 
+                  p (position), r (radius), r2 (gsl_pow_2 (r)), volume (4.0*M_PI*gsl_pow_3 (r)/3.0), included (false) { }
                 Point p;
                 float r, r2, volume;
                 bool included;
 
                 bool contains (const Point& pt) const { return (dist2 (p, pt) < r2); }
                 Point seed (Math::RNG& rng) const {
+                  if (r == 0.0) return (p);
                   Point s;
                   do { s.set (2.0*r*(rng.uniform()-0.5), 2.0*r*(rng.uniform()-0.5), 2.0*r*(rng.uniform()-0.5)); } while (s.norm2() > r2);
                   return (p+s);
@@ -106,6 +108,8 @@ namespace MR {
                 Mask (Image::Object& image, bool no_mask_interp) :
                   i (image), lower (i.dim(0), i.dim(1), i.dim(2)), upper (0.0, 0.0, 0.0), volume (0.0), included (false), no_interp (no_mask_interp) {
                     get_bounds();
+                    if (volume == 0.0) 
+                      throw Exception ("image ROI \"" + image.name() + "\" is empty");
                   }
 
                 Image::Interp i;
@@ -186,7 +190,7 @@ namespace MR {
 
             int get_source_data (const Point& p, float* values)
             {
-              source.R (p);
+              if (source.R (p)) return true;
               for (source.set(3,0); source[3] < source.dim(3); source.inc(3)) values[source[3]] = source.value();
               return (gsl_isnan (values[0]));
             }

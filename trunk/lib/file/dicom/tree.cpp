@@ -124,8 +124,12 @@ namespace MR {
 
       void Tree::read (const String& filename)
       {
-        ProgressBar::init (0, "scanning DICOM folder \"" + shorten (filename) + "\"");
-        read_dir (filename);
+        ProgressBar::init (0, "scanning DICOM set \"" + shorten (filename) + "\"");
+        if (Glib::file_test (filename, Glib::FILE_TEST_IS_DIR)) read_dir (filename);
+        else {
+          try { read_file (filename); }
+          catch (Exception) { }
+        }
         ProgressBar::done();
 
         if (size() > 0) return;

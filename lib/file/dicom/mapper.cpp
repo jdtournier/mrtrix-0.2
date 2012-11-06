@@ -223,6 +223,10 @@ namespace MR {
 
 
 
+        for (guint n = 1; n < frames.size(); ++n) // check consistency of data scaling:
+          if (frames[n]->scale_intercept != frames[n-1]->scale_intercept ||
+              frames[n]->scale_slope != frames[n-1]->scale_slope)
+            throw Exception ("unable to load series due to inconsistent data scaling between DICOM images");
 
 
         if (image.frames.size()) { // need to preload and re-arrange:

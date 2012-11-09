@@ -41,7 +41,6 @@ namespace MR {
         String sbuf;
         getline (in, sbuf);
         if (in.bad()) throw Exception ("error reading matrix file \"" + filename + "\": " + Glib::strerror (errno));
-        if (in.eof()) break;
 
         sbuf = strip (sbuf.substr (0, sbuf.find_first_of ('#')));
         if (sbuf.size()) {

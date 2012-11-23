@@ -164,22 +164,25 @@ if profile:
 if not os.path.exists (svn_revision_file):
   with open(svn_revision_file, 'wb') as fd:
     fd.write('')
+svn_revision = '#define SVN_REVISION 0\n'
 
 try:
-  process = subprocess.Popen ([ 'svn', 'info' ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  process = subprocess.Popen ([ 'svn', 'info', '--xml' ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   if process.wait() != 0: raise 0
-  for line in process.stdout:
-    if line.startswith ('Revision:'):
-      svn_rev_number = line.split()[1]
-      revision = '#define SVN_REVISION ' + str(svn_rev_number) + '\n'
-      if revision != open(svn_revision_file).read():
-        with open(svn_revision_file, 'wb') as fd:
-          fd.write ('#define SVN_REVISION ' + str(svn_rev_number) + '\n')
-      if verbose:
-        print 'SVN revision: ' + str(svn_rev_number)
-      break
+  svn_info = process.stdout.read().translate (None, ' \t\n')
+  svn_revision_index = svn_info.find ('revision=')
+  svn_revision = 0
+  if svn_revision_index > 0:
+    svn_revision = svn_info[svn_revision_index:-1].split('"')[1]
+  if verbose:
+    print svn_revision
+  svn_revision = '#define SVN_REVISION ' + svn_revision + '\n'
 except:
   pass
+
+if svn_revision != open(svn_revision_file).read():
+  with open(svn_revision_file, 'wb') as fd:
+    fd.write (svn_revision)
 
 
 

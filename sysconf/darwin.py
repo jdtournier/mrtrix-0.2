@@ -15,9 +15,9 @@ ld_flags_lib_prefix = '-l'
 ld_lib = [ 'g++', '-shared', '$flags$', '$obj$', '-o', '$lib$' ]
 ld_lib_flags = []
 
-# look for FINK dependencies, and act accordingly if found:
-fink_dir = [ '/sw64', '/sw' ]
-for entry in fink_dir:
+# look for MacPorts or FINK dependencies, and act accordingly if found:
+dep_dir = [ '/opt/local', '/sw64', '/sw' ]
+for entry in dep_dir:
   if os.path.isdir (entry):
     cpp_flags += [ '-I' + entry + '/include' ]
     ld_flags += [ '-L' + entry + '/lib' ]

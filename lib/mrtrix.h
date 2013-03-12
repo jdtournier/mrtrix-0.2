@@ -73,7 +73,7 @@
 
 #define MRTRIX_MAJOR_VERSION 0
 #define MRTRIX_MINOR_VERSION 2
-#define MRTRIX_MICRO_VERSION 11
+#define MRTRIX_MICRO_VERSION 12
 
 
 /** Prints the file and line number. Useful for debugging purposes. */

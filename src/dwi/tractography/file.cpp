@@ -187,6 +187,10 @@ namespace MR {
       {
         out.seekp (count_offset);
         out << count << "\ntotal_count: " << total_count << "\nEND\n";
+
+        if (!out.good())
+          throw Exception ("error writing to tracks file: " + Glib::strerror(errno));
+
         out.close();
       }
 

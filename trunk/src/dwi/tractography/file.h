@@ -78,6 +78,9 @@ namespace MR {
             out.seekp (current);
             write_next_point (tck.size() ? tck[0] : Point (GSL_NAN, GSL_NAN, GSL_NAN));
             out.seekp (end);
+
+            if (!out.good())
+              throw Exception ("error writing to tracks file: " + Glib::strerror(errno));
             
             count++;
           }

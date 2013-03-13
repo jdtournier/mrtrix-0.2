@@ -251,7 +251,13 @@ class Threader {
       }
 
       max_num_tracks = to<guint> (properties["max_num_tracks"]);
-      max_num_attempts = properties["max_num_attempts"].empty() ? 100 * max_num_tracks : to<guint> (properties["max_num_attempts"]);
+      if (properties["max_num_attempts"].empty()) {
+        max_num_attempts = 100 * max_num_tracks;
+        properties["max_num_attempts"] = str(max_num_attempts);
+      }
+      else 
+        max_num_attempts = to<guint> (properties["max_num_attempts"]);
+
       unidirectional = to<int> (properties["unidirectional"]);
       min_size = round (to<float> (properties["min_dist"]) / to<float> (properties["step_size"]));
 

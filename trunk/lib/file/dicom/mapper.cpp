@@ -115,6 +115,9 @@ namespace MR {
 
         std::vector<guint> dim = Frame::count (frames);
 
+        if (dim[0]*dim[1]*dim[2] > frames.size())
+          throw Exception ("missing image frames for DICOM image \"" + H.name + "\"");
+
         if (dim[0] > 1) { // switch axes so slice dim is inner-most:
           std::vector<Frame*> list (frames);
           std::vector<Frame*>::iterator it = frames.begin();

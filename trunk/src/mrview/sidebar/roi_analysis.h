@@ -23,6 +23,7 @@
 #ifndef __mrview_sidebar_roi_analysis_h__
 #define __mrview_sidebar_roi_analysis_h__
 
+#include <gtkmm/button.h>
 #include <gtkmm/checkbutton.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/frame.h>
@@ -52,10 +53,16 @@ namespace MR {
           Gtk::HScale          transparency, brush_size;
 	  Gtk::CheckButton     brush3d;
   	  Gtk::CheckButton     isobrush;
+          Gtk::Button          fill_button, undo_button, redo_button, duplicate_from_previous_button, duplicate_from_next_button;
           Gtk::ScrolledWindow  roi_scrolled_window;
           DP_ROIList           roi_list;
 
           void  on_change ();
+          void  on_undo ();
+          void  on_redo ();
+          void  on_fill ();
+          void  on_copy_previous ();
+          void  on_copy_next ();
       };
 
     }

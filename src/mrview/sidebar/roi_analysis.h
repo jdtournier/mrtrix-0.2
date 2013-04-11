@@ -45,11 +45,13 @@ namespace MR {
           bool on_button_press (GdkEventButton* event);
           bool on_motion (GdkEventMotion* event);
           bool on_button_release (GdkEventButton* event);
-
+ 	  bool on_key_press (GdkEventKey* event);
         protected:
-          Gtk::CheckButton     show_ROIs;
+	  Gtk::CheckButton     show_ROIs;
           Gtk::Frame           roi_frame, transparency_frame, brush_size_frame;
           Gtk::HScale          transparency, brush_size;
+	  Gtk::CheckButton     brush3d;
+  	  Gtk::CheckButton     isobrush;
           Gtk::ScrolledWindow  roi_scrolled_window;
           DP_ROIList           roi_list;
 

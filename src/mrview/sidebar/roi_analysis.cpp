@@ -35,6 +35,8 @@ namespace MR {
         brush_size_frame ("brush size"), 
         transparency (0.0, 256, 1.0),
         brush_size (1.0, 20.0, 1.0),
+	brush3d("3D brush"),
+	isobrush("Isotropic brush"),
         roi_list (*this)
       { 
         show_ROIs.set_active (true);
@@ -45,7 +47,7 @@ namespace MR {
 
         brush_size.set_draw_value (true);
         brush_size.set_value (1.0);
-
+	brush3d.set_active(false);
         roi_scrolled_window.add (roi_list);
         roi_scrolled_window.set_policy (Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
         roi_scrolled_window.set_shadow_type (Gtk::SHADOW_IN);
@@ -54,11 +56,13 @@ namespace MR {
 
         transparency_frame.add (transparency);
         brush_size_frame.add (brush_size);
-
         pack_start (show_ROIs, Gtk::PACK_SHRINK);
         pack_start (roi_frame);
         pack_start (transparency_frame, Gtk::PACK_SHRINK);
         pack_start (brush_size_frame, Gtk::PACK_SHRINK);
+        pack_start (brush3d, Gtk::PACK_SHRINK);
+        pack_start (isobrush, Gtk::PACK_SHRINK);
+	isobrush.set_active();
         show_all();
 
         Window::Main->pane().activate (this);
@@ -72,15 +76,17 @@ namespace MR {
 
       ROIAnalysis::~ROIAnalysis () {  }
 
-
-
       void ROIAnalysis::draw () { if (show_ROIs.get_active()) roi_list.draw ((int) transparency.get_value()); }
       void ROIAnalysis::on_change () { Window::Main->update (this); }
 
-      bool ROIAnalysis::on_button_press (GdkEventButton* event) { return (roi_list.on_button_press (event, brush_size.get_value())); }
-      bool ROIAnalysis::on_motion (GdkEventMotion* event) { return (roi_list.on_motion (event, brush_size.get_value())); }
+      bool ROIAnalysis::on_button_press (GdkEventButton* event) { return (roi_list.on_button_press (event, brush_size.get_value(), brush3d.get_active(), isobrush.get_active())); }
+    bool ROIAnalysis::on_motion (GdkEventMotion* event) { return (roi_list.on_motion (event, brush_size.get_value(), brush3d.get_active(), isobrush.get_active())); }
       bool ROIAnalysis::on_button_release (GdkEventButton* event) { return (roi_list.on_button_release (event)); }
 
+      bool ROIAnalysis::on_key_press (GdkEventKey* event)	
+      {
+	return(roi_list.on_key_press (event));
+      }
 
 
     }

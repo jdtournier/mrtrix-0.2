@@ -561,8 +561,8 @@ namespace MR {
       ima.value(fillvalue);
       fqueue.push(ima);
 
-      unsigned offset1[8]={-1, -1, -1, 0, 0, 1, 1, 1};
-      unsigned offset2[8]={-1, 0, 1, -1, 1, -1, 0, 1};
+      int offset1[8]={-1, -1, -1, 0, 0, 1, 1, 1};
+      int offset2[8]={-1, 0, 1, -1, 1, -1, 0, 1};
 
       while (!fqueue.empty())
 	{

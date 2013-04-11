@@ -29,6 +29,7 @@
 //#include <gtkmm/tooltip.h>
 
 #include "mrview/slice.h"
+#include <deque>
 
 namespace MR {
   namespace Viewer {
@@ -43,14 +44,58 @@ namespace MR {
           virtual ~DP_ROIList();
 
           void draw (int transparency);
-          bool on_button_press (GdkEventButton* event, float brush);
-          bool on_motion (GdkEventMotion* event, float brush) { if (editing) { process (event->x, event->y, brush); return (true); } return (false); };
-          bool on_button_release (GdkEventButton* event) { if (editing) { editing = false; return (true); } return (false); }
+	  bool on_button_press (GdkEventButton* event, float brush, bool brush3d, bool isobrush);
+  	  bool on_motion (GdkEventMotion* event, float brush, bool brush3d, bool isobrush) 
+	  { 
+	    if (editing) 
+	      { 
+	      process (event->x, event->y, brush, brush3d, isobrush);
+	      return (true); 
+	      } 
+	    return (false); 
+	  };
+
+          bool on_button_release (GdkEventButton* event) 
+	  { 
+	    if (editing) 
+	      { 
+	      editing = false;
+	      // push undo buffer onto queue, then clear it
+	      AddToUndo(processUndoBuff);
+	      processUndoBuff.clear();
+	      return (true); 
+	      } 
+	    return (false); 
+	  }
+
+	  bool on_key_press (GdkEventKey* event);
 
         protected:
           const ROIAnalysis& parent;
           bool  set, editing;
           Gtk::TreeModel::Row row;
+
+	  // not the most efficient way of doing this, but will do for starters.
+	  unsigned MaxUndoSize;
+   	  typedef class {
+	  public:
+	    bool value;
+	    gsize offset;
+	  } EdVox;
+
+  	  typedef std::vector<EdVox> EdVecType;
+	  typedef std::deque< EdVecType > EditQueueType;
+
+	  // undo/redo queues
+          EditQueueType UndoQueue, RedoQueue;
+	  // a global undo buffer so we don't need to change the 
+          // mouse buttonpress interface
+	  EdVecType processUndoBuff;
+	  // applies the undo, and modifies EV to become a suitable redo list.
+	  void ApplyUndo(EdVecType &EV);
+	  void AddToUndo(EdVecType EV);
+	  void AddVox(MR::Image::Position, EdVecType &EV);
+	  void AddVox(MR::Image::Position, EdVecType &EV, float value);
 
           class ROI {
             public:
@@ -82,7 +127,9 @@ namespace MR {
           void on_clear ();
           void on_tick (const String& path);
 
-          void process (gdouble x, gdouble y, float brush);
+	  void process (gdouble x, gdouble y, float brush, bool brush3d, bool isobrush);
+          void floodfill(gint x, gint y);
+	  void copyslice(gint offset);
           Point position (gdouble x, gdouble y);
 
           void load (RefPtr<MR::Image::Object> image);

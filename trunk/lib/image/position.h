@@ -145,7 +145,9 @@ namespace MR {
          * In this case, calling this function on real-valued data will produce undefined results */
         void        get (OutputType format, float& val, float& val_im);
 
-
+      // added for efficiency in undo/redo - totally unsafe
+        gsize getoffset() {return(offset);}
+      void setoffset(gsize off){offset = off;}
       protected:
         int       x[MRTRIX_MAX_NDIMS]; //!< the current image coordinates
         gsize     offset; //!< the offset in memory to the current voxel

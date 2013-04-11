@@ -70,6 +70,11 @@ namespace MR {
 
 	  bool on_key_press (GdkEventKey* event);
 
+          bool undo();
+          bool redo();
+          bool floodfill();
+	  bool copyslice(gint offset);
+
         protected:
           const ROIAnalysis& parent;
           bool  set, editing;
@@ -77,16 +82,17 @@ namespace MR {
 
 	  // not the most efficient way of doing this, but will do for starters.
 	  unsigned MaxUndoSize;
-   	  typedef class {
-	  public:
-	    bool value;
-	    gsize offset;
-	  } EdVox;
+          class EdVox {
+            public:
+              EdVox (bool value, gsize offset) : value (value), offset (offset) { }
+              bool value;
+              gsize offset;
+          };
 
-  	  typedef std::vector<EdVox> EdVecType;
-	  typedef std::deque< EdVecType > EditQueueType;
+          typedef std::vector<EdVox> EdVecType;
+          typedef std::deque< EdVecType > EditQueueType;
 
-	  // undo/redo queues
+          // undo/redo queues
           EditQueueType UndoQueue, RedoQueue;
 	  // a global undo buffer so we don't need to change the 
           // mouse buttonpress interface
@@ -94,8 +100,17 @@ namespace MR {
 	  // applies the undo, and modifies EV to become a suitable redo list.
 	  void ApplyUndo(EdVecType &EV);
 	  void AddToUndo(EdVecType EV);
-	  void AddVox(MR::Image::Position, EdVecType &EV);
-	  void AddVox(MR::Image::Position, EdVecType &EV, float value);
+
+          void AddVox(MR::Image::Position ima, EdVecType &EV) { EV.push_back (EdVox (ima.value(), ima.getoffset())); }
+
+          void AddVox(MR::Image::Position ima, EdVecType &EV, const float value)
+          {
+            float val = ima.value();
+              // only push if it has changed.
+              // specifically for drawing
+            if (val != value) 
+              EV.push_back (EdVox (val, ima.getoffset()));
+          }
 
           class ROI {
             public:
@@ -127,9 +142,9 @@ namespace MR {
           void on_clear ();
           void on_tick (const String& path);
 
+          bool set_selected_row ();
+
 	  void process (gdouble x, gdouble y, float brush, bool brush3d, bool isobrush);
-          void floodfill(gint x, gint y);
-	  void copyslice(gint offset);
           Point position (gdouble x, gdouble y);
 
           void load (RefPtr<MR::Image::Object> image);

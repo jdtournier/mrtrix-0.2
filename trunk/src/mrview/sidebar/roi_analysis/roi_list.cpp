@@ -295,8 +295,6 @@ namespace MR {
       void DP_ROIList::on_tick (const String& path) { Window::Main->update (&parent); }
 
 
-
-
       bool DP_ROIList::on_button_press (GdkEventButton* event, float brush, bool brush3d, bool isobrush) 
       {
         Gtk::TreeModel::iterator iter = get_selection()->get_selected();
@@ -312,13 +310,9 @@ namespace MR {
 
         set = state == GDK_SHIFT_MASK;
         editing = true;
-        // setup undo buffer
-        //processUndoBuff.clear();
         process (event->x, event->y, brush, brush3d, isobrush);
         return (true);
       }
-
-
 
       bool DP_ROIList::set_selected_row ()
       {
@@ -331,9 +325,6 @@ namespace MR {
       }
 
 
-
-
-
       bool DP_ROIList::on_key_press (GdkEventKey* event)	
       {
         // ignore releases
@@ -342,16 +333,21 @@ namespace MR {
           case GDK_KEY_F:
           case GDK_KEY_f: 
             return floodfill();
+	    break;
           case GDK_KEY_N:
           case GDK_KEY_n: 
             return copyslice (1);
+	    break;
           case GDK_KEY_P:
           case GDK_KEY_p: 
             return copyslice (-1);
+	    break;
           case GDK_KEY_Z:
             return (event->state & CTRL_CMD_MASK) ? redo() : false;
+	    break;
           case GDK_KEY_z:
             return (event->state & CTRL_CMD_MASK) ? undo() : false;
+	    break;
           default:
             break;
         }
@@ -379,10 +375,6 @@ namespace MR {
       }
 
 
-
-
-
-
       bool DP_ROIList::redo () 
       {
         if (!set_selected_row())
@@ -397,9 +389,6 @@ namespace MR {
 
         return true;
       }
-
-
-
 
 
       void DP_ROIList::ApplyUndo(EdVecType &EV)
@@ -419,9 +408,6 @@ namespace MR {
       }
 
 
-
-
-
       void DP_ROIList::AddToUndo(EdVecType EV)
       {
         UndoQueue.push_front(EV);
@@ -430,9 +416,6 @@ namespace MR {
         if (UndoQueue.size() > MaxUndoSize)
           UndoQueue.pop_back();
       }
-
-
-
 
 
       bool DP_ROIList::copyslice (gint offset)
@@ -457,6 +440,7 @@ namespace MR {
         // don't do anything if the source slice is invalid
         if ((sourceslice < 0) || (sourceslice >= ima.dim(projection))) {
           std::cout << "Slice copy : out of range" << std::endl;
+	  editing=false;
           return false;
         }
         unsigned int ax1 = 0, ax2 = 1;

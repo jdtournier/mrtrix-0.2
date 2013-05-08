@@ -934,7 +934,7 @@ if installto is not None:
       fd.write ('NumberOfThreads: ' + str(num_processors) + '\n');
     report ('ok' + os.linesep)
   else:
-    report ('configuration file already exists - leaving as-is')
+    report ('configuration file already exists - leaving as-is' + os.linesep)
 
   exit(0)
 

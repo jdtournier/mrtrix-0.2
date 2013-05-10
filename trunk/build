@@ -116,7 +116,8 @@ Acceptable options are:
 # check if we are compiling a separate project:
 
 mrtrix_dir = os.path.dirname (os.path.realpath(sys.argv[0]))
-if os.path.abspath(mrtrix_dir) == os.path.abspath(os.getcwd()): mrtrix_dir = None
+if os.path.abspath(mrtrix_dir) == os.path.abspath(os.getcwd()): 
+  mrtrix_dir = None
 else:
   if verbose: 
     report ('compiling separate project against "' + mrtrix_dir + '''"
@@ -125,6 +126,7 @@ else:
   lib_dir = os.path.join (mrtrix_dir, lib_dir)
   include_paths = [ misc_dir ]
   misc_dir = os.path.join (mrtrix_dir, misc_dir)
+  svn_revision_file = os.path.join (mrtrix_dir, svn_revision_file)
   
 
 
@@ -167,29 +169,37 @@ if profile:
 
 
 # SVN revision number:
+svn_revision = '#define SVN_REVISION 0\n'
 if not os.path.exists (svn_revision_file):
   with open(svn_revision_file, 'w') as fd:
-    fd.write('')
-svn_revision = '#define SVN_REVISION 0\n'
+    fd.write (svn_revision)
 
 try:
-  process = subprocess.Popen ([ 'svn', 'info', '--xml' ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-  if process.wait() != 0: raise 0
+  svn_cmd = [ 'svn', 'info', '--xml' ]
+  if mrtrix_dir: 
+    svn_cmd += [ mrtrix_dir ]
+  process = subprocess.Popen (svn_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  if process.wait() != 0: 
+    raise Exception
   svn_info = process.stdout.read().decode().replace(' ','').replace('\t','').replace('\n','')
   svn_revision_index = svn_info.find ('revision=')
   svn_revision = 0
-  if svn_revision_index > 0:
-    svn_revision = svn_info[svn_revision_index:-1].split('"')[1]
+  if not svn_revision_index > 0:
+    if verbose:
+      report ('WARNING: error parsing output of "svn info" - SVN revision number may be incorrect')
+    raise Exception
+  svn_revision = svn_info[svn_revision_index:-1].split('"')[1]
   if verbose:
     report ('SVN revision: ' + svn_revision + os.linesep + os.linesep)
   svn_revision = '#define SVN_REVISION ' + svn_revision + '\n'
-except:
-  print ('error retrieving SVN revision number')
-  raise
 
-if svn_revision != open(svn_revision_file).read():
-  with open(svn_revision_file, 'w') as fd:
-    fd.write (svn_revision)
+  if svn_revision != open(svn_revision_file).read():
+    with open(svn_revision_file, 'w') as fd:
+      fd.write (svn_revision)
+
+except:
+  if verbose:
+    report ('failed to retrieve current SVN revision number - leaving as-is' + os.linesep + os.linesep)
 
 
 

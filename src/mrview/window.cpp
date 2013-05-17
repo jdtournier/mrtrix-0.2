@@ -20,6 +20,7 @@
 
 */
 
+#include <glibmm.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/toggleaction.h>
 #include <gtkmm/aboutdialog.h>

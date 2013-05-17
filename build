@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import platform, sys, os, time, threading, subprocess, shutil, stat
+import platform, sys, os, time, threading, subprocess, shutil, stat, codecs
 
 system = None
 debug = False
@@ -132,15 +132,14 @@ else:
 
 # get version info:
 
-f = open (os.path.join (lib_dir, 'mrtrix.h'), 'r')
-for line in f:
-  line = line.split()
-  if len(line) != 3: continue
-  if line[0] == '#define':
-    if line[1] == 'MRTRIX_MAJOR_VERSION': major = line[2]
-    elif line[1] == 'MRTRIX_MINOR_VERSION': minor = line[2]
-    elif line[1] == 'MRTRIX_MICRO_VERSION': micro = line[2]
-f.close()
+with codecs.open (os.path.join (lib_dir, 'mrtrix.h'), mode='r', encoding='utf-8') as f:
+  for line in f:
+    line = line.split()
+    if len(line) != 3: continue
+    if line[0] == '#define':
+      if line[1] == 'MRTRIX_MAJOR_VERSION': major = line[2]
+      elif line[1] == 'MRTRIX_MINOR_VERSION': minor = line[2]
+      elif line[1] == 'MRTRIX_MICRO_VERSION': micro = line[2]
 
 libname += '-' + major + '_' + minor + '_' + micro
 
@@ -171,7 +170,7 @@ if profile:
 # SVN revision number:
 svn_revision = '#define SVN_REVISION 0\n'
 if not os.path.exists (svn_revision_file):
-  with open(svn_revision_file, 'w') as fd:
+  with codecs.open(svn_revision_file, mode='w', encoding='utf-8') as fd:
     fd.write (svn_revision)
 
 try:
@@ -181,7 +180,7 @@ try:
   process = subprocess.Popen (svn_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   if process.wait() != 0: 
     raise Exception
-  svn_info = process.stdout.read().decode().replace(' ','').replace('\t','').replace('\n','')
+  svn_info = process.stdout.read().decode(errors='ignore').replace(' ','').replace('\t','').replace('\n','')
   svn_revision_index = svn_info.find ('revision=')
   svn_revision = 0
   if not svn_revision_index > 0:
@@ -193,8 +192,8 @@ try:
     report ('SVN revision: ' + svn_revision + os.linesep + os.linesep)
   svn_revision = '#define SVN_REVISION ' + svn_revision + '\n'
 
-  if svn_revision != open(svn_revision_file).read():
-    with open(svn_revision_file, 'w') as fd:
+  if svn_revision != codecs.open(svn_revision_file, mode='r', encoding='utf-8').read():
+    with codecs.open(svn_revision_file, mode='w', encoding='uft-8') as fd:
       fd.write (svn_revision)
 
 except:
@@ -223,7 +222,7 @@ def pkg (package, target, extras = None):
   if process.wait() != 0:
     report ('WARNING: unable to find', package, 'configuration' + os.linesep)
     return None
-  return [ x.decode() for x in process.stdout.read().split() ]
+  return process.stdout.read().decode(errors='ignore').split()
 
 cflags_glib = pkg (pkgconfig_glib, 'cflags')
 cflags_gtk = pkg (pkgconfig_gtk, 'cflags')
@@ -443,24 +442,23 @@ def list_headers (file):
     if not os.path.exists (file):
       report ('ERROR: cannot find file "' + file + '"' + os.linesep)
       exit(1)
-    fd = open (file, 'r')
-    for line in fd:
-      line = line.strip()
-      if line.startswith('#include'):
-        line = line[8:].strip()
-        if line.startswith('<gtk') or line.startswith('<gdk'): file_flags[file] = max (file_flags[file], 2)
-        elif line[0] == '"':
-          line = line[1:].rstrip('"')
-          for path in include_paths:
-            if os.path.exists (os.path.join (path, line)):
-              line = os.path.join (path, line)
-              headers[file].add (line)
-              [ headers[file].add(entry) for entry in list_headers(line) ]
-              break
-          else:
-            report ('ERROR: cannot find header file \"' + line + '\" (from file \"' + file + '\")' + os.linesep)
-            exit(1)
-    fd.close()
+    with codecs.open (file, mode='r', encoding='utf-8') as fd:
+      for line in fd:
+        line = line.strip()
+        if line.startswith('#include'):
+          line = line[8:].strip()
+          if line.startswith('<gtk') or line.startswith('<gdk'): file_flags[file] = max (file_flags[file], 2)
+          elif line[0] == '"':
+            line = line[1:].rstrip('"')
+            for path in include_paths:
+              if os.path.exists (os.path.join (path, line)):
+                line = os.path.join (path, line)
+                headers[file].add (line)
+                [ headers[file].add(entry) for entry in list_headers(line) ]
+                break
+            else:
+              report ('ERROR: cannot find header file \"' + line + '\" (from file \"' + file + '\")' + os.linesep)
+              exit(1)
     flags =  [ file_flags[file] ] + [ file_flags[entry] for entry in headers[file] ]
     if len(flags): file_flags[file] = max (flags)
 
@@ -582,83 +580,83 @@ def gen_command_html_help ():
     H = a[0].decode(errors='ignore')
     H = H.splitlines()
 
-    fid = open (os.path.join (doc_dir, 'commands', binaries[n] + '.html'), 'w')
+    with codecs.open (os.path.join (doc_dir, 'commands', binaries[n] + '.html'), mode='w', encoding='utf-8') as fid:
 
-    if n == 0: prev = 'index'
-    else: prev = binaries[n-1]
+      if n == 0: prev = 'index'
+      else: prev = binaries[n-1]
 
-    if n == len(binaries)-1: next = 'index'
-    else: next = binaries[n+1]
+      if n == len(binaries)-1: next = 'index'
+      else: next = binaries[n+1]
 
-    start_html (fid, binaries[n], prev, 'index', '../index', next)
-    fid.write ('<h2>Description</h2>\n')
+      start_html (fid, binaries[n], prev, 'index', '../index', next)
+      fid.write ('<h2>Description</h2>\n')
 
-    line = 0
-    while not H[line].startswith ('ARGUMENT') and not H[line].startswith('OPTION'):
-      if len(description) <= n: description.append (H[line])
-      fid.write ('<p>\n' + H[line] + '\n</p>\n')
-      line += 1
+      line = 0
+      while not H[line].startswith ('ARGUMENT') and not H[line].startswith('OPTION'):
+        if len(description) <= n: description.append (H[line])
+        fid.write ('<p>\n' + H[line] + '\n</p>\n')
+        line += 1
 
-    arg = []
-    opt = []
-    while line < len(H)-2:
-      if not H[line].startswith ('ARGUMENT') and not H[line].startswith ('OPTION'):
-        report ('ERROR: malformed usage for executable "' + binaries[n] + '" - aborting' + os.linesep)
-        return 1
+      arg = []
+      opt = []
+      while line < len(H)-2:
+        if not H[line].startswith ('ARGUMENT') and not H[line].startswith ('OPTION'):
+          report ('ERROR: malformed usage for executable "' + binaries[n] + '" - aborting' + os.linesep)
+          return 1
 
-      if H[line].startswith ('ARGUMENT'):
-        S = H[line].split (None, 5)
-        A = [ S[1], int(S[2]), int(S[3]), S[4], H[line+1], H[line+2] ]
-        if len(opt) > 0: opt[-1].append (A)
-        else: arg.append(A)
+        if H[line].startswith ('ARGUMENT'):
+          S = H[line].split (None, 5)
+          A = [ S[1], int(S[2]), int(S[3]), S[4], H[line+1], H[line+2] ]
+          if len(opt) > 0: opt[-1].append (A)
+          else: arg.append(A)
 
-      elif H[line].startswith ('OPTION'):
-        S = H[line].split (None, 4)
-        A = [ S[1], int(S[2]), int(S[3]), H[line+1], H[line+2] ]
-        opt.append (A)
+        elif H[line].startswith ('OPTION'):
+          S = H[line].split (None, 4)
+          A = [ S[1], int(S[2]), int(S[3]), H[line+1], H[line+2] ]
+          opt.append (A)
 
-      line += 3
+        line += 3
 
-    fid.write ('<p class=indented><strong>syntax:</strong> &nbsp; &nbsp; ' + binaries[n] + ' [ options ] ')
-    for A in arg:
-      if A[1] == 0: fid.write ('[ ')
-      fid.write (A[0] + ' ')
-      if A[2] == 1: fid.write ('[ ' + A[0] + ' ... ')
-      if A[1] == 0 or A[2] == 1: fid.write ('] ')
-    fid.write ('</p>\n<h2>Arguments</h2>\n<table class=args>\n')
+      fid.write ('<p class=indented><strong>syntax:</strong> &nbsp; &nbsp; ' + binaries[n] + ' [ options ] ')
+      for A in arg:
+        if A[1] == 0: fid.write ('[ ')
+        fid.write (A[0] + ' ')
+        if A[2] == 1: fid.write ('[ ' + A[0] + ' ... ')
+        if A[1] == 0 or A[2] == 1: fid.write ('] ')
+      fid.write ('</p>\n<h2>Arguments</h2>\n<table class=args>\n')
 
 
-    for A in arg:
-      fid.write ('<tr><td><b>' + A[0] + '</b>')
-      if A[1] == 0 or A[2] == 1:
-        fid.write (' [ ')
-        if A[1] == 0: 
-          fid.write ('optional')
-          if A[2] == 1: fid.write (', ')
-        if A[2] == 1: fid.write ('multiples allowed')
-        fid.write (' ]')
-      fid.write ('</td>\n<td>' + A[5] + '</td></tr>\n')
-    fid.write ('</table>\n')
-
-    fid.write ('<h2>Options</h2>\n<table class=args>\n')
-    for O in opt:
-      fid.write ('<tr><td nowrap><b>-' + O[0] + '</b>')
-      for A in O[5:]: fid.write ('&nbsp;<i>' + A[0] + '</i>')
-      fid.write ('</td>\n<td>' + O[4])
-      if len(O) > 5:
-        fid.write ('\n<table class=opts>\n')
-        for A in O[5:]:
-          fid.write ('<tr><td><i>' + A[0] + '</i></td>\n<td>' + A[5] + '</td></tr>\n')
-        fid.write ('</table>')
-      fid.write ('</td></tr>\n')
-    fid.write ('</table>\n')
-
-    cmd_file = os.path.join (cmd_dir, binaries[n] + cpp_suffix)
-    timestamp = mtime (cmd_file)
-    if timestamp > most_recent_timestamp: 
-      most_recent_timestamp = timestamp
-      most_recent_cmd = cmd_file
-    fid.write ('''
+      for A in arg:
+        fid.write ('<tr><td><b>' + A[0] + '</b>')
+        if A[1] == 0 or A[2] == 1:
+          fid.write (' [ ')
+          if A[1] == 0: 
+            fid.write ('optional')
+            if A[2] == 1: fid.write (', ')
+          if A[2] == 1: fid.write ('multiples allowed')
+          fid.write (' ]')
+        fid.write ('</td>\n<td>' + A[5] + '</td></tr>\n')
+      fid.write ('</table>\n')
+  
+      fid.write ('<h2>Options</h2>\n<table class=args>\n')
+      for O in opt:
+        fid.write ('<tr><td nowrap><b>-' + O[0] + '</b>')
+        for A in O[5:]: fid.write ('&nbsp;<i>' + A[0] + '</i>')
+        fid.write ('</td>\n<td>' + O[4])
+        if len(O) > 5:
+          fid.write ('\n<table class=opts>\n')
+          for A in O[5:]:
+            fid.write ('<tr><td><i>' + A[0] + '</i></td>\n<td>' + A[5] + '</td></tr>\n')
+          fid.write ('</table>')
+        fid.write ('</td></tr>\n')
+      fid.write ('</table>\n')
+  
+      cmd_file = os.path.join (cmd_dir, binaries[n] + cpp_suffix)
+      timestamp = mtime (cmd_file)
+      if timestamp > most_recent_timestamp: 
+        most_recent_timestamp = timestamp
+        most_recent_cmd = cmd_file
+      fid.write ('''
 <p class=footer>
 Donald Tournier<br>
 MRtrix version #VERSION#<br>
@@ -669,17 +667,16 @@ Last updated #MTIME#
 </html>
 ''')
 
-    fid.close()
 
 
 
-  fid = open (os.path.join (doc_dir, 'commands', 'index.html'), 'w')
-  start_html (fid, 'list of MRtrix commands', '../faq', '../index', '../index', '../appendix/index')
-  fid.write ('<table class=cmdindex width=100%>\n')
+  with codecs.open (os.path.join (doc_dir, 'commands', 'index.html'), mode='w', encoding='utf-8') as fid:
+    start_html (fid, 'list of MRtrix commands', '../faq', '../index', '../index', '../appendix/index')
+    fid.write ('<table class=cmdindex width=100%>\n')
 
-  for n in range (0,len(binaries)):
-    fid.write ('<tr><td><a href="' + binaries[n] + '.html">' + binaries[n] + '</a></td><td>' + description[n] + '</td></tr>\n')
-  fid.write ('''</table>
+    for n in range (0,len(binaries)):
+      fid.write ('<tr><td><a href="' + binaries[n] + '.html">' + binaries[n] + '</a></td><td>' + description[n] + '</td></tr>\n')
+    fid.write ('''</table>
 
 <p class=footer>
 Donald Tournier<br>
@@ -689,7 +686,6 @@ MRtrix version #VERSION#<br>
 </body>
 </html>
 ''')
-  fid.close()
 
 
 
@@ -708,9 +704,9 @@ def gen_doc ():
         timestamp = SVN_last_changed (os.path.join (cmd_dir, entry.replace (".html", cpp_suffix)))
       if not timestamp:
         timestamp = '-'
-      with open(fname, 'r') as fd:
+      with codecs.open(fname, mode='r', encoding='utf-8') as fd:
         contents = fd.read()
-      with open(fname, 'w') as fd:
+      with codecs.open(fname, mode='w', encoding='utf-8') as fd:
         fd.write (contents
            .replace ('#MTIME#', timestamp)
            .replace ('#VERSION#', major + '.' + minor + '.' + micro))
@@ -940,7 +936,7 @@ if installto is not None:
 
   if not os.path.exists (configfile):
     report ('creating default system-wide configuration file (setting up multi-threading with ' + str(num_processors) + ' threads)... ')
-    with open(configfile, 'wb') as fd:
+    with codecs.open(configfile, mode='wb', encoding='utf-8') as fd:
       fd.write ('NumberOfThreads: ' + str(num_processors) + '\n');
     report ('ok' + os.linesep)
   else:

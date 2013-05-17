@@ -20,6 +20,7 @@
 
 */
 
+#include <glibmm.h>
 #include <gtkmm/main.h>
 #include <gtk/gtkgl.h>
 

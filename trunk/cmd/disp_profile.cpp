@@ -33,7 +33,7 @@
     * set lmax based on SH values provided
     
 */
-
+#include <glibmm.h>
 #include <gtk/gtkgl.h>
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>

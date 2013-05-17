@@ -20,6 +20,7 @@
 
  */
 
+#include <glibmm.h>
 #include <gtkmm/treerowreference.h>
 #include <gtkmm/colorselection.h>
 #include <gtkmm/stock.h>

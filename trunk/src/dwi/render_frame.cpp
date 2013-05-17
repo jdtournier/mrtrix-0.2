@@ -25,7 +25,7 @@
 */
 
 #include <fstream>
-#include <glibmm/stringutils.h>
+#include <glibmm.h>
 #include <gdkmm/cursor.h>
 #include <gtkmm/main.h>
 #include <gtkmm/container.h>

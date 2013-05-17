@@ -24,7 +24,7 @@
 
 */
 
-#include <glibmm/stringutils.h>
+#include <glibmm.h>
 #include <gdkmm/cursor.h>
 #include <gtkmm/main.h>
 #include <gsl/gsl_sf_legendre.h>

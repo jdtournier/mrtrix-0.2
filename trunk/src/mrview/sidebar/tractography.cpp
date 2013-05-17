@@ -20,6 +20,7 @@
 
 */
 
+#include <glibmm.h>
 #include <gtkmm/treerowreference.h>
 
 #include "mrview/sidebar/tractography.h"

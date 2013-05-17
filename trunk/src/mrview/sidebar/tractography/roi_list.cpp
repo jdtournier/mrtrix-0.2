@@ -20,6 +20,7 @@
 
 */
 
+#include <glibmm.h>
 #include "mrview/sidebar/tractography/roi_list.h"
 #include "mrview/sidebar/tractography/track_list.h"
 #include "mrview/sidebar/tractography.h"

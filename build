@@ -193,12 +193,13 @@ try:
   svn_revision = '#define SVN_REVISION ' + svn_revision + '\n'
 
   if svn_revision != codecs.open(svn_revision_file, mode='r', encoding='utf-8').read():
-    with codecs.open(svn_revision_file, mode='w', encoding='uft-8') as fd:
+    with codecs.open(svn_revision_file, mode='w', encoding='utf-8') as fd:
       fd.write (svn_revision)
 
 except:
   if verbose:
     report ('failed to retrieve current SVN revision number - leaving as-is' + os.linesep + os.linesep)
+  raise
 
 
 

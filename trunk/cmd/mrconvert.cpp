@@ -91,6 +91,8 @@ OPTIONS = {
 
   Option ("prs", "DW gradient specified as PRS", "assume that the DW gradients are specified in the PRS frame (Siemens DICOM only)."),
 
+  Option ("nocomment", "remove comments", "remove all comments from the header. Useful to anonymise data."),
+
   Option::End
 };
 
@@ -191,6 +193,11 @@ EXECUTE {
       header.DW_scheme(row, 2) = -header.DW_scheme(row, 2);
     }
   }
+
+  opt = get_options (9); // nocomment
+  if (opt.size()) 
+    header.comments.clear();
+
 
   std::vector<int> pos[in_obj.ndim()];
 

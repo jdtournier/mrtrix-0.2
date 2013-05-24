@@ -93,6 +93,9 @@ OPTIONS = {
 
   Option ("nocomment", "remove comments", "remove all comments from the header. Useful to anonymise data."),
 
+  Option ("addcomment", "add comments", "add a new comment to the header.", false, true)
+    .append (Argument ("comment", "comment", "the text to add as a comment.").type_string()),
+
   Option::End
 };
 
@@ -197,6 +200,10 @@ EXECUTE {
   opt = get_options (9); // nocomment
   if (opt.size()) 
     header.comments.clear();
+
+  opt = get_options (10); // addcomment
+  for (guint n = 0; n < opt.size(); ++n) 
+    header.comments.push_back (opt[n][0].get_string());
 
 
   std::vector<int> pos[in_obj.ndim()];

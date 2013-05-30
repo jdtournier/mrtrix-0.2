@@ -23,10 +23,14 @@ linkto = ''
 print_help = False
 
 
-def report (msg):
-  if isinstance(msg, bytes):
-    msg = msg.decode (errors='ignore')
-  sys.stderr.write (msg)
+if sys.version_info[0] == 2:
+  def report (msg):
+    sys.stderr.write (bytes(msg))
+else: 
+  def report (msg):
+    if isinstance(msg, bytes):
+      msg = msg.decode (errors='ignore')
+    sys.stderr.write (msg)
 
 
 # parse command-line:
@@ -180,7 +184,8 @@ try:
   process = subprocess.Popen (svn_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   if process.wait() != 0: 
     raise Exception
-  svn_info = process.stdout.read().decode(errors='ignore').replace(' ','').replace('\t','').replace('\n','')
+  ( stdoutdata, stderrdata ) = process.communicate()
+  svn_info = stdoutdata.decode(errors='ignore').replace(' ','').replace('\t','').replace('\n','')
   svn_revision_index = svn_info.find ('revision=')
   svn_revision = 0
   if not svn_revision_index > 0:

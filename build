@@ -25,7 +25,7 @@ print_help = False
 
 if sys.version_info[0] == 2:
   def as_str (msg):
-    if not isinstance (msg, str): msg = str(msg)
+    if not isinstance (msg, unicode): msg = unicode(msg, 'utf-8')
     return msg
 else: 
   def as_str (msg):

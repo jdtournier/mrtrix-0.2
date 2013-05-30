@@ -331,22 +331,22 @@ namespace MR {
         // ignore releases
         if (event->type == GDK_KEY_RELEASE) return (false);
         switch (event->keyval) {
-          case GDK_KEY_F:
-          case GDK_KEY_f: 
+          case GDK_F:
+          case GDK_f: 
             return floodfill();
 	    break;
-          case GDK_KEY_N:
-          case GDK_KEY_n: 
+          case GDK_N:
+          case GDK_n: 
             return copyslice (1);
 	    break;
-          case GDK_KEY_P:
-          case GDK_KEY_p: 
+          case GDK_P:
+          case GDK_p: 
             return copyslice (-1);
 	    break;
-          case GDK_KEY_Z:
+          case GDK_Z:
             return (event->state & CTRL_CMD_MASK) ? redo() : false;
 	    break;
-          case GDK_KEY_z:
+          case GDK_z:
             return (event->state & CTRL_CMD_MASK) ? undo() : false;
 	    break;
           default:

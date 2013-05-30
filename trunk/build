@@ -27,10 +27,14 @@ if sys.version_info[0] == 2:
   def as_str (msg):
     if not isinstance (msg, unicode): msg = unicode(msg, 'utf-8')
     return msg
+  def report (msg):
+    sys.stderr.write (as_str (msg).encode ('utf-8', 'ignore'))
 else: 
   def as_str (msg):
     if not isinstance (msg, str): msg = msg.decode (errors='ignore')
     return msg
+  def report (msg):
+    sys.stderr.write (as_str (msg))
 
 
 
@@ -38,9 +42,6 @@ def fopen (filename, mode):
   return codecs.open (filename, mode, encoding='utf-8')
 
 
-
-def report (msg):
-  sys.stderr.write (as_str (msg))
 
 
 # parse command-line:
@@ -442,6 +443,7 @@ failed with output:
     return 1
   except Exception as inst:
     report ('unexpected exception: ' + inst.args[0] + os.linesep)
+    return 1
 
 
 

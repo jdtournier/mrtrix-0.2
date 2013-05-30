@@ -24,13 +24,23 @@ print_help = False
 
 
 if sys.version_info[0] == 2:
-  def report (msg):
-    sys.stderr.write (bytes(msg))
+  def as_str (msg):
+    if not isinstance (msg, str): msg = str(msg)
+    return msg
 else: 
-  def report (msg):
-    if isinstance(msg, bytes):
-      msg = msg.decode (errors='ignore')
-    sys.stderr.write (msg)
+  def as_str (msg):
+    if not isinstance (msg, str): msg = msg.decode (errors='ignore')
+    return msg
+
+
+
+def fopen (filename, mode):
+  return codecs.open (filename, mode, encoding='utf-8')
+
+
+
+def report (msg):
+  sys.stderr.write (as_str (msg))
 
 
 # parse command-line:
@@ -136,7 +146,7 @@ else:
 
 # get version info:
 
-with codecs.open (os.path.join (lib_dir, 'mrtrix.h'), mode='r', encoding='utf-8') as f:
+with fopen (os.path.join (lib_dir, 'mrtrix.h'), 'r') as f:
   for line in f:
     line = line.split()
     if len(line) != 3: continue
@@ -174,7 +184,7 @@ if profile:
 # SVN revision number:
 svn_revision = '#define SVN_REVISION 0\n'
 if not os.path.exists (svn_revision_file):
-  with codecs.open(svn_revision_file, mode='w', encoding='utf-8') as fd:
+  with fopen(svn_revision_file, 'w') as fd:
     fd.write (svn_revision)
 
 try:
@@ -184,8 +194,7 @@ try:
   process = subprocess.Popen (svn_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   if process.wait() != 0: 
     raise Exception
-  ( stdoutdata, stderrdata ) = process.communicate()
-  svn_info = stdoutdata.decode(errors='ignore').replace(' ','').replace('\t','').replace('\n','')
+  svn_info = as_str (process.stdout.read()).replace(' ','').replace('\t','').replace('\n','')
   svn_revision_index = svn_info.find ('revision=')
   svn_revision = 0
   if not svn_revision_index > 0:
@@ -197,8 +206,8 @@ try:
     report ('SVN revision: ' + svn_revision + os.linesep + os.linesep)
   svn_revision = '#define SVN_REVISION ' + svn_revision + '\n'
 
-  if svn_revision != codecs.open(svn_revision_file, mode='r', encoding='utf-8').read():
-    with codecs.open(svn_revision_file, mode='w', encoding='utf-8') as fd:
+  if svn_revision != fopen (svn_revision_file, 'r').read():
+    with fopen (svn_revision_file, 'w') as fd:
       fd.write (svn_revision)
 
 except:
@@ -228,7 +237,7 @@ def pkg (package, target, extras = None):
   if process.wait() != 0:
     report ('WARNING: unable to find', package, 'configuration' + os.linesep)
     return None
-  return process.stdout.read().decode(errors='ignore').split()
+  return as_str(process.stdout.read()).split()
 
 cflags_glib = pkg (pkgconfig_glib, 'cflags')
 cflags_gtk = pkg (pkgconfig_gtk, 'cflags')
@@ -421,12 +430,12 @@ ERROR: ''' + message + '''
 
 failed with output:
 
-''' + stderrdata.decode(errors='ignore') + os.linesep)
+''' + as_str (stderrdata) + os.linesep)
       return 1
     if len(stdoutdata):
-      report ('STDOUT: ' + message + os.linesep + stdoutdata.decode(errors='ignore') + os.linesep)
+      report ('STDOUT: ' + message + os.linesep + as_str (stdoutdata) + os.linesep)
     if len(stderrdata):
-      report ('STDERR: ' + message + os.linesep + stderrdata.decode(errors='ignore') + os.linesep)
+      report ('STDERR: ' + message + os.linesep + as_str (stderrdata) + os.linesep)
 
   except OSError:
     report (cmd[0] + ': command not found' + os.linesep)
@@ -448,7 +457,7 @@ def list_headers (file):
     if not os.path.exists (file):
       report ('ERROR: cannot find file "' + file + '"' + os.linesep)
       exit(1)
-    with codecs.open (file, mode='r', encoding='utf-8') as fd:
+    with fopen (file, 'r') as fd:
       for line in fd:
         line = line.strip()
         if line.startswith('#include'):
@@ -583,10 +592,9 @@ def gen_command_html_help ():
     if process.returncode != 0:
       report ('ERROR: unable to execute', binaries[n], ' - aborting' + os.linesep)
       return 1
-    H = a[0].decode(errors='ignore')
-    H = H.splitlines()
+    H = as_str (a[0]).splitlines()
 
-    with codecs.open (os.path.join (doc_dir, 'commands', binaries[n] + '.html'), mode='w', encoding='utf-8') as fid:
+    with fopen (os.path.join (doc_dir, 'commands', binaries[n] + '.html'), 'w') as fid:
 
       if n == 0: prev = 'index'
       else: prev = binaries[n-1]
@@ -676,7 +684,7 @@ Last updated #MTIME#
 
 
 
-  with codecs.open (os.path.join (doc_dir, 'commands', 'index.html'), mode='w', encoding='utf-8') as fid:
+  with fopen (os.path.join (doc_dir, 'commands', 'index.html'), 'w') as fid:
     start_html (fid, 'list of MRtrix commands', '../faq', '../index', '../index', '../appendix/index')
     fid.write ('<table class=cmdindex width=100%>\n')
 
@@ -710,9 +718,9 @@ def gen_doc ():
         timestamp = SVN_last_changed (os.path.join (cmd_dir, entry.replace (".html", cpp_suffix)))
       if not timestamp:
         timestamp = '-'
-      with codecs.open(fname, mode='r', encoding='utf-8') as fd:
+      with fopen(fname, 'r') as fd:
         contents = fd.read()
-      with codecs.open(fname, mode='w', encoding='utf-8') as fd:
+      with fopen(fname, 'w') as fd:
         fd.write (contents
            .replace ('#MTIME#', timestamp)
            .replace ('#VERSION#', major + '.' + minor + '.' + micro))
@@ -942,7 +950,7 @@ if installto is not None:
 
   if not os.path.exists (configfile):
     report ('creating default system-wide configuration file (setting up multi-threading with ' + str(num_processors) + ' threads)... ')
-    with codecs.open(configfile, mode='wb', encoding='utf-8') as fd:
+    with fopen(configfile, 'wb') as fd:
       fd.write ('NumberOfThreads: ' + str(num_processors) + '\n');
     report ('ok' + os.linesep)
   else:

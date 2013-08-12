@@ -23,20 +23,24 @@
 #include "point.h"
 #include "math/matrix.h"
 #include "dwi/gradient.h"
+#include "dwi/shells.h"
 
 namespace MR {
   namespace DWI {
 
     void normalise_grad (Math::Matrix &grad)
     {
-      if (grad.columns() != 4) throw Exception ("invalid gradient matrix dimensions");
-
-      double norm;
+      if (grad.columns() != 4)
+          throw Exception ("invalid gradient matrix dimensions");
       for (guint i = 0; i < grad.rows(); i++) {
-        norm = grad(i,3) ? 1.0/sqrt(grad(i,0)*grad(i,0)+grad(i,1)*grad(i,1)+grad(i,2)*grad(i,2)) : 0.0;
-        grad(i,0) *= norm;
-        grad(i,1) *= norm;
-        grad(i,2) *= norm;
+        double norm = sqrt(grad(i,0)*grad(i,0)+grad(i,1)*grad(i,1)+grad(i,2)*grad(i,2));
+        if (norm) {
+          grad(i,0) /= norm;
+          grad(i,1) /= norm;
+          grad(i,2) /= norm;
+        } else {
+          grad(i,3) = 0; 
+        }
       }
     }
 
@@ -66,15 +70,23 @@ namespace MR {
 
     void guess_DW_directions (std::vector<int>& dwi, std::vector<int>& bzero, const Math::Matrix& grad)
     {
-      if (grad.columns() != 4) throw Exception ("invalid gradient encoding matrix: expecting 4 columns.");
-
-      dwi.clear();
-      bzero.clear();
-
-      for (int i = 0; i < (int) grad.rows(); i++) {
-        if (grad(i,3)) dwi.push_back (i);
-        else bzero.push_back (i);
-      }
+      if (grad.columns() != 4)
+        throw Exception ("invalid gradient encoding matrix: expecting 4 columns.");
+      Shells shells(grad);
+      int shell_count = shells.count();
+      if (shell_count < 1 || shell_count > sqrt(grad.rows()))
+        throw Exception ("Gradient encoding matrix does not represent a HARDI sequence!");
+      info ("found " + str (shell_count) + " shells");
+      Shell bzeroShell;
+      Shell dwiShell;
+      if (shell_count>1)
+        bzeroShell = shells.first();
+      dwiShell = shells.last();
+      if (shell_count>1)
+        info ("using " + str (bzeroShell.count()) + " volumes with b-value " + str (bzeroShell.avg_bval()) + " +/-" + str (bzeroShell.std_bval()) + " as b=0 volumes");
+      info ("using " + str (dwiShell.count()) + " volumes with b-value " + str (dwiShell.avg_bval()) + " +/-" + str (dwiShell.std_bval()) + " as diffusion-weighted volumes");
+      bzero = bzeroShell.idx();
+      dwi = dwiShell.idx();
     }
 
 

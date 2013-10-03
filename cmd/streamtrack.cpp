@@ -329,14 +329,16 @@ class Threader {
           if (writer.count < max_num_tracks) {
             writer.append (*tck);
             writer.total_count++;
-            fprintf (stderr, "\r%8u generated, %8u selected    [%3d%%]", 
-                writer.total_count, writer.count, (int) ((100.0*writer.count)/(float) max_num_tracks));
+            if (App::log_level) 
+              fprintf (stderr, "\r%8u generated, %8u selected    [%3d%%]", 
+                  writer.total_count, writer.count, (int) ((100.0*writer.count)/(float) max_num_tracks));
           }
           delete tck;
         }
       } while (currently_running > 0);
 
-      fprintf (stderr, "\r%8u generated, %8u selected    [100%%]\n", writer.total_count, writer.count);
+      if (App::log_level) 
+        fprintf (stderr, "\r%8u generated, %8u selected    [100%%]\n", writer.total_count, writer.count);
       writer.close ();
     }
 

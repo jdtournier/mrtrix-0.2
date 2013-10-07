@@ -50,6 +50,7 @@ namespace MR {
         Base::Base (Image::Object& source_image, Properties& properties) :
           source (source_image),
           props (properties),
+          values (source.dim(3)), 
           total_seed_volume (0.0),
           step_size (0.1),
           threshold (0.1),

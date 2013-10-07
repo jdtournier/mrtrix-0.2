@@ -253,7 +253,7 @@ namespace MR {
       start = 0;
       memset (stride, 0, MRTRIX_MAX_NDIMS*sizeof(gssize));
 
-      guint order[ndim()];
+      std::vector<guint> order (ndim());
       guint last = ndim()-1;
       for (int i = 0; i < ndim(); i++) {
         if (H.axes.axis[i] != Axis::undefined) order[H.axes.axis[i]] = i; 

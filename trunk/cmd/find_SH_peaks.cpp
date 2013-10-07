@@ -121,7 +121,7 @@ EXECUTE {
   Image::Position out (*argument[2].get_image (header));
 
   std::vector<Direction> peaks_out (npeaks);
-  float val[SH.dim(3)];
+  std::vector<float> val (SH.dim(3));
   int lmax = DWI::SH::LforN (SH.dim(3));
   DWI::SH::precompute (lmax, 512);
   
@@ -163,7 +163,7 @@ EXECUTE {
           std::vector<Direction> all_peaks;
           for (guint i = 0; i < dirs.rows(); i++) {
             Direction p (dirs(i,0), dirs(i,1)); 
-            p.a = DWI::SH::get_peak (val, lmax, p.v, true);
+            p.a = DWI::SH::get_peak (&val[0], lmax, p.v, true);
             
             if (gsl_finite (p.a)) {
               for (guint j = 0; j < all_peaks.size(); j++) {

@@ -174,6 +174,7 @@ namespace MR {
             Image::Interp source;
             Properties& props;
             Math::RNG rng;
+            std::vector<float> values;
 
             ROISphere spheres;
             ROIMask   masks;
@@ -188,7 +189,7 @@ namespace MR {
             bool excluded, no_mask_interp, stop_when_included, entered_inclusion;
 
 
-            int get_source_data (const Point& p, float* values)
+            int get_source_data (const Point& p)
             {
               if (source.R (p)) return true;
               for (source.set(3,0); source[3] < source.dim(3); source.inc(3)) values[source[3]] = source.value();

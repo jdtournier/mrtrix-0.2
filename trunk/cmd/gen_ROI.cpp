@@ -86,7 +86,7 @@ EXECUTE {
   header.offset = 0.0;
   header.scale = 1.0;
 
-  std::vector<int> pos[in_obj.ndim()];
+  std::vector< std::vector<int> > pos (in_obj.ndim());
 
   std::vector<OptBase> opt = get_options (0); // coord
   for (guint n = 0; n < opt.size(); n++) {

@@ -24,6 +24,7 @@
 #define __dwi_tractography_tracker_sd_prob_h__
 
 #include "dwi/tractography/tracker/base.h"
+#include "dwi/SH.h"
 
 namespace MR {
   namespace DWI {
@@ -41,6 +42,12 @@ namespace MR {
 
             virtual bool  init_direction (const Point& seed_dir);
             virtual bool  next_point ();
+
+            float SH_amplitude (const Point& dir) const { 
+              return (precomputed ? 
+                SH::value_precomputed (&values[0], dir) : 
+                SH::value (&values[0], dir, lmax) );
+            }
 
             Point         new_rand_dir ();
         };

@@ -101,7 +101,7 @@ OPTIONS = {
 
 
 
-inline bool next (Image::Position& ref, Image::Position& other, const std::vector<int>* pos)
+inline bool next (Image::Position& ref, Image::Position& other, const std::vector< std::vector<int> >& pos)
 {
   int axis = 0;
   do {
@@ -206,7 +206,7 @@ EXECUTE {
     header.comments.push_back (opt[n][0].get_string());
 
 
-  std::vector<int> pos[in_obj.ndim()];
+  std::vector< std::vector<int> > pos (in_obj.ndim());
 
   opt = get_options (0); // coord
   for (guint n = 0; n < opt.size(); n++) {

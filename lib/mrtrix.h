@@ -314,11 +314,11 @@ namespace MR {
     va_start (list, format);
     guint len = g_vsnprintf (NULL, 0, format, list) + 1;
     va_end (list);
-    gchar buf[len];
+    std::vector<gchar> buf (len);
     va_start (list, format);
-    g_vsnprintf (buf, len, format, list);
+    g_vsnprintf (&buf[0], len, format, list);
     va_end (list);
-    return (buf);
+    return (&buf[0]);
   }
 
 

@@ -66,8 +66,7 @@ namespace MR {
 
         inline float DTStream::get_EV (const Point& p)
         {
-          float values[source.dim(3)];
-          if (get_source_data (p, values)) return (-1.0);
+          if (get_source_data (p)) return (-1.0);
 
           for (int n = 0; n < source.dim(3); n++) 
             values[n] = values[n] > 0.0 ? -log (values[n]) : 1e-12;

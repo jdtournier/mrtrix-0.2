@@ -103,12 +103,12 @@ namespace MR {
       {
         SH.lmax (lmax);
         float cel = cos(elevation);
-        double AL [lmax+1];
+        std::vector<double> AL (lmax+1);
 
-        gsl_sf_legendre_sphPlm_array (lmax, 0, cel, AL);
+        gsl_sf_legendre_sphPlm_array (lmax, 0, cel, &AL[0]);
         for (int l = 0; l <= lmax; l+=2) SH(l,0) = AL[l];
         for (int m = 1; m <= lmax; m++) {
-          gsl_sf_legendre_sphPlm_array (lmax, m, cel, AL);
+          gsl_sf_legendre_sphPlm_array (lmax, m, cel, &AL[0]);
           float c = cos (m*azimuth);
           float s = sin (m*azimuth);
           for (int l = ((m&1) ? m+1 : m); l <= lmax; l+=2) {
@@ -368,7 +368,7 @@ namespace MR {
       {
         float sel = sin(elevation);
         bool atpole = sel < 1e-4;
-        float legendre[NforL(lmax)];
+        std::vector<float> legendre (NforL(lmax));
 
         amplitude = dSH_del = dSH_daz = d2SH_del2 = d2SH_deldaz = d2SH_daz2 = 0.0;
 

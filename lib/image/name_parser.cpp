@@ -220,9 +220,9 @@ namespace MR {
       for (guint i = 0; i < array.size(); i++) {
         if (array[i].is_string()) str += array[i].string();
         else { 
-          gchar buf[array[i].size()+1];
-          g_sprintf (buf, "%*.*d", array[i].size(), array[i].size(), array[i].sequence()[indices[n]]);
-          str += buf;
+          guint last = str.size();
+          str.resize (last + array[i].size() + 1);
+          g_sprintf (&str[last], "%*.*d", array[i].size(), array[i].size(), array[i].sequence()[indices[n]]);
           n--; 
         }
       }

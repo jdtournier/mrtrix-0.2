@@ -57,9 +57,14 @@ namespace MR {
 
         bool SDStream::init_direction (const Point& seed_dir)
         {
-          float values [source.dim(3)];
-          if (get_source_data (pos, values)) return (true);
-          return init_direction (seed_dir, values);
+          if (get_source_data (pos)) return (true);
+
+          if (!seed_dir) dir.set (rng.normal(), rng.normal(), rng.normal());
+          else dir = seed_dir;
+          dir.normalise();
+          float val = SH::get_peak (&values[0], lmax, dir, precomputed);
+          if (gsl_finite (val)) if (val > init_threshold) return (false);
+          return (true);
         }
 
 
@@ -67,9 +72,17 @@ namespace MR {
 
         bool SDStream::next_point ()
         {
-          float values [source.dim(3)];
-          if (get_source_data (pos, values)) return (true);
-          return next_point (values);
+          if (get_source_data (pos)) return (true);
+
+          Point prev_dir (dir);
+          dir.normalise ();
+          float val = SH::get_peak (&values[0], lmax, dir, precomputed);
+
+          if (!gsl_finite (val)) return (true);
+          if (val < threshold) return (true);
+          if (dir.dot (prev_dir) < min_dp) return (true);
+
+          return (false);
         }
 
 

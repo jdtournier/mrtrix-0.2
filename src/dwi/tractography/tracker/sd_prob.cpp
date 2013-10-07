@@ -25,7 +25,6 @@
 */
 
 #include "dwi/tractography/tracker/sd_prob.h"
-#include "dwi/SH.h"
 
 namespace MR {
   namespace DWI {
@@ -58,26 +57,19 @@ namespace MR {
 
         bool SDProb::init_direction (const Point& seed_dir)
         {
-          float values [source.dim(3)];
-          if (get_source_data (pos, values)) return (true);
+          if (get_source_data (pos)) return (true);
 
           if (!seed_dir) {
             for (int n = 0; n < max_trials; n++) {
               dir.set (rng.normal(), rng.normal(), rng.normal());
               dir.normalise();
-              float val = precomputed ? 
-                SH::value_precomputed (values, dir) : 
-                SH::value (values, dir, lmax);
-
+              float val = SH_amplitude (dir); 
               if (!gsl_isnan (val)) if (val > init_threshold) return (false);
             } 
           }
           else {
             dir = seed_dir;
-            float val = precomputed ? 
-              SH::value_precomputed (values, dir) : 
-              SH::value (values, dir, lmax);
-
+            float val = SH_amplitude (dir);
             if (gsl_finite (val)) if (val > init_threshold) return (false);
           }
 
@@ -89,16 +81,12 @@ namespace MR {
 
         bool SDProb::next_point ()
         {
-          float values [source.dim(3)];
-          if (get_source_data (pos, values)) return (true);
+          if (get_source_data (pos)) return (true);
 
           float max_val = 0.0;
           for (int n = 0; n < 12; n++) {
             Point new_dir = new_rand_dir();
-            float val = precomputed ? 
-              SH::value_precomputed (values, new_dir) : 
-              SH::value (values, new_dir, lmax);
-
+            float val = SH_amplitude (new_dir);
             if (val > max_val) max_val = val;
           }
 
@@ -108,10 +96,7 @@ namespace MR {
 
           for (int n = 0; n < max_trials; n++) {
             Point new_dir = new_rand_dir();
-            float val = precomputed ? 
-              SH::value_precomputed (values, new_dir) : 
-              SH::value (values, new_dir, lmax);
-
+            float val = SH_amplitude (new_dir); 
             if (val > threshold) {
               if (val > max_val) info ("max_val exceeded!!! (val = " + str(val) + ", max_val = " + str (max_val) + ")");
               if (rng.uniform() < val/max_val) {

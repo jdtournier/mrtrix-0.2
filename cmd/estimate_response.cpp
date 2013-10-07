@@ -149,6 +149,7 @@ EXECUTE {
 
   response.zero();
 
+  std::vector<float> val (dwi.dim(3));
   ProgressBar::init (count, "estimating response function...");
 
   for (dwi.set(2,0), mask.set(2,0); dwi[2] < dwi.dim(2); dwi.inc(2), mask.inc(2)) {
@@ -157,7 +158,6 @@ EXECUTE {
 
 	if (mask.value() > 0.5) {
 
-          float val [dwi.dim(3)];
           for (dwi.set(3,0); dwi[3] < dwi.dim(3); dwi.inc(3)) {
 	    val[dwi[3]] = dwi.value();
             val[dwi[3]] = val[dwi[3]] > 0.0 ? -log (val[dwi[3]]) : -1e-12;

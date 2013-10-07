@@ -653,7 +653,7 @@ EXECUTE {
   info ("launching " + str (num_threads) + " threads");
 
   ProgressBar::init (dwi.dim(0)*dwi.dim(1)*dwi.dim(2), "performing constrained spherical deconvolution...");
-  Glib::Thread* threads[num_threads-1];
+  std::vector<Glib::Thread*> threads (num_threads-1);
   for (int n = 0; n < num_threads-1; n++) 
     threads[n] = Glib::Thread::create (sigc::mem_fun (threader, &Thread::execute), true);
 

@@ -271,7 +271,7 @@ class Threader {
       currently_running = num_threads;
       guint rng_seed = time (NULL);
 
-      Glib::Thread* threads[num_threads];
+      std::vector<Glib::Thread*> threads (num_threads);
       for (int n = 0; n < num_threads; n++) {
         trackers[n]->set_rng_seed (rng_seed + n);
         threads[n] = Glib::Thread::create (sigc::bind<Tracker::Base*> (sigc::mem_fun (*this, &Threader::execute), trackers[n]), true);

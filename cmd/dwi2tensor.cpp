@@ -131,7 +131,7 @@ EXECUTE {
 
   ProgressBar::init (dwi.dim(0)*dwi.dim(1)*dwi.dim(2), "converting DW images to tensor image..."); 
 
-  float d[dwi.dim(axis)];
+  std::vector<float> d (dwi.dim(axis));
   for (dwi.set(2,0), dt.set(2,0); dwi[2] < dwi.dim(2); dwi.inc(2), dt.inc(2)) {
 
     grad.copy (bmat);

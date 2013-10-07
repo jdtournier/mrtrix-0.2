@@ -53,7 +53,7 @@ OPTIONS = { Option::End };
 EXECUTE {
   guint num_images = argument.size()-1;
 
-  RefPtr<Image::Object> in[num_images];
+  std::vector< RefPtr<Image::Object> > in (num_images);
   in[0] = argument[0].get_image();
   Image::Header header (in[0]->header());
 

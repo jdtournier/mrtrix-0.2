@@ -214,7 +214,6 @@ try:
 except:
   if verbose:
     report ('failed to retrieve current SVN revision number - leaving as-is' + os.linesep + os.linesep)
-  raise
 
 
 

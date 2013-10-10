@@ -103,7 +103,7 @@ namespace MR {
             // if multi-frame, loop over frames in image:
             if (image.frames.size()) {
               std::sort (image.frames.begin(), image.frames.end());
-              for (std::vector< RefPtr<Frame> >::const_iterator frame_it = image.frames.begin(); frame_it != image.frames.end(); ++frame_it) 
+              for (std::vector< RefPtr<Frame> >::const_iterator frame_it = image.frames.begin(); frame_it != image.frames.end(); ++frame_it)
                 frames.push_back (&**frame_it);
             }
             // otherwise add image frame:
@@ -199,25 +199,54 @@ namespace MR {
 
         Math::Matrix M(4,4);
 
-        M(0,0) = -image.orientation_x[0];
-        M(1,0) = -image.orientation_x[1];
-        M(2,0) = image.orientation_x[2];
-        M(3,0) = 0.0;
+        // If multi-frame, take the transform information from the sorted frames; the first entry in the
+        //   vector should be the first slice of the first volume
+        if (image.frames.size()) {
 
-        M(0,1) = -image.orientation_y[0];
-        M(1,1) = -image.orientation_y[1];
-        M(2,1) = image.orientation_y[2];
-        M(3,1) = 0.0;
+          const Frame& frame (*image.frames[0]);
+          M(0,0) = -frame.orientation_x[0];
+          M(1,0) = -frame.orientation_x[1];
+          M(2,0) = +frame.orientation_x[2];
+          M(3,0) = 0.0;
 
-        M(0,2) = -image.orientation_z[0];
-        M(1,2) = -image.orientation_z[1];
-        M(2,2) = image.orientation_z[2];
-        M(3,2) = 0.0;
+          M(0,1) = -frame.orientation_y[0];
+          M(1,1) = -frame.orientation_y[1];
+          M(2,1) = +frame.orientation_y[2];
+          M(3,1) = 0.0;
 
-        M(0,3) = -image.position_vector[0];
-        M(1,3) = -image.position_vector[1];
-        M(2,3) = image.position_vector[2];
-        M(3,3) = 1.0;
+          M(0,2) = -frame.orientation_z[0];
+          M(1,2) = -frame.orientation_z[1];
+          M(2,2) = +frame.orientation_z[2];
+          M(3,2) = 0.0;
+
+          M(0,3) = -frame.position_vector[0];
+          M(1,3) = -frame.position_vector[1];
+          M(2,3) = +frame.position_vector[2];
+          M(3,3) = 1.0;
+
+        } else {
+
+          M(0,0) = -image.orientation_x[0];
+          M(1,0) = -image.orientation_x[1];
+          M(2,0) = image.orientation_x[2];
+          M(3,0) = 0.0;
+
+          M(0,1) = -image.orientation_y[0];
+          M(1,1) = -image.orientation_y[1];
+          M(2,1) = image.orientation_y[2];
+          M(3,1) = 0.0;
+
+          M(0,2) = -image.orientation_z[0];
+          M(1,2) = -image.orientation_z[1];
+          M(2,2) = image.orientation_z[2];
+          M(3,2) = 0.0;
+
+          M(0,3) = -image.position_vector[0];
+          M(1,3) = -image.position_vector[1];
+          M(2,3) = image.position_vector[2];
+          M(3,3) = 1.0;
+
+        }
 
         H.set_transform (M);
 

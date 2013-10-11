@@ -75,10 +75,10 @@ OPTIONS = {
     .append (Argument ("spec", "specifier", "the data type specifier.").type_choice (data_type_choices)),
 
   Option ("scale", "scaling factor", "apply scaling to the intensity values.")
-    .append (Argument ("factor", "factor", "the factor by which to multiply the intensities.").type_float (NAN, NAN, 1.0)),
+    .append (Argument ("factor", "factor", "the factor by which to multiply the intensities.").type_float (GSL_NAN, GSL_NAN, 1.0)),
 
   Option ("offset", "offset", "apply offset to the intensity values.")
-    .append (Argument ("bias", "bias", "the value of the offset.").type_float (NAN, NAN, 0.0)),
+    .append (Argument ("bias", "bias", "the value of the offset.").type_float (GSL_NAN, GSL_NAN, 0.0)),
 
   Option ("zero", "replace NaN by zero", "replace all NaN values with zero."),
 
@@ -172,7 +172,7 @@ EXECUTE {
   if (opt.size()) header.data_type.parse (data_type_choices[opt[0][0].get_int()]);
 
   for (guint n = 0; n < vox.size(); n++) 
-    if (isfinite (vox[n])) header.axes.vox[n] = vox[n];
+    if (gsl_finite (vox[n])) header.axes.vox[n] = vox[n];
 
   opt = get_options (7); // layout
   if (opt.size()) {

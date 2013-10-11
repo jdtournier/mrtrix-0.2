@@ -131,7 +131,7 @@ class Voxel
       y (round (p[1])),
       z (round (p[2]))
     { 
-      assert (finite (p[0]) && finite (p[1]) && finite (p[2]));
+      assert (gsl_finite (p[0]) && gsl_finite (p[1]) && gsl_finite (p[2]));
     }
 
     Voxel& operator+= (const Voxel& source) 
@@ -545,8 +545,8 @@ void generate_header (Image::Header& header, DWI::Tractography::Reader& file, co
   std::vector<Point> tck;
   size_t track_counter = 0;
 
-  Point min_values ( INFINITY,  INFINITY,  INFINITY);
-  Point max_values (-INFINITY, -INFINITY, -INFINITY);
+  Point min_values (GSL_POSINF, GSL_POSINF, GSL_POSINF);
+  Point max_values (GSL_NEGINF, GSL_NEGINF, GSL_NEGINF);
 
   ProgressBar::init (0, "creating new template image... ");
 

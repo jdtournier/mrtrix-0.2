@@ -58,7 +58,7 @@ namespace MR {
         void set_normalise (bool yesno = true) { 
           normalise = yesno; 
           if (!values.size()) return;
-          if (!finite (values[0])) return;
+          if (!gsl_finite (values[0])) return;
           float factor = ( normalise ? 1.0 : l0_term ) / values[0];
           for (guint n = 0; n < values.size(); ++n)
             values[n] *= factor;

@@ -52,10 +52,10 @@ ARGUMENTS = {
 
 OPTIONS = { 
   Option ("abs", "absolute threshold", "specify threshold value as absolute intensity.")
-    .append (Argument ("value", "value", "the absolute threshold to use.").type_float (NAN, NAN, 0.0)),
+    .append (Argument ("value", "value", "the absolute threshold to use.").type_float (GSL_NAN, GSL_NAN, 0.0)),
 
   Option ("percent", "percentage threshold", "specify threshold value as a percentage of the peak intensity in the input image.")
-    .append (Argument ("value", "value", "the percentage threshold to use.").type_float (NAN, NAN, 0.0)),
+    .append (Argument ("value", "value", "the percentage threshold to use.").type_float (GSL_NAN, GSL_NAN, 0.0)),
 
   Option ("nonbinary", "non-binary", "output image retains original image intensities above the threshold (for a non-binary image output)"),
 
@@ -70,7 +70,7 @@ OPTIONS = {
 EXECUTE {
 
   bool use_percentage = false, optimise = true;
-  float val = NAN;
+  float val = GSL_NAN;
 
   std::vector<OptBase> opt = get_options (0);
   if (opt.size()) {
@@ -115,7 +115,7 @@ EXECUTE {
     val = hist.first_min();
   }
 
-  float zero = use_NaN ? NAN : 0.0;
+  float zero = use_NaN ? GSL_NAN : 0.0;
   float one  = invert ? zero : 1.0;
   zero = invert ? 1.0 : zero;
 

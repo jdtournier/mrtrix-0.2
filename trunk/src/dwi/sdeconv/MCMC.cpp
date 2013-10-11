@@ -252,7 +252,7 @@ namespace MR {
     FOD.zero();
 
     index_pos.clear();
-    min_fval = INFINITY;
+    min_fval = GSL_POSINF;
   }
 
 
@@ -435,7 +435,7 @@ namespace MR {
     tmp.multiply(Binv, p_sigs);
 
     guint leave_index = 0;
-    min_val = INFINITY;
+    min_val = GSL_POSINF;
     gdouble d;
     for (i = 0; i < tmp.size(); i++) {
       if (rcost[i] > 0.0) {

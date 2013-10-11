@@ -343,9 +343,9 @@ namespace MR {
       { 
         show_overlays.set_active (true);
 
-        min_value.set_range (-INFINITY, INFINITY);
+        min_value.set_range (GSL_NEGINF, GSL_POSINF);
         min_value.set_digits (4);
-        max_value.set_range (-INFINITY, INFINITY);
+        max_value.set_range (GSL_NEGINF, GSL_POSINF);
         max_value.set_digits (4);
 
         transparency.set_draw_value (false);

@@ -44,14 +44,14 @@ namespace MR {
     do {
       float val = ima.re();
 
-      if (finite(val)) { 
+      if (gsl_finite(val)) { 
         guint pos = (guint) ( list.size() * ((val - min)/(max-min)) );
         if (pos >= list.size()) pos = list.size()-1;
         list[pos].frequency++;
       }
       if (ima.is_complex()) {
         val = ima.im();
-        if (finite(val)) {
+        if (gsl_finite(val)) {
           guint pos = (guint) ( list.size() * (val - min)/(max-min) );
           if (pos >= list.size()) pos = list.size()-1;
           list[pos].frequency++;

@@ -79,7 +79,7 @@ template <class Function> inline void loop (Image::Position& pos, RefPtr<Image::
         if (mask) if (mask->value() < 0.5) skip = true;
         if (!skip) {
           float val = pos.value();
-          if (isfinite (val)) func (val);
+          if (gsl_finite (val)) func (val);
         }
         if (mask) mask->inc (0);
       }
@@ -92,7 +92,7 @@ template <class Function> inline void loop (Image::Position& pos, RefPtr<Image::
 
 class GetStats {
   public:
-    GetStats () : mean (0.0), std (0.0), min (INFINITY), max (-INFINITY), count (0) { }
+    GetStats () : mean (0.0), std (0.0), min (GSL_POSINF), max (GSL_NEGINF), count (0) { }
 
     double mean, std;
     float min, max;
@@ -117,7 +117,7 @@ class GetStats {
 
 class GetMinMax {
   public:
-    GetMinMax () : min (INFINITY), max (-INFINITY) { }
+    GetMinMax () : min (GSL_POSINF), max (GSL_NEGINF) { }
 
     float min, max;
 

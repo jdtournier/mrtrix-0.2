@@ -96,8 +96,8 @@ namespace MR {
 
     void Image::get_bounds (float xbounds[2], float ybounds[2], const Point& vx, const Point& vy, const Point& pos) const
     {   
-      xbounds[0] = ybounds[0] = INFINITY;
-      xbounds[1] = ybounds[1] = -INFINITY;
+      xbounds[0] = ybounds[0] = GSL_POSINF;
+      xbounds[1] = ybounds[1] = GSL_NEGINF;
 
       Math::Matrix M (3,3);
       Math::Vector x(3), y(3);

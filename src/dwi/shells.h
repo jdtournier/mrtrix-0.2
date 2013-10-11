@@ -138,14 +138,14 @@ namespace MR
     class Shells
     {
     public:
-      Shells(const Math::Matrix& grad, size_t minDirections = 6, double bvalue_threshold = NAN)
+      Shells(const Math::Matrix& grad, size_t minDirections = 6, double bvalue_threshold = GSL_NAN)
       {
         for (size_t i = 0; i < grad.rows(); i++) {
           bvals.push_back(grad (i,3));
         }
         minBval = *std::min_element(bvals.begin(),bvals.end());
         maxBval = *std::max_element(bvals.begin(),bvals.end());
-        if (!finite (bvalue_threshold)) {
+        if (!gsl_finite (bvalue_threshold)) {
           bvalue_threshold = 100;
           //bvalue_threshold = (maxBval-minBval)/(2.0*double(bvals.size()));
           //if (!bvalue_threshold)

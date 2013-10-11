@@ -139,9 +139,9 @@ namespace MR {
     inline gsl_vector *Vector::get_gsl_vector () const            { return (V); }
     inline void Vector::set_gsl_vector (gsl_vector* vec)          { if (V) gsl_vector_free (V); V = vec; }
     inline gsl_vector* Vector::disown_gsl_vector ()               { gsl_vector* vec = V; V = NULL; return(vec); }
-    inline double Vector::min () const                            { if (V) return (gsl_vector_min (V)); else return (NAN); }
+    inline double Vector::min () const                            { if (V) return (gsl_vector_min (V)); else return (GSL_NAN); }
     inline guint   Vector::min_index () const                     { if (V) return (gsl_vector_min_index (V)); else return (0); }
-    inline double Vector::max () const                            { if (V) return (gsl_vector_max (V)); else return (NAN); }
+    inline double Vector::max () const                            { if (V) return (gsl_vector_max (V)); else return (GSL_NAN); }
     inline guint   Vector::max_index () const                     { if (V) return (gsl_vector_max_index (V)); else return (0); }
     inline double Vector::magnitude () const                      { return (sqrt(norm2())); }
 

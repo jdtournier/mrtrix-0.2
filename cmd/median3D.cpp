@@ -73,7 +73,7 @@ EXECUTE {
           avg = (n+1)%2;
           n = (n/2)+1;
           nc = 0;
-          cm = -INFINITY;
+          cm = GSL_NEGINF;
 
           for (in.set(2,from[2]); in[2] < to[2]; in.inc(2)) {
             for (in.set(1,from[1]); in[1] < to[1]; in.inc(1)) {
@@ -87,7 +87,7 @@ EXECUTE {
                 else if (val < cm) {
                   for (i = 0; v[i] != cm; i++);
                   v[i] = val;
-                  cm = -INFINITY;
+                  cm = GSL_NEGINF;
                   for (i = 0; i < n; i++)
                     if (v[i] > cm) cm = v[i];
                 }
@@ -96,7 +96,7 @@ EXECUTE {
           }
 
           if (avg) {
-            t = cm = -INFINITY;
+            t = cm = GSL_NEGINF;
             for (i = 0; i < n; i++) {
               if (v[i] > cm) {
                 t = cm;

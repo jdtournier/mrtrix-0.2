@@ -128,9 +128,9 @@ namespace MR {
 
         // offset and scale:
         H.scale = get<float32> (&NH->scl_slope, is_BE);
-        if (finite(H.scale) && H.scale != 0.0) {
+        if (gsl_finite(H.scale) && H.scale != 0.0) {
           H.offset = get<float32> (&NH->scl_inter, is_BE);
-          H.offset = finite (H.offset) ? H.offset : 0.0;
+          H.offset = gsl_finite (H.offset) ? H.offset : 0.0;
         }
         else {
           H.scale = 1.0;

@@ -88,7 +88,7 @@ namespace MR {
     {
       values_changed = true;
       values = new_values;
-      l0_term = NAN;
+      l0_term = GSL_NAN;
       if (values.size()) 
         l0_term = values[0];
       set_normalise (normalise);

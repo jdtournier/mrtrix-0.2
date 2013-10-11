@@ -168,7 +168,7 @@ EXECUTE {
             if (gsl_finite (p.a)) {
               for (guint j = 0; j < all_peaks.size(); j++) {
                 if (fabs (p.v.dot (all_peaks[j].v)) > DOT_THRESHOLD) {
-                  p.a = NAN;
+                  p.a = GSL_NAN;
                   break;
                 }
               }

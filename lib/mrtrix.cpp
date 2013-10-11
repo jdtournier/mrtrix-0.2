@@ -82,7 +82,7 @@ namespace MR {
       stop = false;
       message = msg;
       if (target) multiplier = 100.0/((float) target);
-      else multiplier = NAN;
+      else multiplier = GSL_NAN;
       current_val = percent = 0;
       if (gsl_isnan (multiplier)) stop_watch.start();
       init_func ();

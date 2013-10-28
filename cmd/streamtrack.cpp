@@ -259,7 +259,7 @@ class Threader {
         max_num_attempts = to<guint> (properties["max_num_attempts"]);
 
       unidirectional = to<int> (properties["unidirectional"]);
-      min_size = round (to<float> (properties["min_dist"]) / to<float> (properties["step_size"]));
+      min_size = MR::round (to<float> (properties["min_dist"]) / to<float> (properties["step_size"]));
 
       writer.create (output_file, properties);
     }

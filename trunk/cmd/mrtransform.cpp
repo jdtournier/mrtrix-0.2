@@ -147,9 +147,9 @@ EXECUTE {
     opt = get_options (6); // upsample
     if (opt.size()) {
       float factor = opt[0][0].get_float();
-      header.axes.dim[0] = round (header.axes.dim[0] * factor);
-      header.axes.dim[1] = round (header.axes.dim[1] * factor);
-      header.axes.dim[2] = round (header.axes.dim[2] * factor);
+      header.axes.dim[0] = MR::round (header.axes.dim[0] * factor);
+      header.axes.dim[1] = MR::round (header.axes.dim[1] * factor);
+      header.axes.dim[2] = MR::round (header.axes.dim[2] * factor);
       header.axes.vox[0] /= factor;
       header.axes.vox[1] /= factor;
       header.axes.vox[2] /= factor;

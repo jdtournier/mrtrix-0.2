@@ -218,13 +218,10 @@ namespace MR {
       String str;
       guint n = seq_index.size()-1;
       for (guint i = 0; i < array.size(); i++) {
-        if (array[i].is_string()) str += array[i].string();
-        else { 
-          guint last = str.size();
-          str.resize (last + array[i].size() + 1);
-          g_sprintf (&str[last], "%*.*d", array[i].size(), array[i].size(), array[i].sequence()[indices[n]]);
-          n--; 
-        }
+        if (array[i].is_string()) 
+          str += array[i].string();
+        else 
+          str += printf ("%*.*d", array[i].size(), array[i].size(), array[i].sequence()[indices[n--]]);
       }
 
       return (Glib::build_filename (folder_name, str));

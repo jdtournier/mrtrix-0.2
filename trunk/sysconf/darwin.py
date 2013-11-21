@@ -9,11 +9,11 @@ cpp = [ 'clang++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
 cpp_flags = [ '-Wall', '-mtune=native', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES' ]
 
 ld = [ 'clang++', '$flags$', '$path$', '$obj$', '$mrtrix$', '$gsl$', '$gtk$', '$lz$', '-o', '$bin$' ]
-ld_flags = []
+ld_flags = [ '-Wl,-rpath,$ORIGIN/../lib ']
 ld_flags_lib_prefix = '-l'
 
 ld_lib = [ 'clang++', '-shared', '$flags$', '$obj$', '-o', '$lib$' ]
-ld_lib_flags = []
+ld_lib_flags = [ '-dynamiclib', '-install_name', '@rpath/LIBNAME' ]
 
 # look for MacPorts or FINK dependencies, and act accordingly if found:
 dep_dir = [ '/opt/local', '/sw64', '/sw' ]
@@ -31,6 +31,7 @@ ld_lib_flags_debug = ld_lib_flags + [ '-g' ]
 cpp_flags_profile = [ '-pg' ] + cpp_flags_debug
 ld_flags_profile = ld_flags_debug + [ '-pg' ]
 ld_lib_flags_profile = ld_lib_flags_debug + [ '-pg' ]
+
 
 cpp_flags += [ '-O2' ]
 

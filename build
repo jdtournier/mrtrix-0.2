@@ -181,6 +181,9 @@ if profile:
   ld_lib_flags = ld_lib_flags_profile
 
 
+# used to set install_name on MacOSX:
+ld_lib_flags = [ entry.replace ('LIBNAME', libname) for entry in ld_lib_flags ]
+
 
 # SVN revision number:
 svn_revision = '#define SVN_REVISION 0\n'
@@ -823,10 +826,11 @@ def sort_uninstall_list (uninstall_list):
       sorted_file_list[folder] = []
     sorted_file_list[folder].append (file)
  
-    [ folder, link ] = os.path.split (entry[1])
-    if folder not in sorted_link_list.keys():
-      sorted_link_list[folder] = []
-    sorted_link_list[folder].append (link)
+    if entry[1]:
+      [ folder, link ] = os.path.split (entry[1])
+      if folder not in sorted_link_list.keys():
+        sorted_link_list[folder] = []
+      sorted_link_list[folder].append (link)
  
   return [ sorted_file_list, sorted_link_list ]
     
@@ -884,15 +888,21 @@ if 'uninstall' in targets:
     item = add_to_uninstall_list (path, entry)
     if item: uninstall_list.append (item)
 
-  [ prefix, last ] = os.path.split (path)
+  [ symlink_prefix, last ] = os.path.split (path)
+  [ actual_prefix, last ] = os.path.split (os.path.dirname (uninstall_list[0][0]))
+
   if not last == 'bin':
     report ('ERROR: executables are expected to reside in a folder named "bin"' + os.linesep)
     exit (1)
 
-  for entry in os.listdir (os.path.join (prefix, 'lib')):
-    if entry == libname:
-      item = add_to_uninstall_list (os.path.join (prefix, 'lib'), entry)
-      if item: uninstall_list.append (item)
+  lib_path = None
+  if libname in os.listdir (os.path.join (symlink_prefix, 'lib')):
+    lib_path = os.path.join (symlink_prefix, 'lib')
+  elif libname in os.listdir (os.path.join (actual_prefix, 'lib')):
+    lib_path = os.path.join (os.path.join (actual_prefix, 'lib'))
+  if lib_path:
+    item = add_to_uninstall_list (lib_path, libname)
+    if item: uninstall_list.append (item)
 
   [ sorted_file_list, sorted_link_list ] = sort_uninstall_list (uninstall_list)
 
@@ -943,10 +953,8 @@ if installto is not None:
     if len (linkto) == 0:
       linkto = default_linkto
     link_bin = os.path.join (linkto, 'bin')
-    link_lib = os.path.join (linkto, 'lib')
-    report ('creating symbolic links to executables in "' + link_bin + '" and to dynamic library in "' + link_lib + '"... ')
+    report ('creating symbolic links to executables in "' + link_bin + '"... ')
     apply_recursive (create_link, dest_bin, link_bin)
-    apply_recursive (create_link, os.path.join (dest_lib, libname), os.path.join (link_lib, libname))
     report ('ok' + os.linesep)
 
   if not os.path.exists (configfile):

@@ -93,7 +93,8 @@ namespace MR {
 
     Pane::Pane () : 
       FOV (GSL_NAN),
-      gl_area (*this) 
+      gl_area (*this),
+      prev_FOV (GSL_NAN)
     { 
       set_mode (0);
       set_shadow_type (Gtk::SHADOW_IN); 

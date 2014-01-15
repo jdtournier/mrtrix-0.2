@@ -9,7 +9,7 @@ cpp = [ 'clang++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
 cpp_flags = [ '-Wall', '-mtune=native', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES' ]
 
 ld = [ 'clang++', '$flags$', '$path$', '$obj$', '$mrtrix$', '$gsl$', '$gtk$', '$lz$', '-o', '$bin$' ]
-ld_flags = [ '-Wl,-rpath,$ORIGIN/../lib ']
+ld_flags = [ '-Wl,-rpath,@loader_path/../lib ']
 ld_flags_lib_prefix = '-l'
 
 ld_lib = [ 'clang++', '-shared', '$flags$', '$obj$', '-o', '$lib$' ]

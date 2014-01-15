@@ -8,6 +8,7 @@ lib_suffix = '.dylib'
 cpp = [ 'clang++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
 cpp_flags = [ '-Wall', '-mtune=native', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES' ]
 
+ld_use_shell = True
 ld = [ 'clang++', '$flags$', '$path$', '$obj$', '$mrtrix$', '$gsl$', '$gtk$', '$lz$', '-o', '$bin$' ]
 ld_flags = [ '-Wl,-rpath,@loader_path/../lib ']
 ld_flags_lib_prefix = '-l'

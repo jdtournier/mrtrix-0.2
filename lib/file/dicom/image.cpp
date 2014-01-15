@@ -459,7 +459,7 @@ namespace MR {
 
           if (G(n,3)) {
             float norm = Math::magnitude (frame.G);
-            G(n,3) *= norm;
+            G(n,3) *= norm*norm;
             if (norm) {
               float d[] = { frame.G[0]/norm, frame.G[1]/norm, frame.G[2]/norm };
               if (rotate_DW_scheme) {

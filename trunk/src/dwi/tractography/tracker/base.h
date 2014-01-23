@@ -133,10 +133,20 @@ namespace MR {
                 Point seed (Math::RNG& rng)
                 {
                   Point p;
+                  float val;
                   do {
                     p.set (lower[0]+rng.uniform()*(upper[0]-lower[0]), lower[1]+rng.uniform()*(upper[1]-lower[1]), lower[2]+rng.uniform()*(upper[2]-lower[2]));
-                    i.P (p);
-                  } while (i.value() < 0.5);
+                    if (no_interp) {
+                      i.set (0, int(p[0]+0.5));
+                      i.set (1, int(p[1]+0.5));
+                      i.set (2, int(p[2]+0.5));
+                      val = i.Image::Position::value();
+                    }
+                    else {
+                      i.P (p);
+                      val = i.value();
+                    }
+                  } while (val < 0.5);
                   return (i.P2R (p));
                 }
 

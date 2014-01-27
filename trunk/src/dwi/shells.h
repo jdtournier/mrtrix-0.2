@@ -187,7 +187,7 @@ namespace MR
 
       friend std::ostream& operator <<(std::ostream& stream, const Shells& S)
       {
-        for(typename std::vector<Shell>::const_iterator it = S.shells.begin(); it != S.shells.end(); ++it) {
+        for (std::vector<Shell>::const_iterator it = S.shells.begin(); it != S.shells.end(); ++it) {
           stream << *it << std::endl;
         }
         return stream;

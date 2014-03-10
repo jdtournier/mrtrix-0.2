@@ -24,6 +24,7 @@
 
 */
 
+#include <glib.h>
 #include "file/dicom/image.h"
 #include "file/dicom/series.h"
 #include "file/dicom/study.h"

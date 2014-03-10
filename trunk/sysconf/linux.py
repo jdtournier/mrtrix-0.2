@@ -1,4 +1,5 @@
 from sysconf.common import *
+import shlex
 
 obj_suffix = '.o'
 exe_suffix = ''
@@ -27,8 +28,8 @@ ld_lib_flags = []
 
 if 'LDFLAGS' in os.environ.keys(): 
   env_flags = shlex.split (os.environ['LDFLAGS'])
-  ld_flags.extend (env_flags)
-  ld_lib_flags.extend (env_flags)
+  ld_flags += env_flags
+  ld_lib_flags += env_flags
 
 cpp_flags_debug = cpp_flags + [ '-g' ]
 ld_flags_debug = ld_flags + [ '-g' ]

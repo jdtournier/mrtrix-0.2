@@ -52,8 +52,8 @@ namespace MR {
                   if (series_date != (*this)[n]->date) match = false;
               }
               if (match) {
-                if (series_time.size() && (*this)[n]->time.size()) 
-                  if (series_time != (*this)[n]->time) match = false;
+                if (to<gfloat> (series_time) != to<gfloat> ((*this)[n]->time)) 
+                  match = false;
               }
               if (match) return ((*this)[n]);
             }

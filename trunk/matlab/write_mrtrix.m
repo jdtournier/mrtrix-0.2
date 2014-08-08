@@ -28,8 +28,8 @@ fprintf (fid, ',%d', dim(2:end));
 
 fprintf (fid, '\nvox: ');
 if isstruct (image) && isfield (image, 'vox')
-  fprintf (fid, '%f', image.vox(1));
-  fprintf (fid, ',%f', image.vox(2:end)); 
+  fprintf (fid, '%.3f', image.vox(1));
+  fprintf (fid, ',%.3f', image.vox(2:end)); 
 else
   fprintf(fid, '2');
   fprintf(fid, ',%d', 2*ones(1,size(dim,2)-1));
@@ -75,25 +75,25 @@ end
 fprintf (fid, [ '\ndatatype: ' datatype ]);
 
 if isstruct (image) && isfield (image, 'comments')
-  for i=1:numel(image.comments{:})
+  for i=1:numel(image.comments)
     fprintf (fid, '\ncomments: %s', image.comments{i});
   end
 end
 
 if isstruct (image) && isfield (image, 'transform')
-  fprintf (fid, '\ntransform: %d', image.transform(1,1));
-  fprintf (fid, ',%d', image.transform(1,2:4));
-  fprintf (fid, '\ntransform: %d', image.transform(2,1));
-  fprintf (fid, ',%d', image.transform(2,2:4));
-  fprintf (fid, '\ntransform: %d', image.transform(3,1));
-  fprintf (fid, ',%d', image.transform(3,2:4));
+  fprintf (fid, '\ntransform: %.6f', image.transform(1,1));
+  fprintf (fid, ',%.6f', image.transform(1,2:4));
+  fprintf (fid, '\ntransform: %6f', image.transform(2,1));
+  fprintf (fid, ',%.6f', image.transform(2,2:4));
+  fprintf (fid, '\ntransform: %.6f', image.transform(3,1));
+  fprintf (fid, ',%.6f', image.transform(3,2:4));
 end
 
 if isstruct (image) && isfield (image, 'DW_scheme')
   for i=1:size(image.DW_scheme,1)
-    fprintf (fid, '\nDW_scheme: %d', image.DW_scheme(i,1));
-    fprintf (fid, ',%d', image.DW_scheme(i,2:4));
-  end
+    fprintf (fid, '\nDW_scheme: %.6f', image.DW_scheme(i,1));
+    fprintf (fid, ',%.6f', image.DW_scheme(i,2:4));
+   end
 end
 
 if filename(end-3:end) == '.mif'

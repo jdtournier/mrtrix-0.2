@@ -75,7 +75,7 @@ end
 fprintf (fid, [ '\ndatatype: ' datatype ]);
 
 if isstruct (image) && isfield (image, 'comments')
-  for i=1:numel(image.comments)
+  for i=1:numel(image.comments{:})
     fprintf (fid, '\ncomments: %s', image.comments{i});
   end
 end

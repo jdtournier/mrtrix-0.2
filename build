@@ -221,13 +221,13 @@ except:
 
 
 
-def SVN_last_changed (filename):
+def git_last_changed (filename):
   try:
-    process = subprocess.Popen ([ 'svn', 'info', filename ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    process = subprocess.Popen ([ 'git', 'log', '--pretty=format:%ad', '--date=short', 
+      '-n', '1', 'master', '--',filename ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if process.wait() != 0: raise 0
     for line in process.stdout:
-      if line.startswith ('Text Last Updated:'):
-        return line.split(':')[1].split()[0].strip() 
+      return as_str(line)
   except:
     return None
 
@@ -718,9 +718,9 @@ def gen_doc ():
       if entry[0] == '.': continue
       if not entry.endswith ('.html'): continue
       fname = os.path.join (root, entry)
-      timestamp = SVN_last_changed (os.path.join (misc_dir, fname))
+      timestamp = git_last_changed (os.path.join (misc_dir, fname))
       if not timestamp:
-        timestamp = SVN_last_changed (os.path.join (cmd_dir, entry.replace (".html", cpp_suffix)))
+        timestamp = git_last_changed (os.path.join (cmd_dir, entry.replace (".html", cpp_suffix)))
       if not timestamp:
         timestamp = '-'
       with fopen(fname, 'r') as fd:

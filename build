@@ -711,6 +711,7 @@ MRtrix version #VERSION#<br>
 def gen_doc ():
   shutil.rmtree (doc_dir, True)
   shutil.copytree (os.path.join (misc_dir, doc_dir), doc_dir)
+  os.makedirs (os.path.join (doc_dir, 'commands'));
   gen_command_html_help()
   for root, dirs, files in os.walk (doc_dir):
     for entry in files:

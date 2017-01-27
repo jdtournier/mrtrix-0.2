@@ -34,6 +34,7 @@
 
 */
 
+#include <cstdlib>
 #include <gsl/gsl_sf_legendre.h>
 #include "image/position.h"
 #include "image/interp.h"

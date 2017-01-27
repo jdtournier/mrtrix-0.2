@@ -60,4 +60,14 @@ table.cmdindex { border-collapse: collapse; }
 table.cmdindex th { padding-left: 2em; padding-right: 2em; }
 table.cmdindex td { vertical-align: top; padding-left: 2em; padding-right: 2em; padding-top: 5pt; padding-bottom: 5pt; }
 
+blockquote.redirect { 
+  background: #f0f0f0; 
+  border: solid 1px #a0a0a0; 
+  padding: 1em; 
+  margin-top: 1em; 
+  margin-bottom: 1em;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%; 
+}
 

@@ -127,9 +127,9 @@ class Voxel
       z (_z_) { }
 
     Voxel (const Point& p) :
-      x (round (p[0])),
-      y (round (p[1])),
-      z (round (p[2]))
+      x (std::round (p[0])),
+      y (std::round (p[1])),
+      z (std::round (p[2]))
     { 
       assert (gsl_finite (p[0]) && gsl_finite (p[1]) && gsl_finite (p[2]));
     }

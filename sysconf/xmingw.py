@@ -6,7 +6,7 @@ lib_prefix = ''
 lib_suffix = '.dll'
 
 cpp = [ 'i586-mingw32msvc-g++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
-cpp_flags = [ '-Wall', '-march=i686', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-mno-cygwin', '-mms-bitfields' ]
+cpp_flags = [ '-std=c++11', '-Wall', '-march=i686', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-mno-cygwin', '-mms-bitfields' ]
 windres = [ 'i586-mingw32msvc-windres' ]
 
 ld_use_shell = True

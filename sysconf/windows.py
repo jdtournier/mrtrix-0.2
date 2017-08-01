@@ -6,7 +6,7 @@ lib_prefix = ''
 lib_suffix = '.dll'
 
 cpp = [ 'g++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
-cpp_flags = [ '-Wall', '-march=i686', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1' ]
+cpp_flags = [ '-std=c++11', '-Wall', '-march=i686', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1' ]
 
 windres = [ 'windres' ]
 

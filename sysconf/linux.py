@@ -7,7 +7,7 @@ lib_prefix = 'lib'
 lib_suffix = '.so'
 
 cpp = [ 'g++', '-c', '$flags$', '$gtk$', '$path$', '$src$', '-o', '$obj$' ]
-cpp_flags = [ '-Wall', '-pedantic', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1', '-I/usr/local/include' ]
+cpp_flags = [ '-std=c++11', '-Wall', '-pedantic', '-fPIC', '-fno-strict-aliasing', '-DGL_GLEXT_PROTOTYPES', '-DUSE_TR1', '-I/usr/local/include' ]
 # set CPP_MARCH environment variable to override -march=native option
 # set to empty string to remove option altogether
 if 'CPP_MARCH' in os.environ.keys():

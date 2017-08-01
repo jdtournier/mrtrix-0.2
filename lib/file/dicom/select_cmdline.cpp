@@ -115,7 +115,7 @@ namespace MR {
           while (series.size() == 0) {
             fprintf (stderr, "Select series ('q' to abort):\n");
             for (guint i = 0; i < study.size(); i++) {
-              fprintf (stderr, "  %2u - %4"G_GSIZE_FORMAT" %s images %8s %s (%s) [%u]\n", 
+              fprintf (stderr, "  %2u - %4" G_GSIZE_FORMAT " %s images %8s %s (%s) [%u]\n", 
                   i,
                   study[i]->size(), 
                   ( study[i]->modality.size() ? study[i]->modality.c_str() : "" ), 
